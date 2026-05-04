@@ -2,7 +2,7 @@ import MapboxGL from '@rnmapbox/maps';
 import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
 import { Text } from '@/craftrn-ui/components/Text';
 import { Stack } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Pressable, Text as RNText, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { useUnistyles } from 'react-native-unistyles';
