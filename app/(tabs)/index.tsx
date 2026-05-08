@@ -2,17 +2,19 @@ import MapboxGL from '@rnmapbox/maps';
 import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
 import { Text } from '@/craftrn-ui/components/Text';
 import { Stack } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Pressable, Text as RNText, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { useUnistyles } from 'react-native-unistyles';
+import SharedHeader from '@/components/SharedHeader/SharedHeader';
 import {
   CATEGORY_COLORS,
   DEFAULT_NEIGHBORHOOD_CENTER,
   MAPBOX_ACCESS_TOKEN,
 } from '@/constants/map';
 
-MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
+// If no token is provided, we render a lightweight demo map instead of Mapbox.
+const HAS_MAPBOX = Boolean(MAPBOX_ACCESS_TOKEN && MAPBOX_ACCESS_TOKEN.length > 0);
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -60,10 +62,63 @@ const MOCK_PINS: Pin[] = [
   },
 ];
 
+function DemoMap({
+  pins,
+  center,
+  onPinPress,
+  selectedPinId,
+}: {
+  pins: Pin[];
+  center: { latitude: number; longitude: number };
+  onPinPress: (p: Pin) => void;
+  selectedPinId?: string | null;
+}) {
+  // Simple, non-geospatial demo mapping from lat/lng to pixels for demo purposes.
+  // This keeps the UI functional without a Mapbox token.
+  const mapWidth = SCREEN_WIDTH;
+  const mapHeight = SCREEN_HEIGHT;
+  const DEMO_SCALE = 50000; // pixels per degree (heuristic for demo)
+
+  return (
+    <View style={[styles.map, { backgroundColor: '#F7F6F3' }]}>
+      {pins.map(pin => {
+        const dx = (pin.longitude - center.longitude) * DEMO_SCALE;
+        const dy = (pin.latitude - center.latitude) * DEMO_SCALE;
+        const x = mapWidth / 2 + dx;
+        const y = mapHeight / 2 - dy; // invert lat for screen Y
+        const isSelected = selectedPinId === pin.id;
+
+        return (
+          <Pressable
+            key={pin.id}
+            onPress={() => onPinPress(pin)}
+            style={{ position: 'absolute', left: x - 26, top: y - 26 }}
+          >
+            <View style={[styles.pinCircle, { backgroundColor: CATEGORY_COLORS[pin.category] }]}>
+              <RNText style={styles.pinLetter}>{pin.category}</RNText>
+            </View>
+
+            <View style={[styles.pinAvatar, isSelected && { transform: [{ scale: 1.4 }] }]}>
+              <RNText style={styles.pinAvatarText}>{pin.creator.initials}</RNText>
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 export default function MapScreen() {
   const { theme } = useUnistyles();
-  const cameraRef = useRef<MapboxGL.Camera>(null);
-  const mapRef = useRef<MapboxGL.MapView>(null);
+  const cameraRef = useRef<any>(null);
+  const mapRef = useRef<any>(null);
+
+  // Set Mapbox token at runtime only if present.
+  useEffect(() => {
+    if (HAS_MAPBOX && MapboxGL && MapboxGL.setAccessToken) {
+      MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
+    }
+  }, []);
 
   const [pins] = useState<Pin[]>(MOCK_PINS);
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
@@ -74,77 +129,91 @@ export default function MapScreen() {
   const expandedHeight = useMemo(() => SCREEN_HEIGHT * 0.74, []);
 
   useEffect(() => {
-    // If there's a selected pin, open the bottom sheet collapsed first
     if (selectedPin) {
       setSheetVisible(true);
       setSheetExpanded(false);
+
+      // If Mapbox is available, center camera on selected pin for better context.
+      if (HAS_MAPBOX && cameraRef.current && typeof cameraRef.current.setCamera === 'function') {
+        cameraRef.current.setCamera({
+          centerCoordinate: [selectedPin.longitude, selectedPin.latitude],
+          zoomLevel: 16,
+          animationDuration: 400,
+        });
+      }
     }
   }, [selectedPin]);
 
   function centerOnUser() {
-    // For the MVP, center on the neighborhood default (or user location if available)
-    cameraRef.current?.setCamera({
-      centerCoordinate: [DEFAULT_NEIGHBORHOOD_CENTER.longitude, DEFAULT_NEIGHBORHOOD_CENTER.latitude],
-      zoomLevel: 15,
-      animationDuration: 700,
-    });
+    if (HAS_MAPBOX && cameraRef.current && typeof cameraRef.current.setCamera === 'function') {
+      cameraRef.current.setCamera({
+        centerCoordinate: [DEFAULT_NEIGHBORHOOD_CENTER.longitude, DEFAULT_NEIGHBORHOOD_CENTER.latitude],
+        zoomLevel: 15,
+        animationDuration: 700,
+      });
+      return;
+    }
+
+    // Demo fallback: noop (could animate pins or show toast)
   }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.baseLight }]}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Map */}
-      <MapboxGL.MapView
-        ref={mapRef}
-        style={styles.map}
-        styleURL={MapboxGL.StyleURL.Street}
-        logoEnabled={false}
-        compassEnabled={false}
-      >
-        <MapboxGL.Camera
-          ref={cameraRef}
-          centerCoordinate={[DEFAULT_NEIGHBORHOOD_CENTER.longitude, DEFAULT_NEIGHBORHOOD_CENTER.latitude]}
-          zoomLevel={15}
+      {/* Shared Header (overlay) */}
+      <SharedHeader overlay />
+
+      {/* Map or demo fallback when Mapbox token is missing */}
+      {HAS_MAPBOX ? (
+        <MapboxGL.MapView
+          ref={mapRef}
+          style={styles.map}
+          styleURL={MapboxGL.StyleURL.Street}
+          logoEnabled={false}
+          compassEnabled={false}
+        >
+          <MapboxGL.Camera
+            ref={cameraRef}
+            centerCoordinate={[DEFAULT_NEIGHBORHOOD_CENTER.longitude, DEFAULT_NEIGHBORHOOD_CENTER.latitude]}
+            zoomLevel={15}
+          />
+
+          {/* Pins */}
+          {pins.map(pin => (
+            <MapboxGL.PointAnnotation
+              key={pin.id}
+              id={pin.id}
+              coordinate={[pin.longitude, pin.latitude]}
+              onSelected={() => setSelectedPin(pin)}
+            >
+              <View style={styles.markerWrapper}>
+                <View
+                  style={[
+                    styles.pinCircle,
+                    {
+                      backgroundColor: CATEGORY_COLORS[pin.category] ?? '#C04A2A',
+                    },
+                  ]}
+                >
+                  <RNText style={styles.pinLetter}>{pin.category}</RNText>
+                </View>
+
+                <View style={styles.pinAvatar}>
+                  <RNText style={styles.pinAvatarText}>{pin.creator.initials}</RNText>
+                </View>
+              </View>
+            </MapboxGL.PointAnnotation>
+          ))}
+        </MapboxGL.MapView>
+      ) : (
+        <DemoMap
+          pins={pins}
+          center={DEFAULT_NEIGHBORHOOD_CENTER}
+          onPinPress={p => setSelectedPin(p)}
+          selectedPinId={selectedPin?.id ?? null}
         />
-
-        {/* Pins */}
-        {pins.map(pin => (
-          <MapboxGL.PointAnnotation
-            key={pin.id}
-            id={pin.id}
-            coordinate={[pin.longitude, pin.latitude]}
-            onSelected={() => setSelectedPin(pin)}
-          >
-            <View style={styles.markerWrapper}>
-              <View
-                style={[
-                  styles.pinCircle,
-                  {
-                    backgroundColor: CATEGORY_COLORS[pin.category] ?? '#C04A2A',
-                  },
-                ]}
-              >
-                <RNText style={styles.pinLetter}>{pin.category}</RNText>
-              </View>
-
-              <View style={styles.pinAvatar}>
-                <RNText style={styles.pinAvatarText}>{pin.creator.initials}</RNText>
-              </View>
-            </View>
-          </MapboxGL.PointAnnotation>
-        ))}
-      </MapboxGL.MapView>
-
-      {/* Top-left search field (minimal) */}
-      <Pressable style={[styles.searchBox, { left: 12, top: 48 }]} onPress={() => { }}>
-        <RNText style={[styles.searchText, { color: theme.colors.contentSecondary }]}>Search places & creators</RNText>
-      </Pressable>
-
-      {/* Top-right filters */}
-      <Pressable style={[styles.filterButton, { right: 12, top: 48 }]} onPress={() => { }}>
-        <RNText style={{ color: theme.colors.contentPrimary }}>Filters</RNText>
-      </Pressable>
+      )}
 
       {/* My-location floating button */}
       <Pressable

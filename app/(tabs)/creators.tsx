@@ -3,12 +3,16 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/craftrn-ui/components/Text';
 import { StyleSheet } from 'react-native-unistyles';
+import SharedHeader from '@/components/SharedHeader/SharedHeader';
 
 export default function CreatorsScreen() {
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Creators' }} />
-      <Text variant="heading3">Creators — Browse & follow creators</Text>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SharedHeader />
+      <Text variant="heading3" style={{ marginTop: 16 }}>
+        Creators — Browse & follow creators
+      </Text>
     </View>
   );
 }

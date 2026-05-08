@@ -3,12 +3,17 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/craftrn-ui/components/Text';
 import { StyleSheet } from 'react-native-unistyles';
+import SharedHeader from '@/components/SharedHeader/SharedHeader';
 
 export default function ProfileScreen() {
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Profile' }} />
-      <Text variant="heading3">Profile — Account & creator tools</Text>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SharedHeader />
+
+      <Text variant="heading3" style={{ marginTop: 16 }}>
+        Profile — Account & creator tools
+      </Text>
     </View>
   );
 }
