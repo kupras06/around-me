@@ -1,10 +1,5 @@
 import { StyleSheet } from 'react-native-unistyles';
-import {
-  darkOrangeTheme,
-  darkTealTheme,
-  lightOrangeTheme,
-  lightTealTheme,
-} from './config';
+import { darkOrangeTheme, darkTealTheme, lightOrangeTheme, lightTealTheme } from './config';
 
 type AppThemes = {
   lightTeal: typeof lightTealTheme;
@@ -29,4 +24,3 @@ StyleSheet.configure({
     initialTheme: 'lightTeal',
   },
 });
-

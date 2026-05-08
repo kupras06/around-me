@@ -29,71 +29,69 @@ export type Props = {
   itemRight?: React.ReactNode;
 };
 
-export const InputSearch = forwardRef<TextInput, Props & TextInputProps>(
-  function InputSearch(
-    { onPress, onFocus, onBlur, value, itemLeft, itemRight, ...props },
-    ref,
-  ) {
-    const { theme } = useUnistyles();
-    const [isFocused, setIsFocused] = useState(false);
-    const isActive = isFocused || !!value;
-    const isReadOnly = !props.editable && !!props.readOnly;
-    const inputRef = useRef<TextInput>(null);
+export const InputSearch = forwardRef<TextInput, Props & TextInputProps>(function InputSearch(
+  { onPress, onFocus, onBlur, value, itemLeft, itemRight, ...props },
+  ref,
+) {
+  const { theme } = useUnistyles();
+  const [isFocused, setIsFocused] = useState(false);
+  const isActive = isFocused || !!value;
+  const isReadOnly = !props.editable && !!props.readOnly;
+  const inputRef = useRef<TextInput>(null);
 
-    const handlePress = useCallback(() => {
-      inputRef.current?.focus();
-      onPress?.();
-    }, [onPress]);
+  const handlePress = useCallback(() => {
+    inputRef.current?.focus();
+    onPress?.();
+  }, [onPress]);
 
-    const handleFocus = useCallback(
-      (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-        setIsFocused(true);
-        onFocus?.(e);
-      },
-      [onFocus],
-    );
+  const handleFocus = useCallback(
+    (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+      setIsFocused(true);
+      onFocus?.(e);
+    },
+    [onFocus],
+  );
 
-    const handleBlur = useCallback(
-      (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-        setIsFocused(false);
-        onBlur?.(e);
-      },
-      [onBlur],
-    );
+  const handleBlur = useCallback(
+    (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+      setIsFocused(false);
+      onBlur?.(e);
+    },
+    [onBlur],
+  );
 
-    return (
-      <Pressable
-        onPress={handlePress}
-        style={styles.container}
-        accessible={!!onPress}
-        role={!!onPress ? 'button' : undefined}
+  return (
+    <Pressable
+      onPress={handlePress}
+      style={styles.container}
+      accessible={!!onPress}
+      role={!!onPress ? 'button' : undefined}
+    >
+      <View
+        style={styles.inputContainer({
+          active: isActive,
+        })}
       >
-        <View
-          style={styles.inputContainer({
-            active: isActive,
-          })}
-        >
-          {itemLeft}
-          <TextInput
-            style={styles.textInput({ readOnly: isReadOnly })}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            value={value}
-            ref={ref}
-            placeholderTextColor={theme.colors.contentTertiary}
-            selectionColor={theme.colors.contentAccentSecondary}
-            textAlignVertical="center"
-            role="searchbox"
-            {...props}
-          />
-          {itemRight}
-        </View>
-      </Pressable>
-    );
-  },
-);
+        {itemLeft}
+        <TextInput
+          style={styles.textInput({ readOnly: isReadOnly })}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          value={value}
+          ref={ref}
+          placeholderTextColor={theme.colors.contentTertiary}
+          selectionColor={theme.colors.contentAccentSecondary}
+          textAlignVertical="center"
+          role="searchbox"
+          {...props}
+        />
+        {itemRight}
+      </View>
+    </Pressable>
+  );
+});
 
-const styles = StyleSheet.create(theme => {
+const styles = StyleSheet.create((theme) => {
   return {
     container: {
       width: '100%',

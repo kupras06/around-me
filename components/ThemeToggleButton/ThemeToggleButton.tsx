@@ -1,12 +1,9 @@
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/hooks/useTheme';
 import {
   ButtonRound,
   type Props as ButtonRoundProps,
 } from '@/craftrn-ui/components/ButtonRound/ButtonRound';
-import {
-  ContextMenu,
-  ContextMenuElement,
-} from '@/craftrn-ui/components/ContextMenu/ContextMenu';
+import { ContextMenu, ContextMenuElement } from '@/craftrn-ui/components/ContextMenu/ContextMenu';
 import { MoonIcon } from '@/icons/MoonIcon';
 import { SunIcon } from '@/icons/SunIcon';
 import { Brush } from '@/tetrisly-icons/Brush';
@@ -23,9 +20,7 @@ const ColorCircle = ({ color }: { color: string }) => (
   <View style={[styles.colorCircle, { backgroundColor: color }]} />
 );
 
-export const ThemeToggleButton = ({
-  variant = 'neutral',
-}: ThemeToggleButtonProps) => {
+export const ThemeToggleButton = ({ variant = 'neutral' }: ThemeToggleButtonProps) => {
   const { setMode, setColor, mode, color } = useTheme();
   const { theme } = useUnistyles();
 
@@ -83,22 +78,20 @@ export const ThemeToggleButton = ({
     <ContextMenu
       items={menuItems}
       menuAnchorPosition="bottom-right"
-      trigger={onPress => (
+      trigger={(onPress) => (
         <ButtonRound
           onPress={onPress}
           accessibilityLabel="Change theme"
           animationConfig={{ scaleIn: 1.1 }}
           variant={variant}
-          renderContent={({ iconSize, iconColor }) => (
-            <Brush size={iconSize} color={iconColor} />
-          )}
+          renderContent={({ iconSize, iconColor }) => <Brush size={iconSize} color={iconColor} />}
         />
       )}
     />
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   colorCircle: {
     width: 20,
     height: 20,

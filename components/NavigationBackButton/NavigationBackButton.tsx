@@ -4,9 +4,7 @@ import React, { ComponentProps } from 'react';
 import { Platform, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-export const NavigationBackButton = (
-  props: Partial<ComponentProps<typeof ButtonRound>>,
-) => {
+export const NavigationBackButton = (props: Partial<ComponentProps<typeof ButtonRound>>) => {
   return (
     <View style={styles.container}>
       <ButtonRound
@@ -20,9 +18,8 @@ export const NavigationBackButton = (
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
-    marginRight:
-      Platform.OS === 'ios' ? theme.spacing.xsmall : theme.spacing.medium,
+    marginRight: Platform.OS === 'ios' ? theme.spacing.xsmall : theme.spacing.medium,
   },
 }));

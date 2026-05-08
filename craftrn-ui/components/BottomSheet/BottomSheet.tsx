@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AccessibilityInfo,
   AccessibilityProps,
@@ -15,11 +9,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
   runOnJS,
@@ -122,8 +112,7 @@ export const BottomSheet = ({
   const [isScreenReaderEnabled, setIsScreenReaderEnabled] = useState(false);
   const { height: windowHeight } = useWindowDimensions();
   const { theme } = useUnistyles();
-  const { height: keyboardHeight, progress: keyboardProgress } =
-    useReanimatedKeyboardAnimation();
+  const { height: keyboardHeight, progress: keyboardProgress } = useReanimatedKeyboardAnimation();
   const translateY = useSharedValue(windowHeight);
   const overlayOpacity = useSharedValue(0);
   const startY = useSharedValue(0);
@@ -141,7 +130,7 @@ export const BottomSheet = ({
   }, [visible]);
 
   useEffect(() => {
-    AccessibilityInfo.isScreenReaderEnabled().then(enabled => {
+    AccessibilityInfo.isScreenReaderEnabled().then((enabled) => {
       setIsScreenReaderEnabled(enabled);
     });
   }, []);
@@ -183,7 +172,7 @@ export const BottomSheet = ({
       startY.value = translateY.value;
       gestureActive.value = true;
     })
-    .onUpdate(event => {
+    .onUpdate((event) => {
       const newTranslateY = startY.value + event.translationY;
       if (newTranslateY >= 0) {
         translateY.value = newTranslateY;
@@ -193,12 +182,11 @@ export const BottomSheet = ({
         );
       }
     })
-    .onEnd(event => {
+    .onEnd((event) => {
       gestureActive.value = false;
 
       // Check if should close by velocity or distance
-      const shouldClose =
-        event.velocityY > 500 || event.translationY > closeGestureThreshold;
+      const shouldClose = event.velocityY > 500 || event.translationY > closeGestureThreshold;
 
       if (shouldClose) {
         // Use spring with high damping to avoid bounce, but respect velocity
@@ -225,9 +213,7 @@ export const BottomSheet = ({
     const insetOffset = keyboardProgress.value * bottomInset.value;
     const offset = keyboardOffset + insetOffset;
     return {
-      transform: [
-        { translateY: translateY.value + offset },
-      ],
+      transform: [{ translateY: translateY.value + offset }],
     };
   });
 
@@ -258,11 +244,7 @@ export const BottomSheet = ({
         <GestureDetector gesture={gesture}>
           <View style={styles.container}>
             <Animated.View
-              style={[
-                styles.overlay,
-                StyleSheet.absoluteFillObject,
-                overlayAnimatedStyle,
-              ]}
+              style={[styles.overlay, StyleSheet.absoluteFillObject, overlayAnimatedStyle]}
             >
               <TouchableWithoutFeedback
                 onPress={enableOverlayTapToClose ? onRequestClose : undefined}
@@ -293,19 +275,17 @@ export const BottomSheet = ({
                 )}
                 {React.isValidElement(children)
                   ? React.cloneElement(children, {
-                    style: [
-                      (
-                        children.props as unknown as {
-                          style?: unknown;
-                        }
-                      ).style,
-                      {
-                        paddingTop: showHandleBar
-                          ? theme.spacing.xlarge
-                          : theme.spacing.large,
-                      },
-                    ],
-                  } as Partial<unknown>)
+                      style: [
+                        (
+                          children.props as unknown as {
+                            style?: unknown;
+                          }
+                        ).style,
+                        {
+                          paddingTop: showHandleBar ? theme.spacing.xlarge : theme.spacing.large,
+                        },
+                      ],
+                    } as Partial<unknown>)
                   : children}
               </View>
             </Animated.View>
@@ -316,7 +296,7 @@ export const BottomSheet = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
   },

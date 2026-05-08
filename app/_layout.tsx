@@ -1,4 +1,4 @@
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import { AppStateEffects } from '@/components/AppStateEffects/AppStateEffects';
 import '@/craftrn-ui/themes/unistyles';
 import {
   DarkTheme,
@@ -10,9 +10,13 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Provider as ReduxProvider } from 'react-redux';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import 'react-native-reanimated';
+
+import { useTheme } from '@/hooks/useTheme';
+import { store } from '@/store';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -49,9 +53,10 @@ export default function RootLayout() {
   return (
     <KeyboardProvider>
       <GestureHandlerRootView>
-        <ThemeProvider>
+        <ReduxProvider store={store}>
+          <AppStateEffects />
           <AppContent />
-        </ThemeProvider>
+        </ReduxProvider>
       </GestureHandlerRootView>
     </KeyboardProvider>
   );

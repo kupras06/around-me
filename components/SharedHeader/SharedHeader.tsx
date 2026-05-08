@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { StyleSheet, UnistylesRuntime, } from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 import { Text } from '@/craftrn-ui/components/Text';
 import { ButtonRound } from '@/craftrn-ui/components/ButtonRound/ButtonRound';
 import { Search } from '@/tetrisly-icons/Search';
@@ -27,7 +27,12 @@ export default function SharedHeader({ overlay = false, title }: Props) {
 
   const known = ['index', 'saved', 'creators', 'profile'];
   const current =
-    title || (segments.slice().reverse().find(s => known.includes(s)) as string) || 'index';
+    title ||
+    (segments
+      .slice()
+      .reverse()
+      .find((s) => known.includes(s)) as string) ||
+    'index';
 
   const pageTitle =
     current === 'index' ? 'Map' : current.charAt(0).toUpperCase() + current.slice(1);
@@ -52,16 +57,16 @@ export default function SharedHeader({ overlay = false, title }: Props) {
       </View>
 
       <View style={styles.titleWrapper}>
-        <Text variant="heading3" style={styles.titleText}>{pageTitle}</Text>
+        <Text variant="heading3" style={styles.titleText}>
+          {pageTitle}
+        </Text>
       </View>
 
       <View style={styles.side}>
         <ButtonRound
           onPress={() => router.push('/search')}
           variant="neutral"
-          renderContent={({ iconSize, iconColor }) => (
-            <Search color={iconColor} size={iconSize} />
-          )}
+          renderContent={({ iconSize, iconColor }) => <Search color={iconColor} size={iconSize} />}
           accessibilityLabel="Search"
         />
       </View>
@@ -89,7 +94,7 @@ const styles = StyleSheet.create((theme) => ({
     left: theme.spacing.large,
     right: theme.spacing.large,
     bottom: 0,
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
   },
   side: {
     width: 44,

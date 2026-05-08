@@ -1,10 +1,6 @@
 import React, { useEffect } from 'react';
 import { AccessibilityProps } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { PressableScale, type AnimationConfig } from '../PressableScale';
 
@@ -65,9 +61,7 @@ export const Radio = ({
   }));
 
   const dotAnimatedStyle = useAnimatedStyle(() => {
-    const size =
-      appearance.value * (sizeConfig.dot - sizeConfig.container) +
-      sizeConfig.container;
+    const size = appearance.value * (sizeConfig.dot - sizeConfig.container) + sizeConfig.container;
 
     return {
       width: size,
@@ -85,9 +79,7 @@ export const Radio = ({
       animationConfig={animationConfig}
       {...accessibilityProps}
     >
-      <Animated.View
-        style={[styles.container, disabled && styles.containerDisabled]}
-      >
+      <Animated.View style={[styles.container, disabled && styles.containerDisabled]}>
         <Animated.View style={[styles.checked, checkedAnimatedStyle]}>
           <Animated.View style={[styles.dot, dotAnimatedStyle]} />
         </Animated.View>
@@ -96,7 +88,7 @@ export const Radio = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     borderRadius: theme.borderRadius.full,
     backgroundColor: theme.colors.interactiveNeutral,

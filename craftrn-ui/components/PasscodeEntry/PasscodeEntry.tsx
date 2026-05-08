@@ -32,10 +32,7 @@ export type Props = {
 export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
   const [pin, setPin] = useState<string>('');
   const { theme } = useUnistyles();
-  const passcodeEntryTokens = useMemo(
-    () => createPasscodeEntryTokens(theme),
-    [theme],
-  );
+  const passcodeEntryTokens = useMemo(() => createPasscodeEntryTokens(theme), [theme]);
 
   const handlePinKeyPress = (value: number) => {
     if (pin.length < config.pinLength) {
@@ -55,7 +52,7 @@ export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
   });
 
   const handleBackspaceKeyPress = () => {
-    setPin(prevPin => prevPin.slice(0, -1));
+    setPin((prevPin) => prevPin.slice(0, -1));
   };
 
   return (
@@ -67,34 +64,22 @@ export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
       </View>
       <View style={styles.pinKeysContainer}>
         <View style={styles.pinKeysRow}>
-          {[1, 2, 3].map(num => (
-            <Key
-              key={num}
-              onPress={() => handlePinKeyPress(num)}
-              ariaLabel={`${num}`}
-            >
+          {[1, 2, 3].map((num) => (
+            <Key key={num} onPress={() => handlePinKeyPress(num)} ariaLabel={`${num}`}>
               <Text style={styles.pinKeyText}>{num}</Text>
             </Key>
           ))}
         </View>
         <View style={styles.pinKeysRow}>
-          {[4, 5, 6].map(num => (
-            <Key
-              key={num}
-              onPress={() => handlePinKeyPress(num)}
-              ariaLabel={`${num}`}
-            >
+          {[4, 5, 6].map((num) => (
+            <Key key={num} onPress={() => handlePinKeyPress(num)} ariaLabel={`${num}`}>
               <Text style={styles.pinKeyText}>{num}</Text>
             </Key>
           ))}
         </View>
         <View style={styles.pinKeysRow}>
-          {[7, 8, 9].map(num => (
-            <Key
-              key={num}
-              onPress={() => handlePinKeyPress(num)}
-              ariaLabel={`${num}`}
-            >
+          {[7, 8, 9].map((num) => (
+            <Key key={num} onPress={() => handlePinKeyPress(num)} ariaLabel={`${num}`}>
               <Text style={styles.pinKeyText}>{num}</Text>
             </Key>
           ))}
@@ -105,10 +90,7 @@ export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
             <Text style={styles.pinKeyText}>0</Text>
           </Key>
           <Key onPress={handleBackspaceKeyPress} ariaLabel="Backspace">
-            <Backspace
-              color={passcodeEntryTokens.colors.keyContent}
-              size={28}
-            />
+            <Backspace color={passcodeEntryTokens.colors.keyContent} size={28} />
           </Key>
         </View>
       </View>
@@ -116,7 +98,7 @@ export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
   );
 };
 
-const styles = StyleSheet.create(theme => {
+const styles = StyleSheet.create((theme) => {
   const passcodeEntryTokens = createPasscodeEntryTokens(theme);
   return {
     container: {

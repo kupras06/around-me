@@ -1,10 +1,5 @@
 import React, { useRef, useState } from 'react';
-import {
-  Image,
-  StyleSheet as RNStyleSheet,
-  View,
-  ViewProps,
-} from 'react-native';
+import { Image, StyleSheet as RNStyleSheet, View, ViewProps } from 'react-native';
 import Animated, {
   runOnJS,
   useAnimatedScrollHandler,
@@ -53,7 +48,7 @@ export const PhotoCarousel = ({
   };
 
   const scrollHandler = useAnimatedScrollHandler({
-    onScroll: event => {
+    onScroll: (event) => {
       scrollX.value = event.contentOffset.x;
       const index = Math.round(event.contentOffset.x / carouselWidth);
       runOnJS(updateCurrentIndex)(index);
@@ -89,9 +84,7 @@ export const PhotoCarousel = ({
         width={carouselWidth}
         height={carouselHeight}
         resizeMode="cover"
-        accessibilityLabel={
-          item.alt || `Photo ${index + 1} of ${photos.length}`
-        }
+        accessibilityLabel={item.alt || `Photo ${index + 1} of ${photos.length}`}
         alt={item.alt}
         accessible={true}
       />
@@ -101,7 +94,7 @@ export const PhotoCarousel = ({
   return (
     <View
       style={styles.container}
-      onLayout={event => setCarouselWidth(event.nativeEvent.layout.width)}
+      onLayout={(event) => setCarouselWidth(event.nativeEvent.layout.width)}
       accessible
       accessibilityRole="adjustable"
       accessibilityLabel={`Photo carousel, showing photo ${currentIndex + 1} of ${photos.length}. ${photos[currentIndex]?.alt || ''}`}
@@ -112,17 +105,12 @@ export const PhotoCarousel = ({
       onAccessibilityAction={onAccessibilityAction}
     >
       {carouselWidth > 0 && (
-        <View
-          style={[
-            styles.carouselWrapper,
-            { width: carouselWidth, height: carouselHeight },
-          ]}
-        >
+        <View style={[styles.carouselWrapper, { width: carouselWidth, height: carouselHeight }]}>
           <Animated.FlatList
             ref={flatListRef}
             data={photos}
             renderItem={renderPhoto}
-            keyExtractor={item => item.id}
+            keyExtractor={(item) => item.id}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
@@ -131,10 +119,7 @@ export const PhotoCarousel = ({
             accessible={false}
             importantForAccessibility="no-hide-descendants"
           />
-          <View
-            style={[styles.dotsContainer, RNStyleSheet.flatten(dotsStyle)]}
-            accessible={false}
-          >
+          <View style={[styles.dotsContainer, RNStyleSheet.flatten(dotsStyle)]} accessible={false}>
             {photos.map((_, index) => (
               <AnimatedDot
                 key={index}
@@ -150,7 +135,7 @@ export const PhotoCarousel = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     alignItems: 'center',
     justifyContent: 'center',

@@ -5,11 +5,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import {
-  StyleSheet,
-  UnistylesRuntime,
-  useUnistyles,
-} from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 import { PressableScale, type AnimationConfig } from '../PressableScale';
 
 /**
@@ -26,13 +22,7 @@ const hexToGrayscale = (hex: string): string =>
     .repeat(3)}${hex.length === 9 ? hex.slice(7) : ''}`;
 
 type Size = 'large' | 'regular' | 'small';
-type Variant =
-  | 'primary'
-  | 'secondary'
-  | 'tertiary'
-  | 'neutral'
-  | 'neutral-secondary'
-  | 'negative';
+type Variant = 'primary' | 'secondary' | 'tertiary' | 'neutral' | 'neutral-secondary' | 'negative';
 
 const hitSlop = {
   small: { top: 2, bottom: 2, left: 4, right: 4 },
@@ -188,9 +178,7 @@ export const Button = ({
         key={`button-bg-${UnistylesRuntime.themeName}`}
         style={[styles.button({ size, disabled }), backgroundStyle]}
       >
-        {iconLeft && (
-          <Animated.View style={styles.iconLeft}>{iconLeft}</Animated.View>
-        )}
+        {iconLeft && <Animated.View style={styles.iconLeft}>{iconLeft}</Animated.View>}
         <Animated.Text
           key={`button-text-${UnistylesRuntime.themeName}`}
           style={[styles.text({ size }), textStyle]}
@@ -202,7 +190,7 @@ export const Button = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   button: ({ size, disabled }: { size: Size; disabled: boolean }) => {
     return {
       flexDirection: 'row',

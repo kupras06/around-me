@@ -49,10 +49,7 @@ export const Key = ({ onPress, children, ariaLabel }: Props) => {
       backgroundColor: interpolateColor(
         pressProgress.value,
         [0, 1],
-        [
-          keyTokens.colors.background.normal,
-          keyTokens.colors.background.pressed,
-        ],
+        [keyTokens.colors.background.normal, keyTokens.colors.background.pressed],
       ),
     }),
     [keyTokens.colors.background.normal, keyTokens.colors.background.pressed],
@@ -73,14 +70,12 @@ export const Key = ({ onPress, children, ariaLabel }: Props) => {
       onPressOut={handlePressOut}
       aria-label={ariaLabel}
     >
-      <Animated.View style={[styles.key, backgroundStyle]}>
-        {children}
-      </Animated.View>
+      <Animated.View style={[styles.key, backgroundStyle]}>{children}</Animated.View>
     </Pressable>
   );
 };
 
-const styles = StyleSheet.create(theme => {
+const styles = StyleSheet.create((theme) => {
   const keyTokens = createKeyTokens(theme);
 
   return {

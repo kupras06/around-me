@@ -1,10 +1,6 @@
 import React, { useEffect } from 'react';
 import { AccessibilityProps, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { PressableScale, type AnimationConfig } from '../PressableScale';
 import { CheckLarge } from './CheckLarge';
@@ -82,7 +78,7 @@ export const Checkbox = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     borderRadius: theme.borderRadius.small,
     backgroundColor: theme.colors.interactiveNeutral,

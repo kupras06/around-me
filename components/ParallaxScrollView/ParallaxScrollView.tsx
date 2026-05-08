@@ -1,6 +1,6 @@
 import CraftRNLogoDark from '@/assets/images/craftrn-dark.png';
 import CraftRNLogoLight from '@/assets/images/craftrn-light.png';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/hooks/useTheme';
 import { Text } from '@/craftrn-ui/components/Text';
 import type { PropsWithChildren } from 'react';
 import { Image, View } from 'react-native';
@@ -33,11 +33,7 @@ export default function ParallaxScrollView({ children, title }: Props) {
           ),
         },
         {
-          scale: interpolate(
-            scrollOffset.value,
-            [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
-            [2, 1, 1],
-          ),
+          scale: interpolate(scrollOffset.value, [-HEADER_HEIGHT, 0, HEADER_HEIGHT], [2, 1, 1]),
         },
       ],
     };
@@ -64,7 +60,7 @@ export default function ParallaxScrollView({ children, title }: Props) {
   );
 }
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   header: {
     height: HEADER_HEIGHT,
     overflow: 'hidden',

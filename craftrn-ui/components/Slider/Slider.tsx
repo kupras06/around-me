@@ -1,9 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import {
-  AccessibilityActionEvent,
-  AccessibilityInfo,
-  View,
-} from 'react-native';
+import { AccessibilityActionEvent, AccessibilityInfo, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
@@ -14,11 +10,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import {
-  StyleSheet,
-  UnistylesRuntime,
-  useUnistyles,
-} from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 const sizeConfig = {
   knob: 20,
@@ -219,7 +211,7 @@ export const Slider = ({
       prevPosition.value = position.value;
       isDragging.value = true;
     })
-    .onUpdate(e => {
+    .onUpdate((e) => {
       'worklet';
       const newPosition = prevPosition.value + e.translationX;
       position.value = Math.max(0, Math.min(newPosition, sliderWidth));
@@ -231,10 +223,7 @@ export const Slider = ({
       const snappedValue = snapToStep(rawValue);
       const finalPosition = getPositionFromValue(snappedValue);
 
-      position.value = withSpring(
-        finalPosition,
-        animationConfig.position.spring,
-      );
+      position.value = withSpring(finalPosition, animationConfig.position.spring);
       notifyValueChange();
     })
     .onTouchesDown(() => {
@@ -250,10 +239,7 @@ export const Slider = ({
     });
 
   const knobStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: position.value - sizeConfig.knob / 2 },
-      { scale: knobScale.value },
-    ],
+    transform: [{ translateX: position.value - sizeConfig.knob / 2 }, { scale: knobScale.value }],
     backgroundColor: theme.colors.contentAccentSecondary,
   }));
 
@@ -302,7 +288,7 @@ export const Slider = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     minHeight: sizeConfig.sliderHeight + sizeConfig.knob,
     paddingTop: sizeConfig.knob / 2,

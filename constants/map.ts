@@ -1,4 +1,6 @@
-export const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN ?? '';
+import { env } from '@/lib/env';
+
+export const MAPBOX_ACCESS_TOKEN = env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
 export const DEFAULT_NEIGHBORHOOD_CENTER = {
   // Approximate center for Indiranagar, Bengaluru (lng, lat)

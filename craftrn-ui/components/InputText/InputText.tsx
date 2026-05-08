@@ -1,10 +1,4 @@
-import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import {
   NativeSyntheticEvent,
   Platform,
@@ -85,123 +79,117 @@ type PropsWithPlaceholder = BaseProps & {
  */
 export type Props = PropsWithLabel | PropsWithPlaceholder;
 
-export const InputText = forwardRef<TextInput, Props & TextInputProps>(
-  function InputText(
-    {
-      size = 'medium',
-      label,
-      onPress,
-      value,
-      itemLeft,
-      itemRight,
-      onFocus,
-      error,
-      style,
-      editable = true,
-      readOnly = false,
-      ...restProps
-    },
-    ref,
-  ) {
-    const { theme } = useUnistyles();
-    const [isFocused, setIsFocused] = useState(false);
-    const inputRef = useRef<TextInput>(null);
-    const isActive = isFocused || !!value;
-    const isActiveShared = useSharedValue(isActive);
-    const hasAnimatedOnce = useSharedValue(false);
-
-    // Update active state
-    useEffect(() => {
-      isActiveShared.value = isActive;
-    }, [isActive, isActiveShared]);
-
-    const labelAnimatedStyle = useAnimatedStyle(() => {
-      const isScaledDown = isActiveShared.value;
-      const translateY = isScaledDown ? (size === 'medium' ? -8 : -10) : 0;
-      const scale = isScaledDown ? 0.85 : 1;
-
-      if (!hasAnimatedOnce.value) {
-        hasAnimatedOnce.value = true;
-        return {
-          transform: [{ translateY }, { scale }],
-        };
-      }
-
-      return {
-        transform: [
-          { translateY: withTiming(translateY, animationConfig) },
-          { scale: withTiming(scale, animationConfig) },
-        ],
-      };
-    }, [size]);
-
-    const handlePress = useCallback(() => {
-      inputRef.current?.focus();
-      onPress?.();
-    }, [onPress]);
-
-    const handleFocus = useCallback(
-      (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-        setIsFocused(true);
-        onFocus?.(e);
-      },
-      [onFocus],
-    );
-
-    return (
-      <View>
-        <Pressable onPress={handlePress}>
-          {({ pressed }) => (
-            <View
-              style={[
-                styles.container({
-                  active: pressed || isFocused,
-                  error: !!error,
-                  size,
-                }),
-              ]}
-            >
-              {itemLeft && <View style={styles.item}>{itemLeft}</View>}
-              <View style={styles.textInputContainer}>
-                {label && (
-                  <Animated.View
-                    style={[styles.labelContainer, labelAnimatedStyle]}
-                  >
-                    <Animated.Text style={styles.label({ size })}>
-                      {label}
-                    </Animated.Text>
-                  </Animated.View>
-                )}
-                <TextInput
-                  {...restProps}
-                  ref={ref ?? inputRef}
-                  style={[styles.textInput({ size, hasLabel: !!label }), style]}
-                  value={value}
-                  onFocus={handleFocus}
-                  onBlur={() => setIsFocused(false)}
-                  placeholderTextColor={theme.colors.contentTertiary}
-                  selectionColor={theme.colors.contentAccentSecondary}
-                  pointerEvents={!editable || readOnly ? 'none' : undefined}
-                  editable={editable}
-                  readOnly={readOnly}
-                  accessibilityLabel={`${value ?? ''} ${error ?? ''}`}
-                />
-              </View>
-              {itemRight && <View style={styles.item}>{itemRight}</View>}
-            </View>
-          )}
-        </Pressable>
-        {error && (
-          <Text variant="body3" color="sentimentNegative" style={styles.error}>
-            {error}
-          </Text>
-        )}
-      </View>
-    );
+export const InputText = forwardRef<TextInput, Props & TextInputProps>(function InputText(
+  {
+    size = 'medium',
+    label,
+    onPress,
+    value,
+    itemLeft,
+    itemRight,
+    onFocus,
+    error,
+    style,
+    editable = true,
+    readOnly = false,
+    ...restProps
   },
-);
+  ref,
+) {
+  const { theme } = useUnistyles();
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<TextInput>(null);
+  const isActive = isFocused || !!value;
+  const isActiveShared = useSharedValue(isActive);
+  const hasAnimatedOnce = useSharedValue(false);
 
-const styles = StyleSheet.create(theme => {
+  // Update active state
+  useEffect(() => {
+    isActiveShared.value = isActive;
+  }, [isActive, isActiveShared]);
+
+  const labelAnimatedStyle = useAnimatedStyle(() => {
+    const isScaledDown = isActiveShared.value;
+    const translateY = isScaledDown ? (size === 'medium' ? -8 : -10) : 0;
+    const scale = isScaledDown ? 0.85 : 1;
+
+    if (!hasAnimatedOnce.value) {
+      hasAnimatedOnce.value = true;
+      return {
+        transform: [{ translateY }, { scale }],
+      };
+    }
+
+    return {
+      transform: [
+        { translateY: withTiming(translateY, animationConfig) },
+        { scale: withTiming(scale, animationConfig) },
+      ],
+    };
+  }, [size]);
+
+  const handlePress = useCallback(() => {
+    inputRef.current?.focus();
+    onPress?.();
+  }, [onPress]);
+
+  const handleFocus = useCallback(
+    (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+      setIsFocused(true);
+      onFocus?.(e);
+    },
+    [onFocus],
+  );
+
+  return (
+    <View>
+      <Pressable onPress={handlePress}>
+        {({ pressed }) => (
+          <View
+            style={[
+              styles.container({
+                active: pressed || isFocused,
+                error: !!error,
+                size,
+              }),
+            ]}
+          >
+            {itemLeft && <View style={styles.item}>{itemLeft}</View>}
+            <View style={styles.textInputContainer}>
+              {label && (
+                <Animated.View style={[styles.labelContainer, labelAnimatedStyle]}>
+                  <Animated.Text style={styles.label({ size })}>{label}</Animated.Text>
+                </Animated.View>
+              )}
+              <TextInput
+                {...restProps}
+                ref={ref ?? inputRef}
+                style={[styles.textInput({ size, hasLabel: !!label }), style]}
+                value={value}
+                onFocus={handleFocus}
+                onBlur={() => setIsFocused(false)}
+                placeholderTextColor={theme.colors.contentTertiary}
+                selectionColor={theme.colors.contentAccentSecondary}
+                pointerEvents={!editable || readOnly ? 'none' : undefined}
+                editable={editable}
+                readOnly={readOnly}
+                accessibilityLabel={`${value ?? ''} ${error ?? ''}`}
+              />
+            </View>
+            {itemRight && <View style={styles.item}>{itemRight}</View>}
+          </View>
+        )}
+      </Pressable>
+      {error && (
+        <Text variant="body3" color="sentimentNegative" style={styles.error}>
+          {error}
+        </Text>
+      )}
+    </View>
+  );
+});
+
+const styles = StyleSheet.create((theme) => {
   const containerPaddingVertical = theme.spacing.xsmall;
   const getTypography = (size: Size) =>
     size === 'small'
@@ -209,19 +197,10 @@ const styles = StyleSheet.create(theme => {
       : size === 'medium'
         ? theme.textVariants.body2
         : theme.textVariants.body1;
-  const getHeight = (size: Size) =>
-    size === 'small' ? 40 : size === 'medium' ? 48 : 56;
+  const getHeight = (size: Size) => (size === 'small' ? 40 : size === 'medium' ? 48 : 56);
 
   return {
-    container: ({
-      active,
-      error,
-      size,
-    }: {
-      active: boolean;
-      error: boolean;
-      size: Size;
-    }) => ({
+    container: ({ active, error, size }: { active: boolean; error: boolean; size: Size }) => ({
       borderRadius: theme.borderRadius.medium,
       borderWidth: 1,
       borderColor: active

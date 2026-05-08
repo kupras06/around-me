@@ -75,16 +75,14 @@ export const PinDot = ({ filled }: Props) => {
   );
 
   const dotAnimatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: filledStatus.value
-      ? pinDotTokens.colors.filled
-      : pinDotTokens.colors.empty,
+    backgroundColor: filledStatus.value ? pinDotTokens.colors.filled : pinDotTokens.colors.empty,
     transform: [{ scale: scale.value }],
   }));
 
   return <Animated.View style={[styles.pinDot, dotAnimatedStyle]} />;
 };
 
-const styles = StyleSheet.create(theme => {
+const styles = StyleSheet.create((theme) => {
   const pinDotTokens = createPinDotTokens(theme);
 
   return {

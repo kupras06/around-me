@@ -7,11 +7,7 @@ import { Dimensions, Pressable, Text as RNText, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { useUnistyles } from 'react-native-unistyles';
 import SharedHeader from '@/components/SharedHeader/SharedHeader';
-import {
-  CATEGORY_COLORS,
-  DEFAULT_NEIGHBORHOOD_CENTER,
-  MAPBOX_ACCESS_TOKEN,
-} from '@/constants/map';
+import { CATEGORY_COLORS, DEFAULT_NEIGHBORHOOD_CENTER, MAPBOX_ACCESS_TOKEN } from '@/constants/map';
 
 // If no token is provided, we render a lightweight demo map instead of Mapbox.
 const HAS_MAPBOX = Boolean(MAPBOX_ACCESS_TOKEN && MAPBOX_ACCESS_TOKEN.length > 0);
@@ -81,7 +77,7 @@ function DemoMap({
 
   return (
     <View style={[styles.map, { backgroundColor: '#F7F6F3' }]}>
-      {pins.map(pin => {
+      {pins.map((pin) => {
         const dx = (pin.longitude - center.longitude) * DEMO_SCALE;
         const dy = (pin.latitude - center.latitude) * DEMO_SCALE;
         const x = mapWidth / 2 + dx;
@@ -147,7 +143,10 @@ export default function MapScreen() {
   function centerOnUser() {
     if (HAS_MAPBOX && cameraRef.current && typeof cameraRef.current.setCamera === 'function') {
       cameraRef.current.setCamera({
-        centerCoordinate: [DEFAULT_NEIGHBORHOOD_CENTER.longitude, DEFAULT_NEIGHBORHOOD_CENTER.latitude],
+        centerCoordinate: [
+          DEFAULT_NEIGHBORHOOD_CENTER.longitude,
+          DEFAULT_NEIGHBORHOOD_CENTER.latitude,
+        ],
         zoomLevel: 15,
         animationDuration: 700,
       });
@@ -175,12 +174,15 @@ export default function MapScreen() {
         >
           <MapboxGL.Camera
             ref={cameraRef}
-            centerCoordinate={[DEFAULT_NEIGHBORHOOD_CENTER.longitude, DEFAULT_NEIGHBORHOOD_CENTER.latitude]}
+            centerCoordinate={[
+              DEFAULT_NEIGHBORHOOD_CENTER.longitude,
+              DEFAULT_NEIGHBORHOOD_CENTER.latitude,
+            ]}
             zoomLevel={15}
           />
 
           {/* Pins */}
-          {pins.map(pin => (
+          {pins.map((pin) => (
             <MapboxGL.PointAnnotation
               key={pin.id}
               id={pin.id}
@@ -210,7 +212,7 @@ export default function MapScreen() {
         <DemoMap
           pins={pins}
           center={DEFAULT_NEIGHBORHOOD_CENTER}
-          onPinPress={p => setSelectedPin(p)}
+          onPinPress={(p) => setSelectedPin(p)}
           selectedPinId={selectedPin?.id ?? null}
         />
       )}
@@ -234,12 +236,22 @@ export default function MapScreen() {
         enableOverlayTapToClose
         showHandleBar
       >
-        <View style={[styles.bottomSheetContent, { minHeight: sheetExpanded ? expandedHeight : collapsedHeight }]}>
+        <View
+          style={[
+            styles.bottomSheetContent,
+            { minHeight: sheetExpanded ? expandedHeight : collapsedHeight },
+          ]}
+        >
           {selectedPin ? (
             <View>
               <View style={styles.sheetHeader}>
                 <Text variant="heading3">{selectedPin.name}</Text>
-                <View style={[styles.categoryPill, { backgroundColor: CATEGORY_COLORS[selectedPin.category] }]}>
+                <View
+                  style={[
+                    styles.categoryPill,
+                    { backgroundColor: CATEGORY_COLORS[selectedPin.category] },
+                  ]}
+                >
                   <RNText style={styles.categoryPillText}>{selectedPin.category}</RNText>
                 </View>
               </View>
@@ -249,30 +261,57 @@ export default function MapScreen() {
                   <RNText style={styles.creatorAvatarText}>{selectedPin.creator.initials}</RNText>
                 </View>
                 <View style={{ marginLeft: 8 }}>
-                  <RNText style={{ fontWeight: '600' }}>{selectedPin.creator.display_name} {selectedPin.creator.verified ? '✓' : ''}</RNText>
-                  <RNText style={{ color: theme.colors.contentSecondary }}>{selectedPin.address}</RNText>
+                  <RNText style={{ fontWeight: '600' }}>
+                    {selectedPin.creator.display_name} {selectedPin.creator.verified ? '✓' : ''}
+                  </RNText>
+                  <RNText style={{ color: theme.colors.contentSecondary }}>
+                    {selectedPin.address}
+                  </RNText>
                 </View>
               </View>
 
-              <RNText style={{ marginTop: 12, color: theme.colors.contentPrimary }}>{selectedPin.blurb}</RNText>
+              <RNText style={{ marginTop: 12, color: theme.colors.contentPrimary }}>
+                {selectedPin.blurb}
+              </RNText>
 
               {/* Action row (flat icons + text) */}
               <View style={styles.actionRow}>
-                <Pressable style={styles.actionItem}><RNText>Save</RNText></Pressable>
-                <Pressable style={styles.actionItem}><RNText>Directions</RNText></Pressable>
-                <Pressable style={styles.actionItem}><RNText>Call</RNText></Pressable>
-                <Pressable style={styles.actionItem}><RNText>Share</RNText></Pressable>
-                <Pressable style={styles.actionItem}><RNText>Open</RNText></Pressable>
+                <Pressable style={styles.actionItem}>
+                  <RNText>Save</RNText>
+                </Pressable>
+                <Pressable style={styles.actionItem}>
+                  <RNText>Directions</RNText>
+                </Pressable>
+                <Pressable style={styles.actionItem}>
+                  <RNText>Call</RNText>
+                </Pressable>
+                <Pressable style={styles.actionItem}>
+                  <RNText>Share</RNText>
+                </Pressable>
+                <Pressable style={styles.actionItem}>
+                  <RNText>Open</RNText>
+                </Pressable>
               </View>
 
               {/* Nearby curated picks (by same creator) */}
-              <RNText style={{ marginTop: 12, fontWeight: '600' }}>More from {selectedPin.creator.display_name}</RNText>
+              <RNText style={{ marginTop: 12, fontWeight: '600' }}>
+                More from {selectedPin.creator.display_name}
+              </RNText>
               <View style={styles.nearbyList}>
                 {pins
-                  .filter(p => p.creator.id === selectedPin.creator.id && p.id !== selectedPin.id)
-                  .map(p => (
-                    <Pressable key={p.id} onPress={() => setSelectedPin(p)} style={styles.nearbyItem}>
-                      <View style={[styles.nearbyThumb, { backgroundColor: CATEGORY_COLORS[p.category] }]} />
+                  .filter((p) => p.creator.id === selectedPin.creator.id && p.id !== selectedPin.id)
+                  .map((p) => (
+                    <Pressable
+                      key={p.id}
+                      onPress={() => setSelectedPin(p)}
+                      style={styles.nearbyItem}
+                    >
+                      <View
+                        style={[
+                          styles.nearbyThumb,
+                          { backgroundColor: CATEGORY_COLORS[p.category] },
+                        ]}
+                      />
                       <RNText style={{ marginTop: 6 }}>{p.name}</RNText>
                     </Pressable>
                   ))}
@@ -280,10 +319,12 @@ export default function MapScreen() {
 
               {/* Expand / Collapse toggle */}
               <Pressable
-                onPress={() => setSheetExpanded(v => !v)}
+                onPress={() => setSheetExpanded((v) => !v)}
                 style={{ marginTop: 12, alignSelf: 'center' }}
               >
-                <RNText style={{ color: theme.colors.contentAccent }}>{sheetExpanded ? 'Collapse' : 'More details'}</RNText>
+                <RNText style={{ color: theme.colors.contentAccent }}>
+                  {sheetExpanded ? 'Collapse' : 'More details'}
+                </RNText>
               </Pressable>
             </View>
           ) : (
@@ -295,7 +336,7 @@ export default function MapScreen() {
   );
 }
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
   },

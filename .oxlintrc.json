@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript", "react", "import", "promise", "oxc"],
+  "settings": {
+    "react": {
+      "version": "19.0.0"
+    }
+  },
+  "env": {
+    "es2024": true
+  },
+  "ignorePatterns": ["node_modules/**", ".expo/**"],
+  "categories": {
+    "correctness": "warn",
+    "suspicious": "warn"
+  }
+}

@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, TextInput } from 'react-native';
 import Animated, {
   Easing,
@@ -71,19 +65,13 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
     (text: string) => {
       const numericText = text.replace(/[^0-9]/g, '').slice(0, config.length);
 
-      const isPasted =
-        previousCodeLengthRef.current === 0 &&
-        numericText.length === config.length;
+      const isPasted = previousCodeLengthRef.current === 0 && numericText.length === config.length;
       setShouldAnimate(!isPasted);
 
       previousCodeLengthRef.current = numericText.length;
       setCode(numericText);
 
-      setFocusedIndex(
-        numericText.length < config.length
-          ? numericText.length
-          : config.length - 1,
-      );
+      setFocusedIndex(numericText.length < config.length ? numericText.length : config.length - 1);
 
       if (numericText.length === config.length) {
         onChange(numericText);
@@ -102,9 +90,7 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
       setFocusedIndex(0);
       onChange('');
     } else {
-      setFocusedIndex(
-        code.length < config.length ? code.length : config.length - 1,
-      );
+      setFocusedIndex(code.length < config.length ? code.length : config.length - 1);
     }
   }, [code.length, onChange]);
 
@@ -140,22 +126,16 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
             >
               {char && shouldAnimate ? (
                 <Animated.View
-                  entering={FadeInDown.duration(
-                    animationConfig.fadeIn.duration,
-                  ).easing(animationConfig.fadeIn.easing)}
+                  entering={FadeInDown.duration(animationConfig.fadeIn.duration).easing(
+                    animationConfig.fadeIn.easing,
+                  )}
                 >
-                  <Text
-                    variant="heading3"
-                    accessibilityLabel={`${index + 1} of ${config.length}`}
-                  >
+                  <Text variant="heading3" accessibilityLabel={`${index + 1} of ${config.length}`}>
                     {char}
                   </Text>
                 </Animated.View>
               ) : (
-                <Text
-                  variant="heading3"
-                  accessibilityLabel={`${index + 1} of ${config.length}`}
-                >
+                <Text variant="heading3" accessibilityLabel={`${index + 1} of ${config.length}`}>
                   {char}
                 </Text>
               )}
@@ -196,7 +176,7 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     gap: theme.spacing.xsmall,

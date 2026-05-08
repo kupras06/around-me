@@ -24,7 +24,7 @@ export const Divider = ({ orientation = 'horizontal', style }: Props) => {
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   horizontal: {
     borderBottomColor: theme.colors.borderNeutral,
     borderBottomWidth: 1,

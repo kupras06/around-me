@@ -5,11 +5,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import {
-  StyleSheet,
-  UnistylesRuntime,
-  useUnistyles,
-} from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 import { PressableScale, type AnimationConfig } from '../PressableScale';
 
 /**
@@ -26,12 +22,7 @@ const hexToGrayscale = (hex: string): string =>
     .repeat(3)}${hex.length === 9 ? hex.slice(7) : ''}`;
 
 type Size = 'large' | 'medium' | 'small';
-type Variant =
-  | 'primary'
-  | 'secondary'
-  | 'neutral'
-  | 'neutral-secondary'
-  | 'reversed';
+type Variant = 'primary' | 'secondary' | 'neutral' | 'neutral-secondary' | 'reversed';
 
 const hitSlop = {
   small: 4,
@@ -60,10 +51,7 @@ type BaseProps = {
    * @param props.iconSize - The suggested size of the icon in pixels, depending on the button size.
    * @param props.iconColor - The appropriate color for the icon based on the button variant.
    */
-  renderContent: (props: {
-    iconSize: number;
-    iconColor: string;
-  }) => ReactElement;
+  renderContent: (props: { iconSize: number; iconColor: string }) => ReactElement;
   /**
    * The size of the button.
    * @default 'medium'
@@ -179,7 +167,7 @@ export const ButtonRound = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   pressable: {
     alignItems: 'center',
     justifyContent: 'center',

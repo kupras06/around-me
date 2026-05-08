@@ -10,7 +10,7 @@ export default function SearchScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ title: 'Search' }} />
       <View style={styles.content}>
-        <InputSearch onPress={() => { }} editable={false} placeholder="Search places or creators" />
+        <InputSearch onPress={() => {}} editable={false} placeholder="Search places or creators" />
         <Text variant="body2" style={{ marginTop: 16 }}>
           Search is a demo placeholder. Implement search flow when ready.
         </Text>
@@ -19,7 +19,7 @@ export default function SearchScreen() {
   );
 }
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     paddingTop: UnistylesRuntime.insets.top + theme.spacing.large,
