@@ -11,6 +11,6 @@ export const DEFAULT_NEIGHBORHOOD_CENTER = {
 export const CATEGORY_COLORS: Record<string, string> = {
   C: '#C04A2A', // Café (Terracotta)
   D: '#BA7517', // Diner / Restaurant (Amber)
-  S: '#1D6E7A', // Store (Deep Teal)
-  E: '#8E8E8E', // Experience (Gray)
+  S: '#126874', // Store (Deep Teal)
+  E: '#8B716A', // Experience (Warm Gray)
 };

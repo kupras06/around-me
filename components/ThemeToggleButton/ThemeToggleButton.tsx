@@ -9,69 +9,54 @@ import { SunIcon } from '@/icons/SunIcon';
 import { Brush } from '@/tetrisly-icons/Brush';
 import { CheckLarge } from '@/tetrisly-icons/CheckLarge';
 import React, { useMemo } from 'react';
-import { View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useUnistyles } from 'react-native-unistyles';
 
 type ThemeToggleButtonProps = {
   variant?: ButtonRoundProps['variant'];
 };
 
-const ColorCircle = ({ color }: { color: string }) => (
-  <View style={[styles.colorCircle, { backgroundColor: color }]} />
-);
-
 export const ThemeToggleButton = ({ variant = 'neutral' }: ThemeToggleButtonProps) => {
-  const { setMode, setColor, mode, color } = useTheme();
+  const { setModePreference, modePreference } = useTheme();
   const { theme } = useUnistyles();
 
   const menuItems: ContextMenuElement[] = useMemo(
     () => [
       {
-        id: 'light',
-        label: 'Light',
-        itemLeft: <SunIcon color={theme.colors.contentPrimary} size={20} />,
+        id: 'system',
+        label: 'System',
+        itemLeft: <Brush size={20} color={theme.colors.contentPrimary} />,
         itemRight:
-          mode === 'light' ? (
+          modePreference === 'system' ? (
             <CheckLarge color={theme.colors.contentPrimary} size={20} />
           ) : undefined,
-        onPress: () => setMode('light'),
-      },
-      {
-        id: 'dark',
-        label: 'Dark',
-        itemLeft: <MoonIcon color={theme.colors.contentPrimary} size={20} />,
-        itemRight:
-          mode === 'dark' ? (
-            <CheckLarge color={theme.colors.contentPrimary} size={20} />
-          ) : undefined,
-        onPress: () => setMode('dark'),
+        onPress: () => setModePreference('system'),
       },
       {
         type: 'divider',
         id: 'divider-1',
       },
       {
-        id: 'teal',
-        label: 'Teal',
-        itemLeft: <ColorCircle color="#1e809e" />,
+        id: 'light',
+        label: 'Light',
+        itemLeft: <SunIcon color={theme.colors.contentPrimary} size={20} />,
         itemRight:
-          color === 'teal' ? (
+          modePreference === 'light' ? (
             <CheckLarge color={theme.colors.contentPrimary} size={20} />
           ) : undefined,
-        onPress: () => setColor('teal'),
+        onPress: () => setModePreference('light'),
       },
       {
-        id: 'orange',
-        label: 'Orange',
-        itemLeft: <ColorCircle color="#9e661e" />,
+        id: 'dark',
+        label: 'Dark',
+        itemLeft: <MoonIcon color={theme.colors.contentPrimary} size={20} />,
         itemRight:
-          color === 'orange' ? (
+          modePreference === 'dark' ? (
             <CheckLarge color={theme.colors.contentPrimary} size={20} />
           ) : undefined,
-        onPress: () => setColor('orange'),
+        onPress: () => setModePreference('dark'),
       },
     ],
-    [theme, setMode, setColor, mode, color],
+    [modePreference, setModePreference, theme],
   );
 
   return (
@@ -90,11 +75,3 @@ export const ThemeToggleButton = ({ variant = 'neutral' }: ThemeToggleButtonProp
     />
   );
 };
-
-const styles = StyleSheet.create((theme) => ({
-  colorCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: theme.borderRadius.full,
-  },
-}));

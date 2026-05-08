@@ -11,3 +11,5 @@ node_modules
 
 expo-env.d.ts
 # @end expo-cli
+stitch_aroundme_trust_based_discovery_app/
+.env

@@ -5,7 +5,8 @@ import {
   setAuthState,
   setRecoveringPassword,
 } from '@/store/slices/authSlice';
-import { selectTheme } from '@/store/slices/themeSlice';
+import { selectTheme, setResolvedMode } from '@/store/slices/themeSlice';
+import { setStoredThemePreference, type ResolvedThemeMode } from '@/lib/theme-preferences';
 import { supabase } from '@/lib/supabase';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { useRouter, useSegments } from 'expo-router';
@@ -30,20 +31,8 @@ type UserMetadata = {
 
 type ThemeName = NonNullable<typeof UnistylesRuntime.themeName>;
 
-const getThemeName = (mode: 'light' | 'dark', color: 'teal' | 'orange'): ThemeName => {
-  const themeMap: Record<'light' | 'dark', Record<'teal' | 'orange', ThemeName>> = {
-    light: {
-      teal: 'lightTeal',
-      orange: 'lightOrange',
-    },
-    dark: {
-      teal: 'darkTeal',
-      orange: 'darkOrange',
-    },
-  };
-
-  return themeMap[mode][color];
-};
+const getThemeName = (mode: ResolvedThemeMode): ThemeName =>
+  mode === 'dark' ? 'aroundmeDark' : 'aroundmeLight';
 
 const mapSupabaseUser = (user: SupabaseUser | null) => {
   if (!user) {
@@ -68,17 +57,43 @@ export function AppStateEffects() {
   const router = useRouter();
   const segments = useSegments();
   const { user, loading, isRecoveringPassword, initialized } = useAppSelector(selectAuth);
-  const { mode, color } = useAppSelector(selectTheme);
+  const { mode, modePreference } = useAppSelector(selectTheme);
 
   useEffect(() => {
     void dispatch(bootstrapAuth());
   }, [dispatch]);
 
   useEffect(() => {
-    const themeName = getThemeName(mode, color);
+    const themeName = getThemeName(mode);
     UnistylesRuntime.setTheme(themeName);
     Appearance.setColorScheme(mode);
-  }, [color, mode]);
+  }, [mode]);
+
+  useEffect(() => {
+    setStoredThemePreference(modePreference);
+    if (modePreference === 'system') {
+      const systemMode = Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
+      dispatch(setResolvedMode(systemMode));
+      Appearance.setColorScheme(null);
+      return;
+    }
+
+    dispatch(setResolvedMode(modePreference));
+  }, [dispatch, modePreference]);
+
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      if (modePreference !== 'system') {
+        return;
+      }
+
+      dispatch(setResolvedMode(colorScheme === 'dark' ? 'dark' : 'light'));
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [dispatch, modePreference]);
 
   useEffect(() => {
     const {

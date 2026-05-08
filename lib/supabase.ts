@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import { createMMKV } from 'react-native-mmkv';
+import type { SupportedStorage } from '@supabase/supabase-js';
+import * as SecureStore from 'expo-secure-store';
 
 import { env } from '@/lib/env';
 
@@ -12,23 +13,22 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-const storage = createMMKV({
-  id: 'around-me-supabase-auth',
-});
-
-const mmkvStorage = {
-  getItem: async (key: string) => storage.getString(key) ?? null,
+// SecureStore for Supabase auth session persistence
+const SecureStoreAdapter: SupportedStorage = {
+  getItem: async (key: string) => {
+    return await SecureStore.getItemAsync(key);
+  },
   setItem: async (key: string, value: string) => {
-    storage.set(key, value);
+    await SecureStore.setItemAsync(key, value);
   },
   removeItem: async (key: string) => {
-    storage.remove(key);
+    await SecureStore.deleteItemAsync(key);
   },
 };
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: mmkvStorage,
+    storage: SecureStoreAdapter, // Cast to any to satisfy type expectations
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

@@ -3,7 +3,7 @@ import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import * as Linking from 'expo-linking';
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import type { RootState } from '@/store';
+import type { AppDispatch, RootState } from '@/store';
 
 type LinkedAccounts = {
   twitter?: boolean;
@@ -16,6 +16,7 @@ type UserMetadata = {
   phoneLinked?: boolean;
   linkedAccounts?: LinkedAccounts;
   onboardingCompleted?: boolean;
+  avatarUrl?: string; // New field
 };
 
 export type User = {
@@ -26,6 +27,7 @@ export type User = {
   phoneLinked?: boolean;
   linkedAccounts?: LinkedAccounts;
   onboardingCompleted?: boolean;
+  avatarUrl?: string; // New field
 };
 
 type AuthState = {
@@ -65,6 +67,7 @@ const mapSupabaseUser = (user: SupabaseUser | null): User | null => {
     phoneLinked: metadata.phoneLinked ?? false,
     linkedAccounts: metadata.linkedAccounts ?? {},
     onboardingCompleted: metadata.onboardingCompleted ?? false,
+    avatarUrl: user.user_metadata.avatar_url as string | undefined, // Map Supabase's avatar_url to our type
   };
 };
 
@@ -282,6 +285,90 @@ export const completeOnboarding = createAsyncThunk<
   });
 });
 
+export const updateProfile = createAsyncThunk<
+  { user: User | null },
+  { displayName?: string; phone?: string; avatarUrl?: string },
+  { state: RootState }
+>('auth/updateProfile', async (payload, { getState }) => {
+  const sessionUser = requireSessionUser(getState());
+  const currentMetadata = getCurrentMetadata(sessionUser);
+
+  const newMetadata: UserMetadata = { ...currentMetadata };
+  let metadataChanged = false;
+
+  if (payload.displayName !== undefined) {
+    newMetadata.displayName = payload.displayName.trim();
+    metadataChanged = true;
+  }
+
+  if (payload.phone !== undefined) {
+    newMetadata.phone = payload.phone.trim();
+    newMetadata.phoneLinked = payload.phone.trim().length > 0;
+    metadataChanged = true;
+  }
+
+  if (payload.avatarUrl !== undefined) {
+    newMetadata.avatarUrl = payload.avatarUrl;
+    metadataChanged = true;
+  }
+
+  if (!metadataChanged) {
+    return { user: mapSupabaseUser(sessionUser) };
+  }
+
+  const { data, error } = await supabase.auth.updateUser({
+    data: newMetadata, // Always update metadata
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return {
+    user: mapSupabaseUser(data.user),
+  };
+});
+
+
+export const uploadAvatar = createAsyncThunk<
+  { avatarUrl: string },
+  { file: { uri: string; name: string; type: string }; bucket: string; path: string },
+  { state: RootState; dispatch: AppDispatch } // Add dispatch to thunkAPI
+>('auth/uploadAvatar', async ({ file, bucket, path }, { dispatch }) => { // Destructure dispatch
+  const fileExtension = file.name.split('.').pop();
+  const fileName = `${path}.${fileExtension}`;
+
+  const response = await fetch(file.uri);
+  const blob = await response.blob();
+
+  const { error: uploadError } = await supabase.storage
+    .from(bucket)
+    .upload(fileName, blob, {
+      cacheControl: '3600',
+      upsert: true,
+      contentType: file.type,
+    });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  // Get public URL
+  const { data: publicUrlData } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(fileName);
+
+  if (!publicUrlData || !publicUrlData.publicUrl) {
+    throw new Error('Failed to get public URL for avatar.');
+  }
+
+  // Dispatch updateProfile to update the user\'s metadata with the new avatar URL
+  await dispatch(updateProfile({ avatarUrl: publicUrlData.publicUrl }));
+
+  return { avatarUrl: publicUrlData.publicUrl };
+});
+
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -359,6 +446,18 @@ const authSlice = createSlice({
         state.loading = false;
         state.initialized = true;
       })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.loading = false;
+        state.initialized = true;
+      })
+      .addCase(uploadAvatar.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.avatarUrl = action.payload.avatarUrl;
+        }
+        state.loading = false;
+        state.initialized = true;
+      })
       .addMatcher(
         (action) =>
           [
@@ -370,6 +469,8 @@ const authSlice = createSlice({
             linkPhoneNumber.pending.type,
             linkAccounts.pending.type,
             completeOnboarding.pending.type,
+            updateProfile.pending.type,
+            uploadAvatar.pending.type,
           ].includes(action.type),
         (state) => {
           state.loading = true;
@@ -386,6 +487,8 @@ const authSlice = createSlice({
             linkPhoneNumber.rejected.type,
             linkAccounts.rejected.type,
             completeOnboarding.rejected.type,
+            updateProfile.rejected.type,
+            uploadAvatar.rejected.type,
           ].includes(action.type),
         (state) => {
           state.loading = false;

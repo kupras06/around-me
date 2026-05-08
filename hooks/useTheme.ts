@@ -1,12 +1,10 @@
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   selectTheme,
-  setColor,
-  setMode,
+  setModePreference,
   toggleMode,
-  type ThemeColor,
-  type ThemeMode,
 } from '@/store/slices/themeSlice';
+import type { ThemePreference } from '@/lib/theme-preferences';
 
 export const useTheme = () => {
   const dispatch = useAppDispatch();
@@ -14,8 +12,7 @@ export const useTheme = () => {
 
   return {
     ...theme,
-    setMode: (mode: ThemeMode) => dispatch(setMode(mode)),
-    setColor: (color: ThemeColor) => dispatch(setColor(color)),
+    setModePreference: (modePreference: ThemePreference) => dispatch(setModePreference(modePreference)),
     toggleMode: () => dispatch(toggleMode()),
   };
 };

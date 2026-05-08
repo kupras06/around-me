@@ -1,37 +1,43 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { Appearance } from 'react-native';
 
+import { getStoredThemePreference, type ResolvedThemeMode, type ThemePreference } from '@/lib/theme-preferences';
 import type { RootState } from '@/store';
 
-export type ThemeColor = 'teal' | 'orange';
-export type ThemeMode = 'light' | 'dark';
-
 type ThemeState = {
-  color: ThemeColor;
-  mode: ThemeMode;
+  modePreference: ThemePreference;
+  mode: ResolvedThemeMode;
 };
 
+const getSystemMode = (): ResolvedThemeMode =>
+  Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
+
+const initialPreference = getStoredThemePreference();
+
 const initialState: ThemeState = {
-  color: 'teal',
-  mode: 'light',
+  modePreference: initialPreference,
+  mode: initialPreference === 'system' ? getSystemMode() : initialPreference,
 };
 
 const themeSlice = createSlice({
   name: 'theme',
   initialState,
   reducers: {
-    setMode: (state, action: PayloadAction<ThemeMode>) => {
+    setModePreference: (state, action: PayloadAction<ThemePreference>) => {
+      state.modePreference = action.payload;
+      state.mode = action.payload === 'system' ? getSystemMode() : action.payload;
+    },
+    setResolvedMode: (state, action: PayloadAction<ResolvedThemeMode>) => {
       state.mode = action.payload;
     },
-    setColor: (state, action: PayloadAction<ThemeColor>) => {
-      state.color = action.payload;
-    },
     toggleMode: (state) => {
-      state.mode = state.mode === 'light' ? 'dark' : 'light';
+      state.modePreference = state.mode === 'dark' ? 'light' : 'dark';
+      state.mode = state.mode === 'dark' ? 'light' : 'dark';
     },
   },
 });
 
-export const { setMode, setColor, toggleMode } = themeSlice.actions;
+export const { setModePreference, setResolvedMode, toggleMode } = themeSlice.actions;
 
 export const selectTheme = (state: RootState) => state.theme;
 
