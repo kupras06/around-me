@@ -14,6 +14,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  console.log('LoginScreen rendered');
   const handleLogin = async () => {
     setError(null);
     try {

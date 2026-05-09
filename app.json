@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "around-me",
+    "name": "Around Me",
     "slug": "around-me",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -30,6 +30,12 @@
     "plugins": [
       "expo-router",
       [
+        "expo-font",
+        {
+          "fonts": ["./assets/fonts/SpaceMono-Regular.ttf"]
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/logo/logo-full@2x.png",
@@ -41,7 +47,8 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "@rnmapbox/maps"
     ],
     "experiments": {
       "typedRoutes": true,

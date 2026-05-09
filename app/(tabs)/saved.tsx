@@ -6,22 +6,23 @@ import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-function ActualCreators() {
+function ActualSaved() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <SharedHeader />
+
       <Text variant="heading3" style={{ marginTop: 16 }}>
-        Creators — Browse & follow creators
+        Saved — Collections & map
       </Text>
     </View>
   );
 }
 
-export default function CreatorsScreen() {
+export default function SavedScreen() {
   return (
     <AuthGate>
-      <ActualCreators />
+      <ActualSaved />
     </AuthGate>
   );
 }

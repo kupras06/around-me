@@ -1,98 +1,467 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import SharedHeader from '@/components/SharedHeader/SharedHeader';
+import { CATEGORY_COLORS, DEFAULT_NEIGHBORHOOD_CENTER, MAPBOX_ACCESS_TOKEN } from '@/constants/map';
+import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
+import { Text } from '@/craftrn-ui/components/Text';
+import MapboxGL from '@rnmapbox/maps';
+import { Stack } from 'expo-router';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Dimensions, Pressable, Text as RNText, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+// If no token is provided, we render a lightweight demo map instead of Mapbox.
+const HAS_MAPBOX = Boolean(MAPBOX_ACCESS_TOKEN && MAPBOX_ACCESS_TOKEN.length > 0);
 
-export default function HomeScreen() {
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+type Pin = {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  category: 'C' | 'D' | 'S' | 'E';
+  address?: string;
+  blurb?: string;
+  creator: { id: string; display_name: string; initials: string; verified?: boolean };
+};
+
+const MOCK_PINS: Pin[] = [
+  {
+    id: 'p1',
+    name: 'Third Wave Coffee',
+    latitude: DEFAULT_NEIGHBORHOOD_CENTER.latitude + 0.0012,
+    longitude: DEFAULT_NEIGHBORHOOD_CENTER.longitude + 0.0012,
+    category: 'C',
+    address: '12th Main, Indiranagar',
+    blurb: 'Roastery focused on single-origin espresso.',
+    creator: { id: 'c1', display_name: 'Arjun', initials: 'A', verified: true },
+  },
+  {
+    id: 'p2',
+    name: 'Sunny Diner',
+    latitude: DEFAULT_NEIGHBORHOOD_CENTER.latitude - 0.0005,
+    longitude: DEFAULT_NEIGHBORHOOD_CENTER.longitude + 0.0025,
+    category: 'D',
+    address: '100 Feet Road, Indiranagar',
+    blurb: 'All-day diner with a great lemon tart.',
+    creator: { id: 'c2', display_name: 'Rhea', initials: 'R', verified: false },
+  },
+  {
+    id: 'p3',
+    name: 'Little Green Store',
+    latitude: DEFAULT_NEIGHBORHOOD_CENTER.latitude - 0.0012,
+    longitude: DEFAULT_NEIGHBORHOOD_CENTER.longitude - 0.0005,
+    category: 'S',
+    address: 'Cross St, Indiranagar',
+    blurb: 'Thoughtful home goods and ceramics.',
+    creator: { id: 'c1', display_name: 'Arjun', initials: 'A', verified: true },
+  },
+];
+
+function DemoMap({
+  pins,
+  center,
+  onPinPress,
+  selectedPinId,
+}: {
+  pins: Pin[];
+  center: { latitude: number; longitude: number };
+  onPinPress: (p: Pin) => void;
+  selectedPinId?: string | null;
+}) {
+  // Simple, non-geospatial demo mapping from lat/lng to pixels for demo purposes.
+  // This keeps the UI functional without a Mapbox token.
+  const mapWidth = SCREEN_WIDTH;
+  const mapHeight = SCREEN_HEIGHT;
+  const DEMO_SCALE = 50000; // pixels per degree (heuristic for demo)
+
+  console.log('DemoMap rendered with pins:', pins.length);
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={[styles.map, { backgroundColor: '#F7F6F3' }]}>
+      {pins.map((pin) => {
+        const dx = (pin.longitude - center.longitude) * DEMO_SCALE;
+        const dy = (pin.latitude - center.latitude) * DEMO_SCALE;
+        const x = mapWidth / 2 + dx;
+        const y = mapHeight / 2 - dy; // invert lat for screen Y
+        const isSelected = selectedPinId === pin.id;
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        return (
+          <Pressable
+            key={pin.id}
+            onPress={() => onPinPress(pin)}
+            style={{ position: 'absolute', left: x - 26, top: y - 26 }}
+          >
+            <View style={[styles.pinCircle, { backgroundColor: CATEGORY_COLORS[pin.category] }]}>
+              <RNText style={styles.pinLetter}>{pin.category}</RNText>
+            </View>
+
+            <View style={[styles.pinAvatar, isSelected && { transform: [{ scale: 1.4 }] }]}>
+              <RNText style={styles.pinAvatarText}>{pin.creator.initials}</RNText>
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
+export default function MapScreen() {
+  const { theme } = useUnistyles();
+  const cameraRef = useRef<any>(null);
+  const mapRef = useRef<any>(null);
+
+  // Set Mapbox token at runtime only if present.
+  useEffect(() => {
+    if (HAS_MAPBOX && MapboxGL && MapboxGL.setAccessToken) {
+      MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
+    }
+  }, []);
+
+  const [pins] = useState<Pin[]>(MOCK_PINS);
+  const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
+  const [sheetExpanded, setSheetExpanded] = useState(false);
+  const [sheetVisible, setSheetVisible] = useState(false);
+
+  const collapsedHeight = useMemo(() => SCREEN_HEIGHT * 0.36, []);
+  const expandedHeight = useMemo(() => SCREEN_HEIGHT * 0.74, []);
+
+  useEffect(() => {
+    if (selectedPin) {
+      setSheetVisible(true);
+      setSheetExpanded(false);
+
+      // If Mapbox is available, center camera on selected pin for better context.
+      if (HAS_MAPBOX && cameraRef.current && typeof cameraRef.current.setCamera === 'function') {
+        cameraRef.current.setCamera({
+          centerCoordinate: [selectedPin.longitude, selectedPin.latitude],
+          zoomLevel: 16,
+          animationDuration: 400,
+        });
+      }
+    }
+  }, [selectedPin]);
+
+  function centerOnUser() {
+    if (HAS_MAPBOX && cameraRef.current && typeof cameraRef.current.setCamera === 'function') {
+      cameraRef.current.setCamera({
+        centerCoordinate: [
+          DEFAULT_NEIGHBORHOOD_CENTER.longitude,
+          DEFAULT_NEIGHBORHOOD_CENTER.latitude,
+        ],
+        zoomLevel: 15,
+        animationDuration: 700,
+      });
+      return;
+    }
+
+    // Demo fallback: noop (could animate pins or show toast)
+  }
+  return (
+    <View style={[styles.container, { backgroundColor: theme.colors.baseLight }]}>
+      <Stack.Screen options={{ headerShown: false }} />
+
+      {/* Shared Header (overlay) */}
+      <SharedHeader overlay />
+
+      {/* Map or demo fallback when Mapbox token is missing */}
+      {HAS_MAPBOX ? (
+        <MapboxGL.MapView
+          ref={mapRef}
+          style={styles.map}
+          styleURL={MapboxGL.StyleURL.Street}
+          logoEnabled={false}
+          compassEnabled={false}
+        >
+          <MapboxGL.Camera
+            ref={cameraRef}
+            centerCoordinate={[
+              DEFAULT_NEIGHBORHOOD_CENTER.longitude,
+              DEFAULT_NEIGHBORHOOD_CENTER.latitude,
+            ]}
+            zoomLevel={15}
+          />
+
+          {/* Pins */}
+          {pins.map((pin) => (
+            <MapboxGL.PointAnnotation
+              key={pin.id}
+              id={pin.id}
+              coordinate={[pin.longitude, pin.latitude]}
+              onSelected={() => setSelectedPin(pin)}
+            >
+              <View style={styles.markerWrapper}>
+                <View
+                  style={[
+                    styles.pinCircle,
+                    {
+                      backgroundColor: CATEGORY_COLORS[pin.category] ?? '#C04A2A',
+                    },
+                  ]}
+                >
+                  <RNText style={styles.pinLetter}>{pin.category}</RNText>
+                </View>
+
+                <View style={styles.pinAvatar}>
+                  <RNText style={styles.pinAvatarText}>{pin.creator.initials}</RNText>
+                </View>
+              </View>
+            </MapboxGL.PointAnnotation>
+          ))}
+        </MapboxGL.MapView>
+      ) : (
+        <DemoMap
+          pins={pins}
+          center={DEFAULT_NEIGHBORHOOD_CENTER}
+          onPinPress={(p) => setSelectedPin(p)}
+          selectedPinId={selectedPin?.id ?? null}
+        />
+      )}
+
+      {/* My-location floating button */}
+      <Pressable
+        style={[styles.myLocationButton, { backgroundColor: '#C04A2A' }]}
+        onPress={centerOnUser}
+      >
+        <RNText style={{ color: '#fff', fontWeight: '600' }}>◎</RNText>
+      </Pressable>
+
+      {/* Bottom sheet for place details */}
+      <BottomSheet
+        visible={sheetVisible}
+        onRequestClose={() => {
+          setSheetVisible(false);
+          setSelectedPin(null);
+        }}
+        enableSwipeToClose
+        enableOverlayTapToClose
+        showHandleBar
+      >
+        <View
+          style={[
+            styles.bottomSheetContent,
+            { minHeight: sheetExpanded ? expandedHeight : collapsedHeight },
+          ]}
+        >
+          {selectedPin ? (
+            <View>
+              <View style={styles.sheetHeader}>
+                <Text variant="heading3">{selectedPin.name}</Text>
+                <View
+                  style={[
+                    styles.categoryPill,
+                    { backgroundColor: CATEGORY_COLORS[selectedPin.category] },
+                  ]}
+                >
+                  <RNText style={styles.categoryPillText}>{selectedPin.category}</RNText>
+                </View>
+              </View>
+
+              <View style={styles.creatorRow}>
+                <View style={styles.creatorAvatarSmall}>
+                  <RNText style={styles.creatorAvatarText}>{selectedPin.creator.initials}</RNText>
+                </View>
+                <View style={{ marginLeft: 8 }}>
+                  <RNText style={{ fontWeight: '600' }}>
+                    {selectedPin.creator.display_name} {selectedPin.creator.verified ? '✓' : ''}
+                  </RNText>
+                  <RNText style={{ color: theme.colors.contentSecondary }}>
+                    {selectedPin.address}
+                  </RNText>
+                </View>
+              </View>
+
+              <RNText style={{ marginTop: 12, color: theme.colors.contentPrimary }}>
+                {selectedPin.blurb}
+              </RNText>
+
+              {/* Action row (flat icons + text) */}
+              <View style={styles.actionRow}>
+                <Pressable style={styles.actionItem}>
+                  <RNText>Save</RNText>
+                </Pressable>
+                <Pressable style={styles.actionItem}>
+                  <RNText>Directions</RNText>
+                </Pressable>
+                <Pressable style={styles.actionItem}>
+                  <RNText>Call</RNText>
+                </Pressable>
+                <Pressable style={styles.actionItem}>
+                  <RNText>Share</RNText>
+                </Pressable>
+                <Pressable style={styles.actionItem}>
+                  <RNText>Open</RNText>
+                </Pressable>
+              </View>
+
+              {/* Nearby curated picks (by same creator) */}
+              <RNText style={{ marginTop: 12, fontWeight: '600' }}>
+                More from {selectedPin.creator.display_name}
+              </RNText>
+              <View style={styles.nearbyList}>
+                {pins
+                  .filter((p) => p.creator.id === selectedPin.creator.id && p.id !== selectedPin.id)
+                  .map((p) => (
+                    <Pressable
+                      key={p.id}
+                      onPress={() => setSelectedPin(p)}
+                      style={styles.nearbyItem}
+                    >
+                      <View
+                        style={[
+                          styles.nearbyThumb,
+                          { backgroundColor: CATEGORY_COLORS[p.category] },
+                        ]}
+                      />
+                      <RNText style={{ marginTop: 6 }}>{p.name}</RNText>
+                    </Pressable>
+                  ))}
+              </View>
+
+              {/* Expand / Collapse toggle */}
+              <Pressable
+                onPress={() => setSheetExpanded((v) => !v)}
+                style={{ marginTop: 12, alignSelf: 'center' }}
+              >
+                <RNText style={{ color: theme.colors.contentAccent }}>
+                  {sheetExpanded ? 'Collapse' : 'More details'}
+                </RNText>
+              </Pressable>
+            </View>
+          ) : (
+            <RNText>No place selected</RNText>
+          )}
+        </View>
+      </BottomSheet>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create(() => ({
+  container: {
+    flex: 1,
+  },
+  map: {
+    flex: 1,
+  },
+  markerWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pinCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pinLetter: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  pinAvatar: {
+    position: 'absolute',
+    right: -6,
+    bottom: -6,
+    width: 18,
+    height: 18,
+    borderRadius: 18,
+    borderWidth: 0.5,
+    borderColor: '#F7F6F3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#666',
+  },
+  pinAvatarText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  searchBox: {
+    position: 'absolute',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    minWidth: 180,
+    elevation: 3,
+  },
+  searchText: {
+    fontSize: 14,
+  },
+  filterButton: {
+    position: 'absolute',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+  },
+  myLocationButton: {
+    position: 'absolute',
+    right: 16,
+    bottom: 88,
+    width: 44,
+    height: 44,
+    borderRadius: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bottomSheetContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  sheetHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  categoryPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  categoryPillText: {
+    color: '#fff',
+    fontWeight: '700',
   },
-});
+  creatorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  creatorAvatarSmall: {
+    width: 36,
+    height: 36,
+    borderRadius: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#666',
+  },
+  creatorAvatarText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 12,
+  },
+  actionItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+  },
+  nearbyList: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  nearbyItem: {
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  nearbyThumb: {
+    width: 80,
+    height: 56,
+    borderRadius: 8,
+  },
+}));

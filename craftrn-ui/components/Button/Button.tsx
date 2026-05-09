@@ -7,8 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import {
   StyleSheet,
-  UnistylesRuntime,
-  useUnistyles,
+  useUnistyles
 } from 'react-native-unistyles';
 import { PressableScale, type AnimationConfig } from '../PressableScale';
 
@@ -185,14 +184,12 @@ export const Button = ({
       {...accessibilityProps}
     >
       <Animated.View
-        key={`button-bg-${UnistylesRuntime.themeName}`}
         style={[styles.button({ size, disabled }), backgroundStyle]}
       >
         {iconLeft && (
           <Animated.View style={styles.iconLeft}>{iconLeft}</Animated.View>
         )}
         <Animated.Text
-          key={`button-text-${UnistylesRuntime.themeName}`}
           style={[styles.text({ size }), textStyle]}
         >
           {children}

@@ -19,7 +19,7 @@ export default function LinkPhone() {
     setLoading(true);
     try {
       await linkPhoneNumber(phone);
-      router.replace('/onboarding/link-accounts');
+      router.push('/onboarding/link-accounts');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to save phone number.');
     } finally {
@@ -52,7 +52,7 @@ export default function LinkPhone() {
           </View>
 
           <View style={{ marginTop: 12 }}>
-            <Button variant="tertiary" onPress={() => router.replace('/onboarding/link-accounts')}>
+            <Button variant="tertiary" onPress={() => router.push('/onboarding/link-accounts')}>
               Skip
             </Button>
           </View>

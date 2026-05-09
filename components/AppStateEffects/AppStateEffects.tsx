@@ -108,7 +108,7 @@ export function AppStateEffects() {
 
       if (event === 'PASSWORD_RECOVERY') {
         dispatch(setRecoveringPassword(true));
-        router.replace('/reset-password');
+        router.push('/reset-password');
       }
 
       if (event === 'SIGNED_OUT') {
@@ -135,13 +135,13 @@ export function AppStateEffects() {
     }
 
     if (isRecoveringPassword && currentRoute !== 'reset-password') {
-      router.replace('/reset-password');
+      router.push('/reset-password');
       return;
     }
 
     if (!user) {
       if (isOnboardingRoute) {
-        router.replace('/register');
+        router.push('/register');
       }
       // Temporarily allow access to home page without authentication
       if (!isAuthRoute && !isOnboardingRoute) {
@@ -151,12 +151,12 @@ export function AppStateEffects() {
     }
 
     if (!user.onboardingCompleted && !isOnboardingRoute) {
-      router.replace('/onboarding/link-phone');
+      router.push('/onboarding/link-phone');
       return;
     }
 
     if (user.onboardingCompleted && (isAuthRoute || isOnboardingRoute)) {
-      router.replace('/');
+      router.push('/');
     }
   }, [
     currentRoute,

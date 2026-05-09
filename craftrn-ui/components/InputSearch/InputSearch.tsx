@@ -76,8 +76,6 @@ export const InputSearch = forwardRef<TextInput, Props & TextInputProps>(
           {itemLeft}
           <TextInput
             style={styles.textInput({ readOnly: isReadOnly })}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
             value={value}
             ref={ref}
             placeholderTextColor={theme.colors.contentTertiary}

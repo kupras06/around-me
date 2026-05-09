@@ -37,7 +37,7 @@ export const Text = ({
 }: Props & TextProps) => {
   return (
     <RNText
-      style={[styles.text({ color, variant }), StyleSheet.flatten(style)]}
+    style={[styles.text({ color, variant }), style]}
       {...props}
     />
   );

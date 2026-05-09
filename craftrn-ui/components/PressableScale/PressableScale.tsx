@@ -54,6 +54,8 @@ type Props = Omit<PressableProps, 'children'> & {
    */
   pressProgress?: SharedValue<number>;
 };
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 
 export const PressableScale = ({
   children,
@@ -102,15 +104,14 @@ export const PressableScale = ({
   }, [config.scaleIn]);
 
   return (
-    <Animated.View style={scaleStyle}>
-      <Pressable
-        disabled={disabled}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        {...pressableProps}
-      >
-        {children}
-      </Pressable>
-    </Animated.View>
+    <AnimatedPressable
+      style={scaleStyle}
+      disabled={disabled}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      {...pressableProps}
+    >
+      {children}
+    </AnimatedPressable>
   );
 };
