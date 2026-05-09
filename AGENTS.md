@@ -141,15 +141,8 @@ export default function ScreenName() {
 
 #### Making Changes:
 - **Do not make changes unless explicitly asked by the user**
-- **User views and approves changes before implementation**
 - **Provide clear explanations for what changes accomplish**
 - **Use minimal, focused edits rather than over-engineering**
-
-#### When User Approves Changes:
-- **Implement the approved changes immediately**
-- **Test the changes to ensure they work correctly**
-- **Provide feedback on any issues or improvements needed**
-- **Document any side effects or additional considerations**
 
 #### Context Management:
 - **Maintain context about user preferences and project goals**

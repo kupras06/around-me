@@ -4,6 +4,7 @@ import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import * as Linking from 'expo-linking';
 
 import type { AppDispatch, RootState } from '@/store';
+import { logger } from '@/lib/logger';
 
 type LinkedAccounts = {
   twitter?: boolean;
@@ -121,6 +122,7 @@ export const login = createAsyncThunk(
   async ({ email, password }: { email: string; password: string }) => {
     const normalizedEmail = email.trim().toLowerCase();
 
+    logger.info(`Login attempt with email: ${normalizedEmail} `, password);
     if (!normalizedEmail || !password) {
       throw new Error('Enter your email and password.');
     }
@@ -134,6 +136,7 @@ export const login = createAsyncThunk(
     });
 
     if (error) {
+      logger.error(`Login error: ${error.message}`, error);
       throw error;
     }
 
@@ -152,7 +155,6 @@ export const login = createAsyncThunk(
 
 export const logout = createAsyncThunk('auth/logout', async () => {
   const { error } = await supabase.auth.signOut();
-
   if (error) {
     throw error;
   }
@@ -163,7 +165,7 @@ export const register = createAsyncThunk(
   async ({ displayName, email, password }: RegisterPayload) => {
     const cleanDisplayName = displayName.trim();
     const normalizedEmail = email?.trim().toLowerCase() ?? '';
-
+    logger.info("Creating User", { displayName, email, password })
     if (!cleanDisplayName) {
       throw new Error('Enter a display name.');
     }
@@ -186,6 +188,7 @@ export const register = createAsyncThunk(
     });
 
     if (error) {
+      console.log('Register Error', error)
       throw error;
     }
 

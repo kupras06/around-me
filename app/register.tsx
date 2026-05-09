@@ -3,7 +3,7 @@ import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/useAuth';
 import { Stack } from 'expo-router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 
@@ -35,9 +35,9 @@ export default function RegisterScreen() {
         </Text>
 
         <View style={{ marginTop: 16 }}>
-          <InputText label="Display name" value={displayName} onChangeText={setDisplayName} />
+          <InputText autoFocus label="Display name" value={displayName} onChangeText={setDisplayName} />
           <View style={{ height: 12 }} />
-          <InputText label="Email" value={email} onChangeText={setEmail} />
+          <InputText label="Email" keyboardType='email-address' autoComplete='email' value={email} onChangeText={setEmail} />
           <View style={{ height: 12 }} />
           <InputText label="Password" value={password} onChangeText={setPassword} secureTextEntry />
 
