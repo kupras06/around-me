@@ -20,6 +20,7 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
+import { useReanimatedKeyboardAnimation } from 'react-native-keyboard-controller';
 import Animated, {
   Easing,
   runOnJS,
@@ -30,7 +31,6 @@ import Animated, {
   withTiming,
   WithTimingConfig,
 } from 'react-native-reanimated';
-import { useReanimatedKeyboardAnimation } from 'react-native-keyboard-controller';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 const animationConfig = {
@@ -316,7 +316,7 @@ export const BottomSheet = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme,rt) => ({
   container: {
     flex: 1,
   },
@@ -340,7 +340,7 @@ const styles = StyleSheet.create(theme => ({
     overflow: 'hidden',
   }),
   contentWrapper: {
-    paddingBottom: 50,
+    paddingBottom: rt.insets.bottom + 40,
   },
   handleBarContainer: {
     alignItems: 'center',

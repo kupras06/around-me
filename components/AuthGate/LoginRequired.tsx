@@ -4,11 +4,13 @@ import { Text } from '@/craftrn-ui/components/Text';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
 
 export default function LoginRequiredScreen() {
   const router = useRouter();
 
+  const insets = useSafeAreaInsets();
   const handleLogin = () => {
     router.replace('/login');
   };
@@ -17,6 +19,7 @@ export default function LoginRequiredScreen() {
     // Go back to previous page or home
     router.back();
   };
+
 
   return (
     <BottomSheet
@@ -61,7 +64,7 @@ export default function LoginRequiredScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme,rt) => ({
   content: {
     flex: 1,
     padding: theme.spacing.large,
