@@ -1,112 +1,85 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { HapticTab } from '@/components/haptic-tab';
+import { ThemeToggleButton } from '@/components/ThemeToggleButton/ThemeToggleButton';
+import { Tabs } from 'expo-router';
+import { View } from 'react-native';
+import Svg, { Path, SvgProps } from 'react-native-svg';
+import { useUnistyles } from 'react-native-unistyles';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+const MapIcon = (props: SvgProps) => (
+  <Svg viewBox="0 0 24 24" width={24} height={24} {...props}>
+    <Path d="M12 2C8 2 5 5 5 9c0 5.25 7 11 7 11s7-5.75 7-11c0-4-3-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
+  </Svg>
+);
 
-export default function TabTwoScreen() {
+const SavedIcon = (props: SvgProps) => (
+  <Svg viewBox="0 0 24 24" width={24} height={24} {...props}>
+    <Path d="M6 2h12v20l-6-4-6 4V2z" />
+  </Svg>
+);
+
+const CreatorsIcon = (props: SvgProps) => (
+  <Svg viewBox="0 0 24 24" width={24} height={24} {...props}>
+    <Path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z" />
+  </Svg>
+);
+
+const ProfileIcon = (props: SvgProps) => (
+  <Svg viewBox="0 0 24 24" width={24} height={24} {...props}>
+    <Path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z" />
+  </Svg>
+);
+
+export default function TabLayout() {
+  const { theme } = useUnistyles();
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: theme.colors.contentAccentSecondary,
+        headerTransparent: true,
+        headerRight: () => (
+          <View style={{ marginRight: 16 }}>
+            <ThemeToggleButton variant="neutral" />
+          </View>
+        ),
+        headerTitle: '',
+        tabBarButton: HapticTab,
+        sceneStyle: {
+          backgroundColor: theme.colors.backgroundScreen,
+        },
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Map',
+          tabBarIcon: ({ color }) => <MapIcon fill={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="saved"
+        options={{
+          title: 'Saved',
+          tabBarIcon: ({ color }) => <SavedIcon fill={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="creators"
+        options={{
+          title: 'Creators',
+          tabBarIcon: ({ color }) => <CreatorsIcon fill={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <ProfileIcon fill={color} />,
+        }}
+      />
+    </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
