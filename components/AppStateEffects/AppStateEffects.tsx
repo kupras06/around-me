@@ -143,6 +143,10 @@ export function AppStateEffects() {
       if (isOnboardingRoute) {
         router.replace('/register');
       }
+      // Temporarily allow access to home page without authentication
+      if (!isAuthRoute && !isOnboardingRoute) {
+        return;
+      }
       return;
     }
 

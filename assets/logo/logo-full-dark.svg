@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 120" width="380" height="120">
+  <rect width="380" height="120" fill="#1A1A1A"/>
+
+  <!-- Pin mark -->
+  <path d="M60 10 C38 10 22 26 22 48 C22 76 60 110 60 110 C60 110 98 76 98 48 C98 26 82 10 60 10 Z" fill="#C04A2A"/>
+  <circle cx="60" cy="48" r="16" fill="#2A2A2A"/>
+  <circle cx="60" cy="48" r="6" fill="#C04A2A"/>
+
+  <!-- Wordmark -->
+  <text x="116" y="52" font-family="Georgia, serif" font-size="42" fill="#F0EDE8" font-weight="400">around</text>
+  <text x="298" y="52" font-family="Georgia, serif" font-size="42" fill="#C04A2A" font-weight="400">me</text>
+
+  <!-- Divider -->
+  <line x1="116" y1="60" x2="368" y2="60" stroke="#C04A2A" stroke-width="1"/>
+
+  <!-- Tagline -->
+  <text x="117" y="76" font-family="Arial, sans-serif" font-size="12" fill="#666666" letter-spacing="2">A MAP OF GOOD THINGS</text>
+</svg>

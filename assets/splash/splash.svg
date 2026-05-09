@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1284 2778" width="1284" height="2778">
+
+  <!-- Warm off-white background -->
+  <rect width="1284" height="2778" fill="#F5EDE8"/>
+
+  <!-- Subtle dot grid background -->
+  <pattern id="dots" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+    <circle cx="40" cy="40" r="2.5" fill="#E0D4CB"/>
+  </pattern>
+  <rect width="1284" height="2778" fill="url(#dots)"/>
+
+  <!-- Faint large pin silhouette behind — decorative -->
+  <path d="M642 600 C510 600 420 690 420 780 C420 930 642 1120 642 1120 C642 1120 864 930 864 780 C864 690 774 600 642 600 Z" fill="#C04A2A" opacity="0.06"/>
+
+  <!-- Main pin mark centred -->
+  <path d="M642 940 C560 940 500 1000 500 1068 C500 1168 642 1300 642 1300 C642 1300 784 1168 784 1068 C784 1000 724 940 642 940 Z" fill="#C04A2A"/>
+  <!-- Inner ring -->
+  <circle cx="642" cy="1068" r="72" fill="#F5EDE8"/>
+  <!-- Inner dot -->
+  <circle cx="642" cy="1068" r="26" fill="#C04A2A"/>
+
+  <!-- Wordmark -->
+  <text x="642" y="1460" font-family="Georgia, serif" font-size="128" fill="#1A1A1A" font-weight="400" text-anchor="middle">around<tspan fill="#C04A2A">me</tspan></text>
+
+  <!-- Divider -->
+  <line x1="280" y1="1500" x2="1004" y2="1500" stroke="#C04A2A" stroke-width="3"/>
+
+  <!-- Tagline -->
+  <text x="642" y="1562" font-family="Arial, sans-serif" font-size="36" fill="#999999" text-anchor="middle" letter-spacing="10">A MAP OF GOOD THINGS</text>
+
+  <!-- City tag at bottom -->
+  <text x="642" y="2580" font-family="Arial, sans-serif" font-size="32" fill="#CCBBAA" text-anchor="middle" letter-spacing="14">BENGALURU</text>
+
+</svg>
