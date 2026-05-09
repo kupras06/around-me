@@ -169,7 +169,7 @@ const styles = StyleSheet.create((theme) => {
         ? theme.colors.sentimentNegative
         : theme.colors.borderNeutralSecondary,
       backgroundColor: disabled
-        ? theme.colors.backgroundMuted
+        ? "gray"
         : theme.colors.backgroundElevated,
       paddingHorizontal: theme.spacing.small,
       flexDirection: 'row',

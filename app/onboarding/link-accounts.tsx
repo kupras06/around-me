@@ -2,13 +2,12 @@ import { Button } from '@/craftrn-ui/components/Button/Button';
 import { Switch } from '@/craftrn-ui/components/Switch/Switch';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/useAuth';
-import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { Stack, } from 'expo-router';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 
 export default function LinkAccounts() {
-  const router = useRouter();
   const { linkAccounts, completeOnboarding } = useAuth();
   const [twitter, setTwitter] = useState(false);
   const [instagram, setInstagram] = useState(false);

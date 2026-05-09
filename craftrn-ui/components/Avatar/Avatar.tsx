@@ -8,6 +8,8 @@ import {
 import { StyleSheet } from 'react-native-unistyles';
 import { Text } from '../Text';
 
+type AvatarSize = 'small' | 'medium' | 'large' | 'xlarge';
+
 /**
  * Color of the avatar when the image cannot be loaded.
  */
@@ -49,7 +51,7 @@ export type Props = {
    * The size of the avatar.
    * @default 'medium'
    */
-  size?: 'small' | 'medium' | 'large';
+  size?: AvatarSize;
   /**
    * Alternative text for the image.
    */
@@ -80,7 +82,7 @@ export const Avatar = ({
       style={[
         styles.container({ size }),
         (!hasValidSource || !imageLoaded) &&
-          styles.containerColor({ color: fallbackColor }),
+        styles.containerColor({ color: fallbackColor }),
       ]}
       accessible
       accessibilityHint={showOnlineIndicator ? 'online' : undefined}
@@ -107,7 +109,7 @@ export const Avatar = ({
 };
 
 const styles = StyleSheet.create(theme => ({
-  container: (params: { size: 'small' | 'medium' | 'large' }) => ({
+  container: (params: { size: AvatarSize }) => ({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -124,6 +126,11 @@ const styles = StyleSheet.create(theme => ({
     ...(params.size === 'large' && {
       width: 56,
       height: 56,
+      borderRadius: theme.borderRadius.full,
+    }),
+    ...(params.size === 'xlarge' && {
+      width: 256,
+      height: 256,
       borderRadius: theme.borderRadius.full,
     }),
   }),
@@ -158,7 +165,7 @@ const styles = StyleSheet.create(theme => ({
     color: theme.colors.baseLight,
     fontWeight: 'bold',
   },
-  indicator: (params: { size: 'small' | 'medium' | 'large' }) => ({
+  indicator: (params: { size: AvatarSize }) => ({
     position: 'absolute',
     bottom: 0,
     right: 0,

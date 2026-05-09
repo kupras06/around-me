@@ -2,15 +2,12 @@ import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
 import { Button } from '@/craftrn-ui/components/Button';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useRouter } from 'expo-router';
-import React from 'react';
 import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
 
 export default function LoginRequiredScreen() {
   const router = useRouter();
 
-  const insets = useSafeAreaInsets();
   const handleLogin = () => {
     router.replace('/login');
   };
@@ -35,25 +32,25 @@ export default function LoginRequiredScreen() {
             <Text style={styles.lockText}>🔒</Text>
           </View>
         </View>
-        
+
         <Text variant="heading3" style={styles.title}>
           Sign In Required
         </Text>
-        
+
         <Text variant="body1" style={styles.description}>
           Please sign in to access this feature and save your favorite places.
         </Text>
-        
+
         <View style={styles.buttonContainer}>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onPress={handleLogin}
           >
             Sign In
           </Button>
-          
-          <Button 
-            variant="tertiary" 
+
+          <Button
+            variant="tertiary"
             onPress={handleDismiss}
           >
             Maybe Later
@@ -64,7 +61,7 @@ export default function LoginRequiredScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme,rt) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   content: {
     flex: 1,
     padding: theme.spacing.large,

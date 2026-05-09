@@ -1,6 +1,4 @@
-import type { SupportedStorage } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
-import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { env } from '@/lib/env';
 
@@ -18,7 +16,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: AsyncStorage, // Cast to any to satisfy type expectations
     autoRefreshToken: true,
+    storageKey: 'around-me-auth',
     persistSession: true,
     detectSessionInUrl: false,
   },
+
 });

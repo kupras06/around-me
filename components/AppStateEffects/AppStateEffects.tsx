@@ -6,9 +6,10 @@ import {
   selectAuth,
   setAuthState,
   setRecoveringPassword,
+  mapSupabaseUser
 } from '@/store/slices/authSlice';
 import { selectTheme, setResolvedMode } from '@/store/slices/themeSlice';
-import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import type { Session, } from '@supabase/supabase-js';
 import { useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
@@ -16,41 +17,12 @@ import { UnistylesRuntime } from 'react-native-unistyles';
 
 const AUTH_ROUTES = new Set(['login', 'register', 'reset-password']);
 
-type LinkedAccounts = {
-  twitter?: boolean;
-  instagram?: boolean;
-};
-
-type UserMetadata = {
-  displayName?: string;
-  phone?: string;
-  phoneLinked?: boolean;
-  linkedAccounts?: LinkedAccounts;
-  onboardingCompleted?: boolean;
-};
 
 type ThemeName = NonNullable<typeof UnistylesRuntime.themeName>;
 
 const getThemeName = (mode: ResolvedThemeMode): ThemeName =>
   mode === 'dark' ? 'aroundmeDark' : 'aroundmeLight';
 
-const mapSupabaseUser = (user: SupabaseUser | null) => {
-  if (!user) {
-    return null;
-  }
-
-  const metadata = (user.user_metadata ?? {}) as UserMetadata;
-
-  return {
-    id: user.id,
-    displayName: metadata.displayName ?? user.email?.split('@')[0] ?? 'User',
-    email: user.email,
-    phone: metadata.phone,
-    phoneLinked: metadata.phoneLinked ?? false,
-    linkedAccounts: metadata.linkedAccounts ?? {},
-    onboardingCompleted: metadata.onboardingCompleted ?? false,
-  };
-};
 
 export function AppStateEffects() {
   const dispatch = useAppDispatch();
@@ -150,12 +122,12 @@ export function AppStateEffects() {
       return;
     }
 
-    if (!user.onboardingCompleted && !isOnboardingRoute) {
+    if (!user.onboarding_completed && !isOnboardingRoute) {
       router.push('/onboarding/link-phone');
       return;
     }
 
-    if (user.onboardingCompleted && (isAuthRoute || isOnboardingRoute)) {
+    if (user.onboarding_completed && (isAuthRoute || isOnboardingRoute)) {
       router.push('/');
     }
   }, [
