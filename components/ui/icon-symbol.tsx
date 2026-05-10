@@ -81,6 +81,7 @@ const MAPPING = {
   minus: 'remove',
   pencil: 'edit',
   trash: 'delete-outline',
+  'swatchpalette.fill': 'palette',
 
   // Dev
   'chevron.left.forwardslash.chevron.right': 'code',

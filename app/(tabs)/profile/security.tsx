@@ -126,7 +126,6 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     gap: theme.spacing.large,
     padding: theme.spacing.large,
-    backgroundColor: theme.colors.backgroundScreen,
     paddingBottom: theme.spacing.large + 40,
   },
   loadingContainer: {

@@ -183,7 +183,6 @@ const styles = StyleSheet.create((theme) => ({
     height: '100%',
     gap: theme.spacing.small,
     padding: theme.spacing.large,
-    backgroundColor: theme.colors.backgroundScreen,
     paddingBottom: theme.spacing.large + 40,
   },
   loadingContainer: {
@@ -191,7 +190,6 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     minHeight: 300,
     alignItems: 'center',
-    backgroundColor: theme.colors.backgroundScreen,
   },
   button: {
     marginBottom: theme.spacing.small,

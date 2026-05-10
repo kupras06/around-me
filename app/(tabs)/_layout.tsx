@@ -13,9 +13,6 @@ export default function TabLayout() {
         tabBarActiveTintColor: theme.colors.contentAccentSecondary,
         tabBarButton: HapticTab,
         headerShown: false,
-        sceneStyle: {
-          backgroundColor: theme.colors.backgroundScreen,
-        },
         tabBarStyle: {
           backgroundColor: theme.colors.backgroundScreen,
           paddingTop: 10,

@@ -186,9 +186,7 @@ export default function MapScreen() {
     // Demo fallback: noop (could animate pins or show toast)
   }
   return (
-    <View
-      style={[styles.container, { backgroundColor: theme.colors.baseLight }]}
-    >
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Map or demo fallback when Mapbox token is missing */}

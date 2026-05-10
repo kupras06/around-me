@@ -78,7 +78,6 @@ export default function LinkPhone() {
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.backgroundScreen,
     paddingTop: UnistylesRuntime.insets.top + theme.spacing.large,
   },
   content: {

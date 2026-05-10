@@ -28,7 +28,6 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     padding: theme.spacing.large,
-    backgroundColor: theme.colors.backgroundScreen,
     paddingBottom: theme.spacing.large + 40,
   },
 }));
