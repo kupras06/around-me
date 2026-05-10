@@ -1,34 +1,36 @@
-import { supabase } from '@/lib/supabase';
-import { setStoredThemePreference, type ResolvedThemeMode } from '@/lib/theme-preference';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  bootstrapAuth,
-  selectAuth,
-  setAuthState,
-  setRecoveringPassword,
-  mapSupabaseUser
-} from '@/store/slices/authSlice';
-import { selectTheme, setResolvedMode } from '@/store/slices/themeSlice';
-import type { Session, } from '@supabase/supabase-js';
+import type { Session } from '@supabase/supabase-js';
 import { useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
 import { UnistylesRuntime } from 'react-native-unistyles';
+import { supabase } from '@/lib/supabase';
+import {
+  type ResolvedThemeMode,
+  setStoredThemePreference,
+} from '@/lib/theme-preference';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  bootstrapAuth,
+  mapSupabaseUser,
+  selectAuth,
+  setAuthState,
+  setRecoveringPassword,
+} from '@/store/slices/authSlice';
+import { selectTheme, setResolvedMode } from '@/store/slices/themeSlice';
 
 const AUTH_ROUTES = new Set(['login', 'register', 'reset-password']);
-
 
 type ThemeName = NonNullable<typeof UnistylesRuntime.themeName>;
 
 const getThemeName = (mode: ResolvedThemeMode): ThemeName =>
   mode === 'dark' ? 'aroundmeDark' : 'aroundmeLight';
 
-
 export function AppStateEffects() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const segments = useSegments();
-  const { user, loading, isRecoveringPassword, initialized } = useAppSelector(selectAuth);
+  const { user, loading, isRecoveringPassword, initialized } =
+    useAppSelector(selectAuth);
   const { mode, modePreference } = useAppSelector(selectTheme);
 
   useEffect(() => {
@@ -44,7 +46,8 @@ export function AppStateEffects() {
   useEffect(() => {
     setStoredThemePreference(modePreference);
     if (modePreference === 'system') {
-      const systemMode = Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
+      const systemMode =
+        Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
       dispatch(setResolvedMode(systemMode));
       Appearance.setColorScheme(null);
       return;
@@ -75,7 +78,7 @@ export function AppStateEffects() {
         setAuthState({
           session,
           user: mapSupabaseUser(session?.user ?? null),
-        }),
+        })
       );
 
       if (event === 'PASSWORD_RECOVERY') {

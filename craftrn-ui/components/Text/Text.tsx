@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text as RNText, TextProps } from 'react-native';
+import { Text as RNText, type TextProps } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 /**
@@ -35,15 +35,10 @@ export const Text = ({
   style,
   ...props
 }: Props & TextProps) => {
-  return (
-    <RNText
-    style={[styles.text({ color, variant }), style]}
-      {...props}
-    />
-  );
+  return <RNText style={[styles.text({ color, variant }), style]} {...props} />;
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   text: ({
     color,
     variant,

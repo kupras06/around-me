@@ -1,11 +1,11 @@
+import { Stack } from 'expo-router';
+import { useState } from 'react';
+import { View } from 'react-native';
+import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { Switch } from '@/craftrn-ui/components/Switch/Switch';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/useAuth';
-import { Stack, } from 'expo-router';
-import { useState } from 'react';
-import { View } from 'react-native';
-import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 
 export default function LinkAccounts() {
   const { linkAccounts, completeOnboarding } = useAuth();
@@ -21,7 +21,9 @@ export default function LinkAccounts() {
       await linkAccounts({ twitter, instagram });
       await completeOnboarding();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to finish onboarding.');
+      setError(
+        err instanceof Error ? err.message : 'Unable to finish onboarding.'
+      );
     } finally {
       setLoading(false);
     }
@@ -33,12 +35,17 @@ export default function LinkAccounts() {
       <View style={styles.content}>
         <Text variant="heading3">Link social accounts</Text>
         <Text variant="body2" style={{ marginTop: 8, color: '#666' }}>
-          Link Twitter and/or Instagram to help creators find you and to share picks more easily.
+          Link Twitter and/or Instagram to help creators find you and to share
+          picks more easily.
         </Text>
 
         <View style={{ marginTop: 16 }}>
           <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
           >
             <Text>Twitter</Text>
             <Switch value={twitter} onValueChange={setTwitter} />
@@ -47,14 +54,22 @@ export default function LinkAccounts() {
           <View style={{ height: 12 }} />
 
           <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
           >
             <Text>Instagram</Text>
             <Switch value={instagram} onValueChange={setInstagram} />
           </View>
 
           {error && (
-            <Text variant="body3" color="sentimentNegative" style={{ marginTop: 8 }}>
+            <Text
+              variant="body3"
+              color="sentimentNegative"
+              style={{ marginTop: 8 }}
+            >
               {error}
             </Text>
           )}

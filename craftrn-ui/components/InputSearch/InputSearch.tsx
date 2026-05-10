@@ -1,11 +1,12 @@
-import React, { forwardRef, useCallback, useRef, useState } from 'react';
+import type React from 'react';
+import { forwardRef, useCallback, useRef, useState } from 'react';
 import {
-  NativeSyntheticEvent,
+  type NativeSyntheticEvent,
   Platform,
   Pressable,
   TextInput,
-  TextInputFocusEventData,
-  TextInputProps,
+  type TextInputFocusEventData,
+  type TextInputProps,
   View,
 } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -32,7 +33,7 @@ export type Props = {
 export const InputSearch = forwardRef<TextInput, Props & TextInputProps>(
   function InputSearch(
     { onPress, onFocus, onBlur, value, itemLeft, itemRight, ...props },
-    ref,
+    ref
   ) {
     const { theme } = useUnistyles();
     const [isFocused, setIsFocused] = useState(false);
@@ -50,7 +51,7 @@ export const InputSearch = forwardRef<TextInput, Props & TextInputProps>(
         setIsFocused(true);
         onFocus?.(e);
       },
-      [onFocus],
+      [onFocus]
     );
 
     const handleBlur = useCallback(
@@ -58,7 +59,7 @@ export const InputSearch = forwardRef<TextInput, Props & TextInputProps>(
         setIsFocused(false);
         onBlur?.(e);
       },
-      [onBlur],
+      [onBlur]
     );
 
     return (
@@ -66,7 +67,7 @@ export const InputSearch = forwardRef<TextInput, Props & TextInputProps>(
         onPress={handlePress}
         style={styles.container}
         accessible={!!onPress}
-        role={!!onPress ? 'button' : undefined}
+        role={onPress ? 'button' : undefined}
       >
         <View
           style={styles.inputContainer({
@@ -88,10 +89,10 @@ export const InputSearch = forwardRef<TextInput, Props & TextInputProps>(
         </View>
       </Pressable>
     );
-  },
+  }
 );
 
-const styles = StyleSheet.create(theme => {
+const styles = StyleSheet.create((theme) => {
   return {
     container: {
       width: '100%',

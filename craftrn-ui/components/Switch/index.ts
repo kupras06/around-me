@@ -1,2 +1,2 @@
-export { Switch } from './Switch';
 export type { Props } from './Switch';
+export { Switch } from './Switch';

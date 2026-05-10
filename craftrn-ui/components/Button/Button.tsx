@@ -1,15 +1,13 @@
-import React, { useMemo } from 'react';
-import { AccessibilityProps } from 'react-native';
+import type React from 'react';
+import { useMemo } from 'react';
+import type { AccessibilityProps } from 'react-native';
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import {
-  StyleSheet,
-  useUnistyles
-} from 'react-native-unistyles';
-import { PressableScale, type AnimationConfig } from '../PressableScale';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { type AnimationConfig, PressableScale } from '../PressableScale';
 
 /**
  * Convert a hex color to grayscale using luminance formula (0.299*R + 0.587*G + 0.114*B)
@@ -18,7 +16,7 @@ const hexToGrayscale = (hex: string): string =>
   `#${Math.round(
     0.299 * parseInt(hex.slice(1, 3), 16) +
       0.587 * parseInt(hex.slice(3, 5), 16) +
-      0.114 * parseInt(hex.slice(5, 7), 16),
+      0.114 * parseInt(hex.slice(5, 7), 16)
   )
     .toString(16)
     .padStart(2, '0')
@@ -156,10 +154,10 @@ export const Button = ({
       backgroundColor: interpolateColor(
         pressProgress.value,
         [0, 1],
-        [colorConfig.backgroundUnpressed, colorConfig.backgroundPressed],
+        [colorConfig.backgroundUnpressed, colorConfig.backgroundPressed]
       ),
     }),
-    [colorConfig.backgroundUnpressed, colorConfig.backgroundPressed],
+    [colorConfig.backgroundUnpressed, colorConfig.backgroundPressed]
   );
 
   const textStyle = useAnimatedStyle(
@@ -167,10 +165,10 @@ export const Button = ({
       color: interpolateColor(
         pressProgress.value,
         [0, 1],
-        [colorConfig.textUnpressed, colorConfig.textPressed],
+        [colorConfig.textUnpressed, colorConfig.textPressed]
       ),
     }),
-    [colorConfig.textUnpressed, colorConfig.textPressed],
+    [colorConfig.textUnpressed, colorConfig.textPressed]
   );
 
   return (
@@ -189,9 +187,7 @@ export const Button = ({
         {iconLeft && (
           <Animated.View style={styles.iconLeft}>{iconLeft}</Animated.View>
         )}
-        <Animated.Text
-          style={[styles.text({ size }), textStyle]}
-        >
+        <Animated.Text style={[styles.text({ size }), textStyle]}>
           {children}
         </Animated.Text>
       </Animated.View>
@@ -199,7 +195,7 @@ export const Button = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   button: ({ size, disabled }: { size: Size; disabled: boolean }) => {
     return {
       flexDirection: 'row',

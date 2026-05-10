@@ -1,27 +1,38 @@
+import { decode } from 'base64-arraybuffer';
+import { invariant } from 'es-toolkit';
+import * as ImagePicker from 'expo-image-picker'; // New import
+import { Stack } from 'expo-router';
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  View,
+} from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import AuthGate from '@/components/AuthGate/AuthGate';
+import { EmailInput } from '@/components/inputs/EmailInput';
+import { PhoneNumberInput } from '@/components/inputs/PhoneNumberInput';
 import SharedHeader from '@/components/SharedHeader/SharedHeader';
 import { Avatar } from '@/craftrn-ui/components/Avatar';
 import { Button } from '@/craftrn-ui/components/Button';
 import { InputText } from '@/craftrn-ui/components/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
+import { useUser } from '@/hooks/useAuth';
 import { logger } from '@/lib/logger';
 import { supabase } from '@/lib/supabase';
-import { Stack } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-import * as ImagePicker from 'expo-image-picker'; // New import
-import { useUser } from '@/hooks/useAuth';
-import { invariant } from 'es-toolkit';
-import { decode } from 'base64-arraybuffer';
+
 function ActualProfile() {
   const [loading, setLoading] = useState(false);
   const [displayName, setDisplayName] = useState('');
-  const { user, updateProfile } = useUser()
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const { user, updateProfile, linkPhoneNumber } = useUser();
   useEffect(() => {
     const getProfile = async () => {
       setLoading(true);
       setDisplayName(user.display_name ?? '');
+      setPhoneNumber(user.phone ?? '');
       setLoading(false);
     };
 
@@ -31,7 +42,7 @@ function ActualProfile() {
   const handleUpdateProfile = async () => {
     setLoading(true);
     try {
-      await updateProfile({ display_name: displayName, });
+      await updateProfile({ display_name: displayName });
       Alert.alert('Success', 'Profile updated successfully!');
     } catch (error) {
       Alert.alert('Error', (error as Error).message);
@@ -39,16 +50,18 @@ function ActualProfile() {
     setLoading(false);
   };
 
-  const resetPassword = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-      redirectTo: 'around-me://reset-password', // Replace with your actual deep link for password reset
-    });
+  const handleLinkPhoneNumber = async () => {
+    if (!phoneNumber.trim()) {
+      Alert.alert('Error', 'Please enter a valid phone number');
+      return;
+    }
 
-    if (error) {
-      Alert.alert('Error', error.message);
-    } else {
-      Alert.alert('Success', 'Password reset email sent. Check your inbox!');
+    setLoading(true);
+    try {
+      await linkPhoneNumber(phoneNumber);
+      Alert.alert('Success', 'Phone number linked successfully!');
+    } catch (error) {
+      Alert.alert('Error', (error as Error).message);
     }
     setLoading(false);
   };
@@ -59,7 +72,8 @@ function ActualProfile() {
       const result = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 1, base64: true,
+        quality: 1,
+        base64: true,
       });
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const image = result.assets[0];
@@ -73,9 +87,9 @@ function ActualProfile() {
             cacheControl: '3600',
             upsert: true,
           });
-        logger.info('Uploaded', data, uploadError)
+        logger.info('Uploaded', data, uploadError);
         if (uploadError) {
-          logger.error(uploadError)
+          logger.error(uploadError);
           throw uploadError;
         }
 
@@ -83,7 +97,7 @@ function ActualProfile() {
         const { data: publicUrlData } = supabase.storage
           .from('assets-images')
           .getPublicUrl(`${user.id}/${fileName}`);
-        logger.info(publicUrlData)
+        logger.info(publicUrlData);
         if (publicUrlData.publicUrl) {
           await updateProfile({
             avatar_url: publicUrlData.publicUrl,
@@ -93,8 +107,11 @@ function ActualProfile() {
           throw new Error('Could not get public URL for avatar.');
         }
       }
-    } catch (error: any) {
-      Alert.alert('Error', error.message);
+    } catch (error: unknown) {
+      Alert.alert(
+        'Error',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
       logger.error('Error uploading avatar:', error);
     } finally {
       setLoading(false);
@@ -110,65 +127,60 @@ function ActualProfile() {
   }
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
-      <SharedHeader />
+    <ScrollView>
+      <View style={styles.container}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <SharedHeader />
 
-      <View style={styles.profileHeader}>
-        <Pressable onPress={() => uploadAvatar()} // Add onPress
+        <View style={styles.profileHeader}>
+          <Pressable
+            onPress={() => uploadAvatar()} // Add onPress
+          >
+            <Avatar
+              source={{
+                uri:
+                  user?.avatar_url ||
+                  'https://wzalymcnppeczexhptbt.supabase.co/storage/v1/object/sign/assets-images/7ce2bfdf-9e4c-44ff-af8c-8ee6a98cfa6a/avatar-7ce2bfdf-9e4c-44ff-af8c-8ee6a98cfa6a.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mYWRlZWEzOC02ZmQ2LTQ1MGYtOGJjYi04Yjg4ZTQ5MjZjOTQiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJhc3NldHMtaW1hZ2VzLzdjZTJiZmRmLTllNGMtNDRmZi1hZjhjLThlZTZhOThjZmE2YS9hdmF0YXItN2NlMmJmZGYtOWU0Yy00NGZmLWFmOGMtOGVlNmE5OGNmYTZhLmpwZWciLCJpYXQiOjE3NzgzNDk3ODksImV4cCI6MTc3ODk1NDU4OX0.NBy2GImLs0nCtsfk5YqbeAk9sMSHWQyeEONLZ8hQCKg',
+              }}
+              size="xlarge"
+            />
+          </Pressable>
+          <Text variant="heading3" style={{ marginTop: 16 }}>
+            Profile
+          </Text>
+        </View>
+
+        <InputText
+          label="Display Name"
+          value={displayName}
+          onChangeText={setDisplayName}
+        />
+        <EmailInput email={user?.email || ''} disabled />
+
+        <PhoneNumberInput
+          phoneNumber={phoneNumber}
+          setPhoneNumber={setPhoneNumber}
+        />
+        <Button
+          variant="secondary"
+          onPress={handleLinkPhoneNumber}
+          disabled={loading}
         >
-          <Avatar
-            source={{
-              uri: user?.avatar_url || 'https://wzalymcnppeczexhptbt.supabase.co/storage/v1/object/sign/assets-images/7ce2bfdf-9e4c-44ff-af8c-8ee6a98cfa6a/avatar-7ce2bfdf-9e4c-44ff-af8c-8ee6a98cfa6a.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mYWRlZWEzOC02ZmQ2LTQ1MGYtOGJjYi04Yjg4ZTQ5MjZjOTQiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJhc3NldHMtaW1hZ2VzLzdjZTJiZmRmLTllNGMtNDRmZi1hZjhjLThlZTZhOThjZmE2YS9hdmF0YXItN2NlMmJmZGYtOWU0Yy00NGZmLWFmOGMtOGVlNmE5OGNmYTZhLmpwZWciLCJpYXQiOjE3NzgzNDk3ODksImV4cCI6MTc3ODk1NDU4OX0.NBy2GImLs0nCtsfk5YqbeAk9sMSHWQyeEONLZ8hQCKg'
-            }}
-            size="xlarge"
-          />
-        </Pressable>
-        <Text variant="heading3" style={{ marginTop: 16 }}>
-          Profile
-        </Text>
+          {user.phone_linked ? 'Update Phone Number' : 'Link Phone Number'}
+        </Button>
+        <Button
+          variant="primary"
+          onPress={handleUpdateProfile}
+          disabled={loading}
+        >
+          Update Profile
+        </Button>
       </View>
-
-      <InputText
-        label="Display Name"
-        value={displayName}
-        onChangeText={setDisplayName}
-      />
-      <InputText
-        label="Email"
-        value={user?.email}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <Button
-        variant="primary"
-        onPress={handleUpdateProfile}
-        disabled={loading}
-      >
-        Update Profile
-      </Button>
-
-      <Button
-        variant="secondary"
-        onPress={resetPassword}
-        disabled={loading}
-      >
-        Reset Password
-      </Button>
-
-      <Button
-        variant="tertiary"
-        onPress={() => supabase.auth.signOut()}
-        disabled={loading}
-      >
-        Sign Out
-      </Button>
-    </View>
+    </ScrollView>
   );
 }
 
-export default function ProfileScreen() {
+export default function AccountScreen() {
   return (
     <AuthGate>
       <ActualProfile />

@@ -1,7 +1,5 @@
 import { AppStateEffects } from '@/components/AppStateEffects/AppStateEffects';
 import '@/craftrn-ui/themes/unistyles';
-import { useTheme } from '@/hooks/useTheme';
-import { store } from '@/store';
 import {
   DarkTheme,
   DefaultTheme,
@@ -13,6 +11,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { useTheme } from '@/hooks/useTheme';
+import { store } from '@/store';
 import 'react-native-reanimated';
 import { Provider as ReduxProvider } from 'react-redux';
 

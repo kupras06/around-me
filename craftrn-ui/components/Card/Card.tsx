@@ -1,5 +1,4 @@
-import React from 'react';
-import { StyleSheet as RNStyleSheet, View, ViewProps } from 'react-native';
+import { StyleSheet as RNStyleSheet, View, type ViewProps } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 /**
@@ -15,7 +14,7 @@ export const Card = ({ children, style, ...viewProps }: Props) => {
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   card: {
     backgroundColor: theme.colors.backgroundElevated,
     borderRadius: theme.borderRadius.large,

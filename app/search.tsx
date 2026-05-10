@@ -1,16 +1,14 @@
-import { InputSearch } from '@/craftrn-ui/components/InputSearch/InputSearch';
-import { Text } from '@/craftrn-ui/components/Text';
 import { Stack } from 'expo-router';
-import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+import { InputSearch } from '@/craftrn-ui/components/InputSearch/InputSearch';
+import { Text } from '@/craftrn-ui/components/Text';
 export default function SearchScreen() {
- 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: 'Search' }} />
       <View style={styles.content}>
-        <InputSearch onPress={() => {}} placeholder="Search places or creators" />
+        <InputSearch placeholder="Search places or creators" />
         <Text variant="body2" style={{ marginTop: 16 }}>
           Search is a demo placeholder. Implement search flow when ready.
         </Text>

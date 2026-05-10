@@ -1,10 +1,10 @@
-import { HapticTab } from '@/components/haptic-tab';
-import { ThemeToggleButton } from '@/components/ThemeToggleButton/ThemeToggleButton';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnistyles } from 'react-native-unistyles';
+import { HapticTab } from '@/components/haptic-tab';
+import { ThemeToggleButton } from '@/components/ThemeToggleButton/ThemeToggleButton';
 
 export default function TabLayout() {
   const { theme } = useUnistyles();
@@ -35,7 +35,9 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Map',
-          tabBarIcon: ({ color }) => <MaterialIcons name="location-on" size={24} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="location-on" size={24} color={color} />
+          ),
         }}
       />
 
@@ -43,7 +45,9 @@ export default function TabLayout() {
         name="saved"
         options={{
           title: 'Saved',
-          tabBarIcon: ({ color }) => <MaterialIcons name="bookmark" size={24} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="bookmark" size={24} color={color} />
+          ),
         }}
       />
 
@@ -51,7 +55,9 @@ export default function TabLayout() {
         name="creators"
         options={{
           title: 'Creators',
-          tabBarIcon: ({ color }) => <MaterialIcons name="people" size={24} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="people" size={24} color={color} />
+          ),
         }}
       />
 
@@ -59,7 +65,9 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <MaterialIcons name="person" size={24} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="person" size={24} color={color} />
+          ),
         }}
       />
     </Tabs>

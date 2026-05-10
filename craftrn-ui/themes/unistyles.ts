@@ -20,4 +20,3 @@ StyleSheet.configure({
     initialTheme: 'aroundmeLight',
   },
 });
-

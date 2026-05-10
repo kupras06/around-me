@@ -1,2 +1,2 @@
-export { InputOTP } from './InputOTP';
 export type { Props } from './InputOTP';
+export { InputOTP } from './InputOTP';

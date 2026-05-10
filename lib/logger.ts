@@ -1,4 +1,4 @@
-import { consoleTransport, logger as RNLogger } from "react-native-logs";
+import { consoleTransport, logger as RNLogger } from 'react-native-logs';
 
 export const logger = RNLogger.createLogger({
   levels: {
@@ -7,17 +7,17 @@ export const logger = RNLogger.createLogger({
     warn: 2,
     error: 3,
   },
-  severity: "debug",
+  severity: 'debug',
   transport: consoleTransport,
   transportOptions: {
     colors: {
-      info: "blueBright",
-      warn: "yellowBright",
-      error: "redBright",
+      info: 'blueBright',
+      warn: 'yellowBright',
+      error: 'redBright',
     },
   },
   async: true,
-  dateFormat: "time",
+  dateFormat: 'time',
   printLevel: true,
   printDate: true,
   fixedExtLvlLength: false,

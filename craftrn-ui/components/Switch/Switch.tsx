@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, Switch as RNSwitch, SwitchProps } from 'react-native';
+import { Platform, Switch as RNSwitch, type SwitchProps } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 /**

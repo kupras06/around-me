@@ -1,7 +1,11 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { Appearance } from 'react-native';
 
-import { getStoredThemePreference, type ResolvedThemeMode, type ThemePreference } from '@/lib/theme-preference';
+import {
+  getStoredThemePreference,
+  type ResolvedThemeMode,
+  type ThemePreference,
+} from '@/lib/theme-preference';
 import type { RootState } from '@/store';
 
 type ThemeState = {
@@ -25,7 +29,8 @@ const themeSlice = createSlice({
   reducers: {
     setModePreference: (state, action: PayloadAction<ThemePreference>) => {
       state.modePreference = action.payload;
-      state.mode = action.payload === 'system' ? getSystemMode() : action.payload;
+      state.mode =
+        action.payload === 'system' ? getSystemMode() : action.payload;
     },
     setResolvedMode: (state, action: PayloadAction<ResolvedThemeMode>) => {
       state.mode = action.payload;
@@ -37,7 +42,8 @@ const themeSlice = createSlice({
   },
 });
 
-export const { setModePreference, setResolvedMode, toggleMode } = themeSlice.actions;
+export const { setModePreference, setResolvedMode, toggleMode } =
+  themeSlice.actions;
 
 export const selectTheme = (state: RootState) => state.theme;
 

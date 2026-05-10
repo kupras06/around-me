@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import {
-  AccessibilityActionEvent,
+  type AccessibilityActionEvent,
   AccessibilityInfo,
   View,
 } from 'react-native';
@@ -122,7 +122,7 @@ export const Slider = ({
   };
 
   const position = useSharedValue(
-    initialValue !== undefined ? getPositionFromValue(initialValue) : 0,
+    initialValue !== undefined ? getPositionFromValue(initialValue) : 0
   );
 
   const snapToStep = useCallback(
@@ -131,7 +131,7 @@ export const Slider = ({
       const steppedValue = Math.round((value - min) / step) * step + min;
       return Math.min(Math.max(min, steppedValue), max);
     },
-    [min, max, step],
+    [min, max, step]
   );
 
   const getSliderValue = useCallback(
@@ -140,7 +140,7 @@ export const Slider = ({
       const rawValue = (pos / sliderWidth) * (max - min) + min;
       return snapToStep(rawValue);
     },
-    [max, min, sliderWidth, snapToStep],
+    [max, min, sliderWidth, snapToStep]
   );
 
   const notifyValueChange = useCallback(
@@ -152,7 +152,7 @@ export const Slider = ({
       runOnJS(onValueChange)(value);
       runOnJS(setAccessibilityValue)(value);
     },
-    [getSliderValue, onValueChange, position],
+    [getSliderValue, onValueChange, position]
   );
 
   useAnimatedReaction(
@@ -168,7 +168,7 @@ export const Slider = ({
         runOnJS(onValueChange)(value);
       }
     },
-    [isDragging, position, getSliderValue, onValueChange],
+    [isDragging, position, getSliderValue, onValueChange]
   );
 
   const adjustValue = useCallback(
@@ -195,7 +195,7 @@ export const Slider = ({
       getPositionFromValue,
       onValueChange,
       animationConfig.position.spring,
-    ],
+    ]
   );
 
   const handleAccessibilityAction = useCallback(
@@ -209,7 +209,7 @@ export const Slider = ({
           break;
       }
     },
-    [adjustValue],
+    [adjustValue]
   );
 
   const panGesture = Gesture.Pan()
@@ -219,7 +219,7 @@ export const Slider = ({
       prevPosition.value = position.value;
       isDragging.value = true;
     })
-    .onUpdate(e => {
+    .onUpdate((e) => {
       'worklet';
       const newPosition = prevPosition.value + e.translationX;
       position.value = Math.max(0, Math.min(newPosition, sliderWidth));
@@ -233,7 +233,7 @@ export const Slider = ({
 
       position.value = withSpring(
         finalPosition,
-        animationConfig.position.spring,
+        animationConfig.position.spring
       );
       notifyValueChange();
     })
@@ -241,7 +241,7 @@ export const Slider = ({
       'worklet';
       knobScale.value = withTiming(
         animationConfig.scale.activeKnobScale,
-        animationConfig.scale.timing,
+        animationConfig.scale.timing
       );
     })
     .onTouchesUp(() => {
@@ -302,7 +302,7 @@ export const Slider = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     minHeight: sizeConfig.sliderHeight + sizeConfig.knob,
     paddingTop: sizeConfig.knob / 2,

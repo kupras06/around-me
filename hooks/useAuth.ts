@@ -1,3 +1,4 @@
+import { invariant } from 'es-toolkit';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   completeOnboarding,
@@ -8,11 +9,10 @@ import {
   register,
   resetPassword,
   selectAuth,
+  type UserMetadata,
   updatePassword,
   updateProfile,
-  type UserMetadata,
 } from '@/store/slices/authSlice';
-import { invariant } from 'es-toolkit';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
@@ -26,14 +26,21 @@ export const useAuth = () => {
         .unwrap()
         .then((result) => result.user),
     logout: () => dispatch(logout()).unwrap(),
-    register: (opts: { displayName: string; email?: string; password?: string }) =>
+    register: (opts: {
+      displayName: string;
+      email?: string;
+      password?: string;
+    }) =>
       dispatch(register(opts))
         .unwrap()
         .then((result) => result.user),
-    updateProfile: (user: Partial<UserMetadata>) => dispatch(updateProfile(user)).unwrap(),
+    updateProfile: (user: Partial<UserMetadata>) =>
+      dispatch(updateProfile(user)).unwrap(),
     resetPassword: (email: string) => dispatch(resetPassword(email)).unwrap(),
-    updatePassword: (password: string) => dispatch(updatePassword(password)).unwrap(),
-    linkPhoneNumber: (phone: string) => dispatch(linkPhoneNumber(phone)).unwrap(),
+    updatePassword: (password: string) =>
+      dispatch(updatePassword(password)).unwrap(),
+    linkPhoneNumber: (phone: string) =>
+      dispatch(linkPhoneNumber(phone)).unwrap(),
     linkAccounts: (payload: { twitter?: boolean; instagram?: boolean }) =>
       dispatch(linkAccounts(payload)).unwrap(),
     completeOnboarding: () => dispatch(completeOnboarding()).unwrap(),
@@ -43,8 +50,9 @@ export const useAuth = () => {
 export const useUser = () => {
   const auth = useAuth();
   invariant(auth.user, 'User is not authenticated');
+  invariant(auth.user.email, 'User email is required');
   return {
     ...auth,
     user: auth.user,
-  }
+  };
 };

@@ -1,15 +1,17 @@
-import { Button } from '@/craftrn-ui/components/Button/Button';
-import { InputText } from '@/craftrn-ui/components/InputText/InputText';
-import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/useAuth';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+import { EmailInput } from '@/components/inputs/EmailInput';
+import { PasswordInput } from '@/components/inputs/PasswordInput';
+import { Button } from '@/craftrn-ui/components/Button/Button';
+import { Text } from '@/craftrn-ui/components/Text';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
-  const { resetPassword, updatePassword, loading, isRecoveringPassword } = useAuth();
+  const { resetPassword, updatePassword, loading, isRecoveringPassword } =
+    useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [sent, setSent] = useState(false);
@@ -22,7 +24,9 @@ export default function ResetPasswordScreen() {
       await resetPassword(email);
       setSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to send reset email.');
+      setError(
+        err instanceof Error ? err.message : 'Unable to send reset email.'
+      );
     }
   };
 
@@ -32,7 +36,9 @@ export default function ResetPasswordScreen() {
       await updatePassword(password);
       setUpdated(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to update password.');
+      setError(
+        err instanceof Error ? err.message : 'Unable to update password.'
+      );
     }
   };
 
@@ -52,18 +58,17 @@ export default function ResetPasswordScreen() {
 
         <View style={{ marginTop: 16 }}>
           {isRecoveringPassword ? (
-            <InputText
-              label="New password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
+            <PasswordInput password={password} setPassword={setPassword} />
           ) : (
-            <InputText label="Email" value={email} onChangeText={setEmail} />
+            <EmailInput email={email} setEmail={setEmail} />
           )}
 
           {error && (
-            <Text variant="body3" color="sentimentNegative" style={{ marginTop: 12 }}>
+            <Text
+              variant="body3"
+              color="sentimentNegative"
+              style={{ marginTop: 12 }}
+            >
               {error}
             </Text>
           )}
@@ -79,7 +84,9 @@ export default function ResetPasswordScreen() {
           ) : (
             <View style={{ marginTop: 16 }}>
               <Button
-                onPress={isRecoveringPassword ? handlePasswordUpdate : handleReset}
+                onPress={
+                  isRecoveringPassword ? handlePasswordUpdate : handleReset
+                }
                 size="large"
               >
                 {loading
@@ -94,7 +101,10 @@ export default function ResetPasswordScreen() {
           )}
 
           <View style={{ marginTop: 12 }}>
-            <Button variant="tertiary" onPress={() => router.push(updated ? '/' : '/login')}>
+            <Button
+              variant="tertiary"
+              onPress={() => router.push(updated ? '/' : '/login')}
+            >
               {updated ? 'Continue' : 'Back to sign in'}
             </Button>
           </View>

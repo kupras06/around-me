@@ -1,5 +1,5 @@
 import React, {
-  ReactElement,
+  type ReactElement,
   useCallback,
   useEffect,
   useMemo,
@@ -107,7 +107,7 @@ export const ContextMenu = ({
 
   const alignment = useMemo(
     () => menuAnchorPosition.split('-')[1] as HorizontalAlignment,
-    [menuAnchorPosition],
+    [menuAnchorPosition]
   );
 
   const isMenuOnTop = useMemo(() => {
@@ -146,12 +146,12 @@ export const ContextMenu = ({
           duration: animationConfig.exit.duration,
           easing: Easing.in(Easing.cubic),
         },
-        finished => {
+        (finished) => {
           if (finished) {
             runOnJS(setIsModalVisible)(false);
             runOnJS(setHasMenuPositioned)(false);
           }
-        },
+        }
       );
     }
   }, [visible, isModalVisible]);
@@ -171,11 +171,11 @@ export const ContextMenu = ({
     const top = isMenuOnTop
       ? Math.max(
           screenY - menuSize.height - offset.y,
-          UnistylesRuntime.insets.top,
+          UnistylesRuntime.insets.top
         )
       : Math.min(
           screenY + height + offset.y,
-          screenHeight - UnistylesRuntime.insets.bottom - menuSize.height,
+          screenHeight - UnistylesRuntime.insets.bottom - menuSize.height
         );
 
     switch (alignment) {
@@ -213,7 +213,7 @@ export const ContextMenu = ({
       itemOnPress();
       onClose();
     },
-    [onClose],
+    [onClose]
   );
 
   useEffect(() => {
@@ -240,12 +240,12 @@ export const ContextMenu = ({
     const translateX = interpolate(
       animationProgress.value,
       [0, 1],
-      [transformOriginX, 0],
+      [transformOriginX, 0]
     );
     const translateY = interpolate(
       animationProgress.value,
       [0, 1],
-      [transformOriginY, 0],
+      [transformOriginY, 0]
     );
     const scale = interpolate(animationProgress.value, [0, 1], [0.8, 1]);
 
@@ -286,11 +286,11 @@ export const ContextMenu = ({
           </Animated.View>
           <Animated.View
             style={[styles.menu, menuPosition, menuAnimatedStyle]}
-            onLayout={e => setMenuSize(e.nativeEvent.layout)}
+            onLayout={(e) => setMenuSize(e.nativeEvent.layout)}
             role="menu"
             aria-label="Context menu"
           >
-            {items.map(element =>
+            {items.map((element) =>
               element.type === 'divider' ? (
                 <Divider key={element.id} style={styles.sectionDivider} />
               ) : (
@@ -303,7 +303,7 @@ export const ContextMenu = ({
                   onPress={() => handleItemPress(element.onPress)}
                   style={styles.menuItem}
                 />
-              ),
+              )
             )}
           </Animated.View>
         </Modal>
@@ -312,7 +312,7 @@ export const ContextMenu = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   overlay: {
     flex: 1,
     backgroundColor: theme.colors.backgroundOverlay,

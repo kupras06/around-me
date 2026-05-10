@@ -1,9 +1,9 @@
-import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
-import { Button } from '@/craftrn-ui/components/Button';
-import { Text } from '@/craftrn-ui/components/Text';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
+import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
+import { Button } from '@/craftrn-ui/components/Button';
+import { Text } from '@/craftrn-ui/components/Text';
 
 export default function LoginRequiredScreen() {
   const router = useRouter();
@@ -16,7 +16,6 @@ export default function LoginRequiredScreen() {
     // Go back to previous page or home
     router.back();
   };
-
 
   return (
     <BottomSheet
@@ -42,17 +41,11 @@ export default function LoginRequiredScreen() {
         </Text>
 
         <View style={styles.buttonContainer}>
-          <Button
-            variant="primary"
-            onPress={handleLogin}
-          >
+          <Button variant="primary" onPress={handleLogin}>
             Sign In
           </Button>
 
-          <Button
-            variant="tertiary"
-            onPress={handleDismiss}
-          >
+          <Button variant="tertiary" onPress={handleDismiss}>
             Maybe Later
           </Button>
         </View>
@@ -61,7 +54,7 @@ export default function LoginRequiredScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme, rt) => ({
+const styles = StyleSheet.create((theme) => ({
   content: {
     flex: 1,
     padding: theme.spacing.large,

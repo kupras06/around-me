@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { type Theme } from '../../themes/config';
+import type { Theme } from '../../themes/config';
 import { Text } from '../Text';
 import { Backspace } from './Backspace';
 import { Key } from './Key';
@@ -34,7 +34,7 @@ export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
   const { theme } = useUnistyles();
   const passcodeEntryTokens = useMemo(
     () => createPasscodeEntryTokens(theme),
-    [theme],
+    [theme]
   );
 
   const handlePinKeyPress = (value: number) => {
@@ -55,7 +55,7 @@ export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
   });
 
   const handleBackspaceKeyPress = () => {
-    setPin(prevPin => prevPin.slice(0, -1));
+    setPin((prevPin) => prevPin.slice(0, -1));
   };
 
   return (
@@ -67,7 +67,7 @@ export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
       </View>
       <View style={styles.pinKeysContainer}>
         <View style={styles.pinKeysRow}>
-          {[1, 2, 3].map(num => (
+          {[1, 2, 3].map((num) => (
             <Key
               key={num}
               onPress={() => handlePinKeyPress(num)}
@@ -78,7 +78,7 @@ export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
           ))}
         </View>
         <View style={styles.pinKeysRow}>
-          {[4, 5, 6].map(num => (
+          {[4, 5, 6].map((num) => (
             <Key
               key={num}
               onPress={() => handlePinKeyPress(num)}
@@ -89,7 +89,7 @@ export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
           ))}
         </View>
         <View style={styles.pinKeysRow}>
-          {[7, 8, 9].map(num => (
+          {[7, 8, 9].map((num) => (
             <Key
               key={num}
               onPress={() => handlePinKeyPress(num)}
@@ -116,7 +116,7 @@ export const PasscodeEntry = ({ onPasscodeEntered }: Props) => {
   );
 };
 
-const styles = StyleSheet.create(theme => {
+const styles = StyleSheet.create((theme) => {
   const passcodeEntryTokens = createPasscodeEntryTokens(theme);
   return {
     container: {

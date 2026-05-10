@@ -1,10 +1,9 @@
+import { Stack } from 'expo-router';
+import { View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import AuthGate from '@/components/AuthGate/AuthGate';
 import SharedHeader from '@/components/SharedHeader/SharedHeader';
 import { Text } from '@/craftrn-ui/components/Text';
-import { Stack } from 'expo-router';
-import React from 'react';
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
 function ActualSaved() {
   return (

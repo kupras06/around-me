@@ -1,21 +1,26 @@
+import { useMemo } from 'react';
+import { useUnistyles } from 'react-native-unistyles';
 import {
-    ButtonRound,
-    type Props as ButtonRoundProps,
+  ButtonRound,
+  type Props as ButtonRoundProps,
 } from '@/craftrn-ui/components/ButtonRound/ButtonRound';
-import { ContextMenu, ContextMenuElement } from '@/craftrn-ui/components/ContextMenu/ContextMenu';
+import {
+  ContextMenu,
+  type ContextMenuElement,
+} from '@/craftrn-ui/components/ContextMenu/ContextMenu';
 import { useTheme } from '@/hooks/useTheme';
 import { Brush } from '@/icons/BrushIcon';
 import { CheckLarge } from '@/icons/CheckLargeIcon';
 import { MoonIcon } from '@/icons/MoonIcon';
 import { SunIcon } from '@/icons/SunIcon';
-import React, { useMemo } from 'react';
-import { useUnistyles } from 'react-native-unistyles';
 
 type ThemeToggleButtonProps = {
   variant?: ButtonRoundProps['variant'];
 };
 
-export const ThemeToggleButton = ({ variant = 'neutral' }: ThemeToggleButtonProps) => {
+export const ThemeToggleButton = ({
+  variant = 'neutral',
+}: ThemeToggleButtonProps) => {
   const { setModePreference, modePreference } = useTheme();
   const { theme } = useUnistyles();
 
@@ -56,7 +61,7 @@ export const ThemeToggleButton = ({ variant = 'neutral' }: ThemeToggleButtonProp
         onPress: () => setModePreference('dark'),
       },
     ],
-    [modePreference, setModePreference, theme],
+    [modePreference, setModePreference, theme]
   );
 
   return (
@@ -69,7 +74,9 @@ export const ThemeToggleButton = ({ variant = 'neutral' }: ThemeToggleButtonProp
           accessibilityLabel="Change theme"
           animationConfig={{ scaleIn: 1.1 }}
           variant={variant}
-          renderContent={({ iconSize, iconColor }) => <Brush size={iconSize} color={iconColor} />}
+          renderContent={({ iconSize, iconColor }) => (
+            <Brush size={iconSize} color={iconColor} />
+          )}
         />
       )}
     />

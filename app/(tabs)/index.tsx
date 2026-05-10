@@ -1,15 +1,21 @@
-import SharedHeader from '@/components/SharedHeader/SharedHeader';
-import { CATEGORY_COLORS, DEFAULT_NEIGHBORHOOD_CENTER, MAPBOX_ACCESS_TOKEN } from '@/constants/map';
-import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
-import { Text } from '@/craftrn-ui/components/Text';
 import MapboxGL from '@rnmapbox/maps';
 import { Stack } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Pressable, Text as RNText, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import SharedHeader from '@/components/SharedHeader/SharedHeader';
+import {
+  CATEGORY_COLORS,
+  DEFAULT_NEIGHBORHOOD_CENTER,
+  MAPBOX_ACCESS_TOKEN,
+} from '@/constants/map';
+import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
+import { Text } from '@/craftrn-ui/components/Text';
 
 // If no token is provided, we render a lightweight demo map instead of Mapbox.
-const HAS_MAPBOX = Boolean(MAPBOX_ACCESS_TOKEN && MAPBOX_ACCESS_TOKEN.length > 0);
+const HAS_MAPBOX = Boolean(
+  MAPBOX_ACCESS_TOKEN && MAPBOX_ACCESS_TOKEN.length > 0
+);
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -21,7 +27,12 @@ type Pin = {
   category: 'C' | 'D' | 'S' | 'E';
   address?: string;
   blurb?: string;
-  creator: { id: string; display_name: string; initials: string; verified?: boolean };
+  creator: {
+    id: string;
+    display_name: string;
+    initials: string;
+    verified?: boolean;
+  };
 };
 
 const MOCK_PINS: Pin[] = [
@@ -90,12 +101,24 @@ function DemoMap({
             onPress={() => onPinPress(pin)}
             style={{ position: 'absolute', left: x - 26, top: y - 26 }}
           >
-            <View style={[styles.pinCircle, { backgroundColor: CATEGORY_COLORS[pin.category] }]}>
+            <View
+              style={[
+                styles.pinCircle,
+                { backgroundColor: CATEGORY_COLORS[pin.category] },
+              ]}
+            >
               <RNText style={styles.pinLetter}>{pin.category}</RNText>
             </View>
 
-            <View style={[styles.pinAvatar, isSelected && { transform: [{ scale: 1.4 }] }]}>
-              <RNText style={styles.pinAvatarText}>{pin.creator.initials}</RNText>
+            <View
+              style={[
+                styles.pinAvatar,
+                isSelected && { transform: [{ scale: 1.4 }] },
+              ]}
+            >
+              <RNText style={styles.pinAvatarText}>
+                {pin.creator.initials}
+              </RNText>
             </View>
           </Pressable>
         );
@@ -107,11 +130,11 @@ function DemoMap({
 export default function MapScreen() {
   const { theme } = useUnistyles();
   const cameraRef = useRef<any>(null);
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<MapboxGL.MapView | null>(null);
 
   // Set Mapbox token at runtime only if present.
   useEffect(() => {
-    if (HAS_MAPBOX && MapboxGL && MapboxGL.setAccessToken) {
+    if (HAS_MAPBOX && MapboxGL?.setAccessToken) {
       MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
     }
   }, []);
@@ -130,7 +153,11 @@ export default function MapScreen() {
       setSheetExpanded(false);
 
       // If Mapbox is available, center camera on selected pin for better context.
-      if (HAS_MAPBOX && cameraRef.current && typeof cameraRef.current.setCamera === 'function') {
+      if (
+        HAS_MAPBOX &&
+        cameraRef.current &&
+        typeof cameraRef.current.setCamera === 'function'
+      ) {
         cameraRef.current.setCamera({
           centerCoordinate: [selectedPin.longitude, selectedPin.latitude],
           zoomLevel: 16,
@@ -141,7 +168,11 @@ export default function MapScreen() {
   }, [selectedPin]);
 
   function centerOnUser() {
-    if (HAS_MAPBOX && cameraRef.current && typeof cameraRef.current.setCamera === 'function') {
+    if (
+      HAS_MAPBOX &&
+      cameraRef.current &&
+      typeof cameraRef.current.setCamera === 'function'
+    ) {
       cameraRef.current.setCamera({
         centerCoordinate: [
           DEFAULT_NEIGHBORHOOD_CENTER.longitude,
@@ -156,7 +187,9 @@ export default function MapScreen() {
     // Demo fallback: noop (could animate pins or show toast)
   }
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.baseLight }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.baseLight }]}
+    >
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Shared Header (overlay) */}
@@ -193,7 +226,8 @@ export default function MapScreen() {
                   style={[
                     styles.pinCircle,
                     {
-                      backgroundColor: CATEGORY_COLORS[pin.category] ?? '#C04A2A',
+                      backgroundColor:
+                        CATEGORY_COLORS[pin.category] ?? '#C04A2A',
                     },
                   ]}
                 >
@@ -201,7 +235,9 @@ export default function MapScreen() {
                 </View>
 
                 <View style={styles.pinAvatar}>
-                  <RNText style={styles.pinAvatarText}>{pin.creator.initials}</RNText>
+                  <RNText style={styles.pinAvatarText}>
+                    {pin.creator.initials}
+                  </RNText>
                 </View>
               </View>
             </MapboxGL.PointAnnotation>
@@ -251,17 +287,22 @@ export default function MapScreen() {
                     { backgroundColor: CATEGORY_COLORS[selectedPin.category] },
                   ]}
                 >
-                  <RNText style={styles.categoryPillText}>{selectedPin.category}</RNText>
+                  <RNText style={styles.categoryPillText}>
+                    {selectedPin.category}
+                  </RNText>
                 </View>
               </View>
 
               <View style={styles.creatorRow}>
                 <View style={styles.creatorAvatarSmall}>
-                  <RNText style={styles.creatorAvatarText}>{selectedPin.creator.initials}</RNText>
+                  <RNText style={styles.creatorAvatarText}>
+                    {selectedPin.creator.initials}
+                  </RNText>
                 </View>
                 <View style={{ marginLeft: 8 }}>
                   <RNText style={{ fontWeight: '600' }}>
-                    {selectedPin.creator.display_name} {selectedPin.creator.verified ? '✓' : ''}
+                    {selectedPin.creator.display_name}{' '}
+                    {selectedPin.creator.verified ? '✓' : ''}
                   </RNText>
                   <RNText style={{ color: theme.colors.contentSecondary }}>
                     {selectedPin.address}
@@ -269,7 +310,9 @@ export default function MapScreen() {
                 </View>
               </View>
 
-              <RNText style={{ marginTop: 12, color: theme.colors.contentPrimary }}>
+              <RNText
+                style={{ marginTop: 12, color: theme.colors.contentPrimary }}
+              >
                 {selectedPin.blurb}
               </RNText>
 
@@ -298,7 +341,11 @@ export default function MapScreen() {
               </RNText>
               <View style={styles.nearbyList}>
                 {pins
-                  .filter((p) => p.creator.id === selectedPin.creator.id && p.id !== selectedPin.id)
+                  .filter(
+                    (p) =>
+                      p.creator.id === selectedPin.creator.id &&
+                      p.id !== selectedPin.id
+                  )
                   .map((p) => (
                     <Pressable
                       key={p.id}

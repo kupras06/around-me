@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, ViewProps, type ViewStyle } from 'react-native';
+import { StyleSheet, type ViewProps, type ViewStyle } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -53,7 +53,7 @@ export const Skeleton = ({
         easing: Easing.inOut(Easing.ease),
       }),
       -1,
-      true,
+      true
     );
   }, [opacity]);
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import Animated, {
   interpolate,
-  SharedValue,
+  type SharedValue,
   useAnimatedStyle,
 } from 'react-native-reanimated';
 import { useUnistyles } from 'react-native-unistyles';

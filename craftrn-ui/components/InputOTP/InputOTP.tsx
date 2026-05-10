@@ -62,7 +62,7 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
         withTiming(offset, { duration }),
         withTiming(-offset, { duration }),
         withTiming(offset, { duration }),
-        withTiming(0, { duration }),
+        withTiming(0, { duration })
       );
     }
   }, [error, translateX]);
@@ -82,7 +82,7 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
       setFocusedIndex(
         numericText.length < config.length
           ? numericText.length
-          : config.length - 1,
+          : config.length - 1
       );
 
       if (numericText.length === config.length) {
@@ -92,7 +92,7 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
         onChange('');
       }
     },
-    [onChange],
+    [onChange]
   );
 
   const handleFocus = useCallback(() => {
@@ -103,7 +103,7 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
       onChange('');
     } else {
       setFocusedIndex(
-        code.length < config.length ? code.length : config.length - 1,
+        code.length < config.length ? code.length : config.length - 1
       );
     }
   }, [code.length, onChange]);
@@ -141,7 +141,7 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
               {char && shouldAnimate ? (
                 <Animated.View
                   entering={FadeInDown.duration(
-                    animationConfig.fadeIn.duration,
+                    animationConfig.fadeIn.duration
                   ).easing(animationConfig.fadeIn.easing)}
                 >
                   <Text
@@ -171,7 +171,7 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
       styles.codeInputItem,
       styles.focusedInput,
       styles.errorInput,
-    ],
+    ]
   );
 
   return (
@@ -196,7 +196,7 @@ export const InputOTP = ({ onChange, error = false }: Props) => {
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     gap: theme.spacing.xsmall,

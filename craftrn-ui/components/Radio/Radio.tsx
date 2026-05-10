@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { AccessibilityProps } from 'react-native';
+import type { AccessibilityProps } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { PressableScale, type AnimationConfig } from '../PressableScale';
+import { type AnimationConfig, PressableScale } from '../PressableScale';
 
 const animConfig = {
   duration: 200,
@@ -96,7 +96,7 @@ export const Radio = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     borderRadius: theme.borderRadius.full,
     backgroundColor: theme.colors.interactiveNeutral,

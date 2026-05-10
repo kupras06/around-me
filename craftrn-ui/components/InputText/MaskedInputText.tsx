@@ -1,12 +1,15 @@
 import { forwardRef } from 'react';
-import { Platform, TextInput, type TextInputProps, View } from 'react-native';
+import { Platform, type TextInput, View } from 'react-native';
+import {
+  MaskedTextInput,
+  type MaskedTextInputProps,
+} from 'react-native-advanced-input-mask';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
 import { Text } from '../Text';
 
 type Size = 'small' | 'medium' | 'large';
 
-export type InputTextProps = TextInputProps & {
+export type InputTextProps = MaskedTextInputProps & {
   /**
    * Optional label shown above the input.
    */
@@ -35,20 +38,17 @@ export type InputTextProps = TextInputProps & {
 };
 
 export const InputText = forwardRef<TextInput, InputTextProps>(
-  function InputText(
-    {
-      label,
-      size = 'medium',
-      error,
-      itemLeft,
-      itemRight,
-      style,
-      editable = true,
-      readOnly = false,
-      ...restProps
-    },
-    ref
-  ) {
+  function InputText({
+    label,
+    size = 'medium',
+    error,
+    itemLeft,
+    itemRight,
+    style,
+    editable = true,
+    readOnly = false,
+    ...restProps
+  }) {
     const { theme } = useUnistyles();
 
     return (
@@ -69,10 +69,10 @@ export const InputText = forwardRef<TextInput, InputTextProps>(
           ]}
         >
           {itemLeft && <View style={styles.itemLeft}>{itemLeft}</View>}
-
-          <TextInput
+          <MaskedTextInput
+            autocomplete={false}
+            keyboardType="numeric"
             {...restProps}
-            ref={ref}
             editable={editable && !readOnly}
             placeholderTextColor={theme.colors.contentTertiary}
             selectionColor={theme.colors.contentAccentSecondary}

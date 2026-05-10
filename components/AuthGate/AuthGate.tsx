@@ -1,7 +1,7 @@
+import type React from 'react';
 import LoadingScreen from '@/components/AuthGate/LoadingScreen';
 import LoginRequired from '@/components/AuthGate/LoginRequired';
 import { useAuth } from '@/hooks/useAuth';
-import React from 'react';
 
 type PropsWithChildren = {
   children: React.ReactNode;

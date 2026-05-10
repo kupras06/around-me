@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  AccessibilityProps,
+  type AccessibilityProps,
   Image,
-  ImageSourcePropType,
+  type ImageSourcePropType,
   View,
 } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -82,7 +82,7 @@ export const Avatar = ({
       style={[
         styles.container({ size }),
         (!hasValidSource || !imageLoaded) &&
-        styles.containerColor({ color: fallbackColor }),
+          styles.containerColor({ color: fallbackColor }),
       ]}
       accessible
       accessibilityHint={showOnlineIndicator ? 'online' : undefined}
@@ -108,7 +108,7 @@ export const Avatar = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   container: (params: { size: AvatarSize }) => ({
     alignItems: 'center',
     justifyContent: 'center',

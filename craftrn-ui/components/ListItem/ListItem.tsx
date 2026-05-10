@@ -1,5 +1,10 @@
-import React from 'react';
-import { AccessibilityProps, Pressable, View, ViewProps } from 'react-native';
+import type React from 'react';
+import {
+  type AccessibilityProps,
+  Pressable,
+  View,
+  type ViewProps,
+} from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { Divider } from '../Divider';
 import { Text } from '../Text';
@@ -60,7 +65,7 @@ export const ListItem = ({
     <>
       <Pressable
         onPress={onPress}
-        role={!!onPress ? 'button' : 'listitem'}
+        role={onPress ? 'button' : 'listitem'}
         {...accessibilityProps}
       >
         {({ pressed }) => (
@@ -102,7 +107,7 @@ export const ListItem = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   itemContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',

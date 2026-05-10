@@ -3,11 +3,11 @@ import React, { useCallback } from 'react';
 import { Pressable, type PressableProps } from 'react-native';
 import Animated, {
   Easing,
+  type EasingFunction,
+  type SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-  type EasingFunction,
-  type SharedValue,
 } from 'react-native-reanimated';
 
 export type AnimationConfig = {
@@ -56,7 +56,6 @@ type Props = Omit<PressableProps, 'children'> & {
 };
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-
 export const PressableScale = ({
   children,
   disabled = false,
@@ -80,7 +79,7 @@ export const PressableScale = ({
       });
       onPressIn?.(event);
     },
-    [disabled, config.durationIn, config.easing, pressProgress, onPressIn],
+    [disabled, config.durationIn, config.easing, pressProgress, onPressIn]
   );
 
   const handlePressOut = useCallback(
@@ -92,7 +91,7 @@ export const PressableScale = ({
       });
       onPressOut?.(event);
     },
-    [disabled, config.durationOut, config.easing, pressProgress, onPressOut],
+    [disabled, config.durationOut, config.easing, pressProgress, onPressOut]
   );
 
   const scaleStyle = useAnimatedStyle(() => {

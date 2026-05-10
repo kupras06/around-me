@@ -1,10 +1,13 @@
-import { supabase } from '@/lib/supabase';
-import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import * as Linking from 'expo-linking';
-
-import type { RootState } from '@/store';
 import { logger } from '@/lib/logger';
+import { supabase } from '@/lib/supabase';
+import type { RootState } from '@/store';
 
 type LinkedAccounts = {
   twitter?: boolean;
@@ -150,7 +153,7 @@ export const login = createAsyncThunk(
       session,
       user: mappedUser,
     };
-  },
+  }
 );
 
 export const logout = createAsyncThunk('auth/logout', async () => {
@@ -165,7 +168,7 @@ export const register = createAsyncThunk(
   async ({ displayName, email, password }: RegisterPayload) => {
     const cleanDisplayName = displayName.trim();
     const normalizedEmail = email?.trim().toLowerCase() ?? '';
-    logger.info("Creating User", { displayName, email, password })
+    logger.info('Creating User', { displayName, email, password });
     if (!cleanDisplayName) {
       throw new Error('Enter a display name.');
     }
@@ -188,13 +191,13 @@ export const register = createAsyncThunk(
     });
 
     if (error) {
-      console.log('Register Error', error)
+      console.log('Register Error', error);
       throw error;
     }
 
     if (!data.session) {
       throw new Error(
-        'Supabase email confirmation is enabled. Disable email confirmation or add a confirm-email flow before using onboarding.',
+        'Supabase email confirmation is enabled. Disable email confirmation or add a confirm-email flow before using onboarding.'
       );
     }
 
@@ -208,38 +211,47 @@ export const register = createAsyncThunk(
       session: data.session,
       user: mappedUser,
     };
-  },
+  }
 );
 
-export const resetPassword = createAsyncThunk('auth/resetPassword', async (email: string) => {
-  const normalizedEmail = email.trim().toLowerCase();
+export const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async (email: string) => {
+    const normalizedEmail = email.trim().toLowerCase();
 
-  if (!normalizedEmail) {
-    throw new Error('Enter the email for your account.');
+    if (!normalizedEmail) {
+      throw new Error('Enter the email for your account.');
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      normalizedEmail,
+      {
+        redirectTo: Linking.createURL('/reset-password'),
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
   }
+);
 
-  const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
-    redirectTo: Linking.createURL('/reset-password'),
-  });
+export const updatePassword = createAsyncThunk(
+  'auth/updatePassword',
+  async (password: string) => {
+    if (!password) {
+      throw new Error('Enter a new password.');
+    }
 
-  if (error) {
-    throw error;
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
   }
-});
-
-export const updatePassword = createAsyncThunk('auth/updatePassword', async (password: string) => {
-  if (!password) {
-    throw new Error('Enter a new password.');
-  }
-
-  const { error } = await supabase.auth.updateUser({
-    password,
-  });
-
-  if (error) {
-    throw error;
-  }
-});
+);
 
 export const linkPhoneNumber = createAsyncThunk<
   { user: User | null },
@@ -315,7 +327,7 @@ export const updateProfile = createAsyncThunk<
     metadataChanged = true;
   }
 
-  logger.info('updateProfile', metadataChanged, newMetadata,)
+  logger.info('updateProfile', metadataChanged, newMetadata);
   if (!metadataChanged) {
     return { user: mapSupabaseUser(sessionUser) };
   }
@@ -333,14 +345,13 @@ export const updateProfile = createAsyncThunk<
   };
 });
 
-
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
     setAuthState: (
       state,
-      action: PayloadAction<{ session: Session | null; user: User | null }>,
+      action: PayloadAction<{ session: Session | null; user: User | null }>
     ) => {
       state.session = action.payload.session;
       state.user = action.payload.user;
@@ -431,7 +442,7 @@ const authSlice = createSlice({
           ].includes(action.type),
         (state) => {
           state.loading = true;
-        },
+        }
       )
       .addMatcher(
         (action) =>
@@ -449,7 +460,7 @@ const authSlice = createSlice({
         (state) => {
           state.loading = false;
           state.initialized = true;
-        },
+        }
       );
   },
 });

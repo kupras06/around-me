@@ -1,11 +1,12 @@
-import { Button } from '@/craftrn-ui/components/Button/Button';
-import { InputText } from '@/craftrn-ui/components/InputText/InputText';
-import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/useAuth';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+import { EmailInput } from '@/components/inputs/EmailInput';
+import { PasswordInput } from '@/components/inputs/PasswordInput';
+import { Button } from '@/craftrn-ui/components/Button/Button';
+import { Text } from '@/craftrn-ui/components/Text';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -18,7 +19,9 @@ export default function LoginScreen() {
     setError(null);
     try {
       const signedInUser = await login(email, password);
-      router.replace(signedInUser.onboardingCompleted ? '/' : '/onboarding/link-phone');
+      router.replace(
+        signedInUser.onboarding_completed ? '/' : '/onboarding/link-phone'
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     }
@@ -35,12 +38,16 @@ export default function LoginScreen() {
         </Text>
 
         <View style={{ marginTop: 16 }}>
-          <InputText label="Email" value={email} onChangeText={setEmail} />
+          <EmailInput email={email} setEmail={setEmail} />
           <View style={{ height: 12 }} />
-          <InputText label="Password" value={password} onChangeText={setPassword} secureTextEntry />
+          <PasswordInput password={password} setPassword={setPassword} />
 
           {error && (
-            <Text variant="body3" color="sentimentNegative" style={{ marginTop: 8 }}>
+            <Text
+              variant="body3"
+              color="sentimentNegative"
+              style={{ marginTop: 8 }}
+            >
               {error}
             </Text>
           )}
@@ -64,7 +71,11 @@ export default function LoginScreen() {
           <View style={{ height: 16 }} />
 
           <View>
-            <Button onPress={() => router.push('/register')} variant="neutral" size="regular">
+            <Button
+              onPress={() => router.push('/register')}
+              variant="neutral"
+              size="regular"
+            >
               Create an account
             </Button>
           </View>

@@ -1,5 +1,5 @@
 import React, {
-  ReactElement,
+  type ReactElement,
   useCallback,
   useEffect,
   useMemo,
@@ -7,9 +7,9 @@ import React, {
 } from 'react';
 import {
   AccessibilityInfo,
-  AccessibilityProps,
+  type AccessibilityProps,
   Keyboard,
-  LayoutChangeEvent,
+  type LayoutChangeEvent,
   Modal,
   TouchableWithoutFeedback,
   useWindowDimensions,
@@ -26,12 +26,16 @@ import Animated, {
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
+  type WithSpringConfig,
+  type WithTimingConfig,
   withSpring,
-  WithSpringConfig,
   withTiming,
-  WithTimingConfig,
 } from 'react-native-reanimated';
-import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
+import {
+  StyleSheet,
+  UnistylesRuntime,
+  useUnistyles,
+} from 'react-native-unistyles';
 
 const animationConfig = {
   sheetOpen: {
@@ -131,7 +135,7 @@ export const BottomSheet = ({
   const bottomInset = useSharedValue(UnistylesRuntime.insets.bottom);
   const bottomSheetMaxHeight = useMemo(
     () => Math.max(maxHeight ?? 0, windowHeight),
-    [maxHeight, windowHeight],
+    [maxHeight, windowHeight]
   );
 
   useEffect(() => {
@@ -141,7 +145,7 @@ export const BottomSheet = ({
   }, [visible]);
 
   useEffect(() => {
-    AccessibilityInfo.isScreenReaderEnabled().then(enabled => {
+    AccessibilityInfo.isScreenReaderEnabled().then((enabled) => {
       setIsScreenReaderEnabled(enabled);
     });
   }, []);
@@ -167,7 +171,7 @@ export const BottomSheet = ({
           if (!visible) {
             runOnJS(handleCloseComplete)();
           }
-        },
+        }
       );
     }
   }, [visible, translateY, overlayOpacity, contentHeight, handleCloseComplete]);
@@ -183,17 +187,17 @@ export const BottomSheet = ({
       startY.value = translateY.value;
       gestureActive.value = true;
     })
-    .onUpdate(event => {
+    .onUpdate((event) => {
       const newTranslateY = startY.value + event.translationY;
       if (newTranslateY >= 0) {
         translateY.value = newTranslateY;
         overlayOpacity.value = withTiming(
           0.5 * (1 - Math.min(newTranslateY / (contentHeight ?? 200), 1)),
-          animationConfig.overlayDrag,
+          animationConfig.overlayDrag
         );
       }
     })
-    .onEnd(event => {
+    .onEnd((event) => {
       gestureActive.value = false;
 
       // Check if should close by velocity or distance
@@ -210,7 +214,7 @@ export const BottomSheet = ({
           },
           () => {
             runOnJS(onRequestClose)();
-          },
+          }
         );
         overlayOpacity.value = withTiming(0, animationConfig.overlayFadeOut);
       } else {
@@ -225,9 +229,7 @@ export const BottomSheet = ({
     const insetOffset = keyboardProgress.value * bottomInset.value;
     const offset = keyboardOffset + insetOffset;
     return {
-      transform: [
-        { translateY: translateY.value + offset },
-      ],
+      transform: [{ translateY: translateY.value + offset }],
     };
   });
 
@@ -243,7 +245,7 @@ export const BottomSheet = ({
         setContentHeight(height);
       }
     },
-    [contentHeight, translateY],
+    [contentHeight, translateY]
   );
 
   return (
@@ -293,19 +295,19 @@ export const BottomSheet = ({
                 )}
                 {React.isValidElement(children)
                   ? React.cloneElement(children, {
-                    style: [
-                      (
-                        children.props as unknown as {
-                          style?: unknown;
-                        }
-                      ).style,
-                      {
-                        paddingTop: showHandleBar
-                          ? theme.spacing.xlarge
-                          : theme.spacing.large,
-                      },
-                    ],
-                  } as Partial<unknown>)
+                      style: [
+                        (
+                          children.props as unknown as {
+                            style?: unknown;
+                          }
+                        ).style,
+                        {
+                          paddingTop: showHandleBar
+                            ? theme.spacing.xlarge
+                            : theme.spacing.large,
+                        },
+                      ],
+                    } as Partial<unknown>)
                   : children}
               </View>
             </Animated.View>
@@ -316,7 +318,7 @@ export const BottomSheet = ({
   );
 };
 
-const styles = StyleSheet.create((theme,rt) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   container: {
     flex: 1,
   },

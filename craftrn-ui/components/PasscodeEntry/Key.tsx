@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import type React from 'react';
+import { useMemo } from 'react';
 import { Pressable } from 'react-native';
 import Animated, {
   interpolateColor,
@@ -7,7 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { type Theme } from '../../themes/config';
+import type { Theme } from '../../themes/config';
 
 const createKeyTokens = (theme: Theme) => {
   return {
@@ -52,10 +53,10 @@ export const Key = ({ onPress, children, ariaLabel }: Props) => {
         [
           keyTokens.colors.background.normal,
           keyTokens.colors.background.pressed,
-        ],
+        ]
       ),
     }),
-    [keyTokens.colors.background.normal, keyTokens.colors.background.pressed],
+    [keyTokens.colors.background.normal, keyTokens.colors.background.pressed]
   );
 
   const handlePressIn = () => {
@@ -80,7 +81,7 @@ export const Key = ({ onPress, children, ariaLabel }: Props) => {
   );
 };
 
-const styles = StyleSheet.create(theme => {
+const styles = StyleSheet.create((theme) => {
   const keyTokens = createKeyTokens(theme);
 
   return {

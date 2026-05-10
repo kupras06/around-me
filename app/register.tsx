@@ -1,11 +1,13 @@
-import { Button } from '@/craftrn-ui/components/Button/Button';
-import { InputText } from '@/craftrn-ui/components/InputText/InputText';
-import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/useAuth';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+import { EmailInput } from '@/components/inputs/EmailInput';
+import { PasswordInput } from '@/components/inputs/PasswordInput';
+import { Button } from '@/craftrn-ui/components/Button/Button';
+import { InputText } from '@/craftrn-ui/components/InputText/InputText';
+import { Text } from '@/craftrn-ui/components/Text';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function RegisterScreen() {
   const { register, loading } = useAuth();
@@ -35,14 +37,23 @@ export default function RegisterScreen() {
         </Text>
 
         <View style={{ marginTop: 16 }}>
-          <InputText autoFocus label="Display name" value={displayName} onChangeText={setDisplayName} />
+          <InputText
+            autoFocus
+            label="Display name"
+            value={displayName}
+            onChangeText={setDisplayName}
+          />
           <View style={{ height: 12 }} />
-          <InputText label="Email" keyboardType='email-address' autoComplete='email' value={email} onChangeText={setEmail} />
+          <EmailInput email={email} setEmail={setEmail} />
           <View style={{ height: 12 }} />
-          <InputText label="Password" value={password} onChangeText={setPassword} secureTextEntry />
+          <PasswordInput password={password} setPassword={setPassword} />
 
           {error && (
-            <Text variant="body3" color="sentimentNegative" style={{ marginTop: 8 }}>
+            <Text
+              variant="body3"
+              color="sentimentNegative"
+              style={{ marginTop: 8 }}
+            >
               {error}
             </Text>
           )}

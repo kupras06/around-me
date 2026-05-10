@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { type Theme } from '../../themes/config';
+import type { Theme } from '../../themes/config';
 
 const createPinDotTokens = (theme: Theme) => {
   return {
@@ -67,11 +67,11 @@ export const PinDot = ({ filled }: Props) => {
               duration: pinDotTokens.animation.scaleDown.duration,
               easing: pinDotTokens.animation.scaleDown.easing,
             });
-          },
+          }
         );
       }
     },
-    [pinDotTokens.animation],
+    [pinDotTokens.animation]
   );
 
   const dotAnimatedStyle = useAnimatedStyle(() => ({
@@ -84,7 +84,7 @@ export const PinDot = ({ filled }: Props) => {
   return <Animated.View style={[styles.pinDot, dotAnimatedStyle]} />;
 };
 
-const styles = StyleSheet.create(theme => {
+const styles = StyleSheet.create((theme) => {
   const pinDotTokens = createPinDotTokens(theme);
 
   return {

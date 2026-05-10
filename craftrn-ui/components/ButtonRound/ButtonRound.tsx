@@ -1,5 +1,5 @@
-import React, { ReactElement, useMemo } from 'react';
-import { AccessibilityProps } from 'react-native';
+import React, { type ReactElement, useMemo } from 'react';
+import type { AccessibilityProps } from 'react-native';
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -10,7 +10,7 @@ import {
   UnistylesRuntime,
   useUnistyles,
 } from 'react-native-unistyles';
-import { PressableScale, type AnimationConfig } from '../PressableScale';
+import { type AnimationConfig, PressableScale } from '../PressableScale';
 
 /**
  * Convert a hex color to grayscale using luminance formula (0.299*R + 0.587*G + 0.114*B)
@@ -19,7 +19,7 @@ const hexToGrayscale = (hex: string): string =>
   `#${Math.round(
     0.299 * parseInt(hex.slice(1, 3), 16) +
       0.587 * parseInt(hex.slice(3, 5), 16) +
-      0.114 * parseInt(hex.slice(5, 7), 16),
+      0.114 * parseInt(hex.slice(5, 7), 16)
   )
     .toString(16)
     .padStart(2, '0')
@@ -149,10 +149,10 @@ export const ButtonRound = ({
       backgroundColor: interpolateColor(
         pressProgress.value,
         [0, 1],
-        [colorConfig.backgroundUnpressed, colorConfig.backgroundPressed],
+        [colorConfig.backgroundUnpressed, colorConfig.backgroundPressed]
       ),
     }),
-    [colorConfig.backgroundUnpressed, colorConfig.backgroundPressed],
+    [colorConfig.backgroundUnpressed, colorConfig.backgroundPressed]
   );
 
   return (
@@ -179,7 +179,7 @@ export const ButtonRound = ({
   );
 };
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme) => ({
   pressable: {
     alignItems: 'center',
     justifyContent: 'center',
