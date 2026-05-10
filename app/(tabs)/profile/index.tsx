@@ -11,14 +11,10 @@ import {
   View,
 } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
-import AuthGate from '@/components/AuthGate/AuthGate';
-import { EmailInput } from '@/components/inputs/EmailInput';
-import { PhoneNumberInput } from '@/components/inputs/PhoneNumberInput';
 import SharedHeader from '@/components/SharedHeader/SharedHeader';
 import { LoaderView } from '@/components/ui/loader-view';
 import { Avatar } from '@/craftrn-ui/components/Avatar';
 import { Button } from '@/craftrn-ui/components/Button';
-import { InputText } from '@/craftrn-ui/components/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useUser } from '@/hooks/useAuth';
 import { logger } from '@/lib/logger';
@@ -93,78 +89,32 @@ function ProfileCard() {
           size="xlarge"
         />
       </Pressable>
-      <Text variant="heading3" style={{ marginTop: 16 }}>
-        Profile
-      </Text>
     </LoaderView>
   );
 }
-function ActualProfile() {
-  const [loading, setLoading] = useState(false);
-  const [displayName, setDisplayName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const { user, updateProfile, linkPhoneNumber } = useUser();
-  useEffect(() => {
-    const getProfile = async () => {
-      setLoading(true);
-      setDisplayName(user.display_name ?? '');
-      setPhoneNumber(user.phone ?? '');
-      setLoading(false);
-    };
 
-    getProfile();
-  }, [user]);
+type RouteSettingCardProps = {
+  title: string;
+  onPress: () => void;
+  description?: string;
+};
+function RouteSettingCard({ title, onPress, description }: RouteSettingCardProps) {
 
-  const handleUpdateProfile = async () => {
-    setLoading(true);
-    try {
-      await updateProfile({ display_name: displayName });
-      Alert.alert('Success', 'Profile updated successfully!');
-    } catch (error) {
-      Alert.alert('Error', (error as Error).message);
-    }
-    setLoading(false);
-  };
+  return (
+    <View style={styles.contentSection}>
+      <Pressable
+        onPress={onPress}
+        style={styles.routeSettingCard}
+      >
+        <Text variant="heading3">{title}</Text>
+        {description && <Text variant="body3" color="contentSecondary">{description}</Text>}
+      </Pressable>
+    </View>
+  );
+}
 
-  const resetPassword = async () => {
-    setLoading(true);
-    invariant(user.email, 'User email is required');
-    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-      redirectTo: 'around-me://reset-password', // Replace with your actual deep link for password reset
-    });
-
-    if (error) {
-      Alert.alert('Error', error.message);
-    } else {
-      Alert.alert('Success', 'Password reset email sent. Check your inbox!');
-    }
-    setLoading(false);
-  };
-
-  const handleLinkPhoneNumber = async () => {
-    if (!phoneNumber.trim()) {
-      Alert.alert('Error', 'Please enter a valid phone number');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await linkPhoneNumber(phoneNumber);
-      Alert.alert('Success', 'Phone number linked successfully!');
-    } catch (error) {
-      Alert.alert('Error', (error as Error).message);
-    }
-    setLoading(false);
-  };
-
+export default function ProfileScreen() {
   const router = useRouter();
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
 
   return (
     <ScrollView>
@@ -172,60 +122,47 @@ function ActualProfile() {
         <Stack.Screen options={{ headerShown: false }} />
         <SharedHeader />
         <ProfileCard />
-        <Button
-          variant="primary"
+        <RouteSettingCard
+          title="Edit Profile"
           onPress={() => {
             router.push('/profile/account');
           }}
-        >
-          Edit Profile
-        </Button>
-        <InputText
-          label="Display Name"
-          value={displayName}
-          onChangeText={setDisplayName}
         />
-        <EmailInput email={user?.email || ''} disabled />
-
-        {/* <PasswordInput password={''} setPassword={() => {}} /> */}
-        <Button
-          variant="primary"
-          onPress={handleUpdateProfile}
-          disabled={loading}
-        >
-          Update Profile
-        </Button>
-
-        <PhoneNumberInput
-          phoneNumber={phoneNumber}
-          setPhoneNumber={setPhoneNumber}
+ <RouteSettingCard
+          title="Security Settings"
+          description='Manage password and two-factor authentication'
+          onPress={() => {
+            router.push('/profile/security');
+          }}
         />
-        <Button
-          variant="secondary"
-          onPress={handleLinkPhoneNumber}
-          disabled={loading}
-        >
-          {user.phone_linked ? 'Update Phone Number' : 'Link Phone Number'}
-        </Button>
-
-        <Button variant="secondary" onPress={resetPassword} disabled={loading}>
-          Reset Password
-        </Button>
-
-        <Button
-          variant="secondary"
-          onPress={() =>
-            Alert.alert('Social Apps', 'Social apps linking coming soon!')
-          }
-          disabled={loading}
-        >
-          Link Social Apps
-        </Button>
+        
+        
+          <RouteSettingCard
+          title="Social Accounts"
+          description='Link and manage your social media accounts'
+          onPress={() => {
+            router.push('/profile/social');
+          }}
+        />
+          
+       <RouteSettingCard
+          title="Terms of Service"
+          description='Read our terms and conditions'
+          onPress={() => {
+             Alert.alert('Terms', 'Terms of Service coming soon!');
+          }}
+        />   
+      <RouteSettingCard
+          title=" Privacy Policy"
+          description='Read our privacy policy'
+          onPress={() => {
+              Alert.alert('Privacy', 'Privacy Policy coming soon!');
+          }}
+        />   
 
         <Button
           variant="negative"
           onPress={() => supabase.auth.signOut()}
-          disabled={loading}
         >
           Sign Out
         </Button>
@@ -234,18 +171,13 @@ function ActualProfile() {
   );
 }
 
-export default function ProfileScreen() {
-  return (
-    <AuthGate>
-      <ActualProfile />
-    </AuthGate>
-  );
-}
+
+
 
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    gap: theme.spacing.large,
+    gap: theme.spacing.small,
     padding: theme.spacing.large,
     backgroundColor: theme.colors.backgroundScreen,
     paddingBottom: theme.spacing.large + 40,
@@ -264,5 +196,27 @@ const styles = StyleSheet.create((theme) => ({
   },
   button: {
     marginBottom: theme.spacing.small,
+  },
+  segmentedContainer: {
+    marginBottom: theme.spacing.large,
+  },
+  sectionTitle: {
+    marginBottom: theme.spacing.medium,
+  },
+  contentSection: {
+    gap: theme.spacing.medium,
+  },
+  routeSettingCard: {
+    padding: theme.spacing.medium,
+    borderRadius: theme.borderRadius.medium,
+    backgroundColor: theme.colors.backgroundNeutral,
+    borderWidth: 1,
+    borderColor: theme.colors.borderNeutralSecondary,
+  },
+  aboutItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: theme.spacing.medium,
   },
 }));

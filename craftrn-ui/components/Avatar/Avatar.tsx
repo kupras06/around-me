@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
-import { Text } from '../Text';
+import { Text, type TextProps } from '../Text';
 
 type AvatarSize = 'small' | 'medium' | 'large' | 'xlarge';
 
@@ -18,10 +18,11 @@ export type AvatarColor = 0 | 1 | 2 | 3;
 /**
  * Text variant mapping based on avatar size
  */
-const textVariantBySize = {
+const textVariantBySize: Record<AvatarSize, TextProps['variant']> = {
   small: 'body3',
   medium: 'body2',
   large: 'body1',
+  xlarge: 'body1',
 } as const;
 
 /**

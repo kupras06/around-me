@@ -1,5 +1,4 @@
-import { forwardRef } from 'react';
-import { Platform, type TextInput, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import {
   MaskedTextInput,
   type MaskedTextInputProps,
@@ -37,8 +36,8 @@ export type InputTextProps = MaskedTextInputProps & {
   itemRight?: React.ReactNode;
 };
 
-export const InputText = forwardRef<TextInput, InputTextProps>(
-  function InputText({
+export const InputText =
+  ({
     label,
     size = 'medium',
     error,
@@ -48,7 +47,7 @@ export const InputText = forwardRef<TextInput, InputTextProps>(
     editable = true,
     readOnly = false,
     ...restProps
-  }) {
+  }:InputTextProps) => {
     const { theme } = useUnistyles();
 
     return (
@@ -95,7 +94,6 @@ export const InputText = forwardRef<TextInput, InputTextProps>(
       </View>
     );
   }
-);
 
 const styles = StyleSheet.create((theme) => {
   const getTypography = (size: Size) => {
