@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Alert, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import AuthGate from '@/components/AuthGate/AuthGate';
-import SharedHeader from '@/components/SharedHeader/SharedHeader';
 import { Button } from '@/craftrn-ui/components/Button';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useUser } from '@/hooks/useAuth';
@@ -68,7 +67,6 @@ function ActualSocialAccounts() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <SharedHeader />
 
       <View style={styles.section}>
         <Text variant="heading3">Social Accounts</Text>

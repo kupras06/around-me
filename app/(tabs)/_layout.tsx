@@ -1,10 +1,8 @@
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Tabs } from 'expo-router';
-import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnistyles } from 'react-native-unistyles';
 import { HapticTab } from '@/components/haptic-tab';
-import { ThemeToggleButton } from '@/components/ThemeToggleButton/ThemeToggleButton';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 
 export default function TabLayout() {
   const { theme } = useUnistyles();
@@ -13,14 +11,8 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: theme.colors.contentAccentSecondary,
-        headerTransparent: true,
-        headerRight: () => (
-          <View style={{ marginRight: 16 }}>
-            <ThemeToggleButton variant="neutral" />
-          </View>
-        ),
-        headerTitle: '',
         tabBarButton: HapticTab,
+        headerShown: false,
         sceneStyle: {
           backgroundColor: theme.colors.backgroundScreen,
         },
@@ -35,8 +27,12 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Map',
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="location-on" size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <IconSymbol
+              name="location"
+              size={focused ? 28 : 24}
+              color={color}
+            />
           ),
         }}
       />
@@ -46,7 +42,7 @@ export default function TabLayout() {
         options={{
           title: 'Saved',
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="bookmark" size={24} color={color} />
+            <IconSymbol name="bookmark" size={24} color={color} />
           ),
         }}
       />
@@ -56,7 +52,7 @@ export default function TabLayout() {
         options={{
           title: 'Creators',
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="people" size={24} color={color} />
+            <IconSymbol name="person.2.fill" size={24} color={color} />
           ),
         }}
       />
@@ -64,9 +60,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
+          popToTopOnBlur: true,
           title: 'Profile',
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="person" size={24} color={color} />
+            <IconSymbol name="person" size={24} color={color} />
           ),
         }}
       />

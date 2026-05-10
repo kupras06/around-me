@@ -3,7 +3,6 @@ import { Stack } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Pressable, Text as RNText, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import SharedHeader from '@/components/SharedHeader/SharedHeader';
 import {
   CATEGORY_COLORS,
   DEFAULT_NEIGHBORHOOD_CENTER,
@@ -191,9 +190,6 @@ export default function MapScreen() {
       style={[styles.container, { backgroundColor: theme.colors.baseLight }]}
     >
       <Stack.Screen options={{ headerShown: false }} />
-
-      {/* Shared Header (overlay) */}
-      <SharedHeader overlay />
 
       {/* Map or demo fallback when Mapbox token is missing */}
       {HAS_MAPBOX ? (

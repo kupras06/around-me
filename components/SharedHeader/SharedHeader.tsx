@@ -1,40 +1,17 @@
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter, useSegments } from 'expo-router';
-import { View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
-import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
-import { ButtonRound } from '@/craftrn-ui/components/ButtonRound/ButtonRound';
+import { Pressable, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import { Text } from '@/craftrn-ui/components/Text';
+import { IconSymbol } from '../ui/icon-symbol';
 
 type Props = {
   overlay?: boolean;
   title?: string;
 };
 
-const MapIcon = ({
-  color = '#000',
-  size = 18,
-}: {
-  color?: string;
-  size?: number;
-}) => (
-  <Svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    preserveAspectRatio="xMidYMid meet"
-  >
-    <Path
-      fill={color}
-      d="M20.5 3.5l-5.5 2.2-5.6-2.4-6 2.6v13.1l6-2.6 5.6 2.4 5.5-2.2v-13.1zM9 18.9V6.1l4 1.7v12.8L9 18.9z"
-    />
-  </Svg>
-);
-
-export default function SharedHeader({ overlay = false, title }: Props) {
+export default function SharedHeader({ title }: Props) {
   const router = useRouter();
   const segments = useSegments();
-
   const known = ['index', 'saved', 'creators', 'profile'];
   const current =
     title ||
@@ -49,66 +26,36 @@ export default function SharedHeader({ overlay = false, title }: Props) {
       ? 'Map'
       : current.charAt(0).toUpperCase() + current.slice(1);
 
-  const isIndex = current === 'index';
-
   return (
-    <View style={[styles.header, overlay ? styles.headerOverlay : null]}>
-      <View style={styles.side}>
-        {!isIndex ? (
-          <ButtonRound
-            onPress={() => router.push('/')}
-            variant="neutral"
-            renderContent={({ iconSize, iconColor }) => (
-              <MapIcon color={iconColor} size={iconSize} />
-            )}
-            accessibilityLabel="Go to map"
-          />
-        ) : (
-          <View style={{ width: 40 }} />
-        )}
-      </View>
-
+    <View style={[styles.header]}>
       <View style={styles.titleWrapper}>
         <Text variant="heading3" style={styles.titleText}>
           {pageTitle}
         </Text>
       </View>
 
-      <View style={styles.side}>
-        <ButtonRound
-          onPress={() => router.push('/search')}
-          variant="neutral"
-          renderContent={({ iconSize, iconColor }) => (
-            <MaterialIcons name="search" color={iconColor} size={iconSize} />
-          )}
-          accessibilityLabel="Search"
-        />
-      </View>
+      <Pressable style={styles.side} onPress={() => router.push('/search')}>
+        <IconSymbol name="magnifyingglass" size={24} />
+      </Pressable>
     </View>
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   header: {
     position: 'relative',
     top: 0,
     left: 0,
     right: 0,
     zIndex: 50,
-    height: 56,
+    minHeight: 56,
+    height: 60 + rt.insets.top,
+    paddingTop: rt.insets.top,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.small,
-    backgroundColor: theme.colors.backgroundScreen,
-  },
-  headerOverlay: {
-    position: 'absolute',
-    top: UnistylesRuntime.insets.top + theme.spacing.small,
-    left: theme.spacing.large,
-    right: theme.spacing.large,
-    bottom: 0,
-    backgroundColor: 'transparent',
+    paddingHorizontal: theme.spacing.medium,
+    backgroundColor: theme.colors.backgroundScreenSecondary,
   },
   side: {
     width: 44,
@@ -116,7 +63,6 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   titleWrapper: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

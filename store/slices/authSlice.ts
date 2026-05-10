@@ -31,7 +31,10 @@ export type User = {
   phone_linked?: boolean;
   linked_accounts?: LinkedAccounts;
   onboarding_completed?: boolean;
-  avatar_url?: string; // New field
+  avatar_url: string; // New field
+  twitter_linked?: boolean;
+  instagram_linked?: boolean;
+  facebook_linked?: boolean;
 };
 
 type AuthState = {
@@ -71,7 +74,9 @@ export const mapSupabaseUser = (user: SupabaseUser | null): User | null => {
     phone_linked: metadata.phone_linked ?? false,
     linked_accounts: metadata.linked_accounts ?? {},
     onboarding_completed: metadata.onboarding_completed ?? false,
-    avatar_url: metadata.avatar_url as string | undefined, // Map Supabase's avatar_url to our type
+    avatar_url:
+      metadata.avatar_url ||
+      `https://ui-avatars.com/api/?name=${metadata?.display_name || user.email || 'User'}`,
   };
 };
 

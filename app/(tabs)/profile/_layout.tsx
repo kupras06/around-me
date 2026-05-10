@@ -4,6 +4,12 @@ export default function ProfileLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
       <Stack.Screen name="index" />
+      <Stack.Screen
+        name="security"
+        options={{
+          title: 'Security',
+        }}
+      />
     </Stack>
   );
 }

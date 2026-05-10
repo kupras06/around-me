@@ -8,8 +8,29 @@ import {
 import { StyleSheet } from 'react-native-unistyles';
 import { Text, type TextProps } from '../Text';
 
-type AvatarSize = 'small' | 'medium' | 'large' | 'xlarge';
+const avatarSizeMap = {
+  xs: 24,
+  small: 32,
+  medium: 44,
+  large: 64,
+  xlarge: 96,
+  xxlarge: 128,
+  hero: 160,
+} as const;
 
+type AvatarSize = keyof typeof avatarSizeMap;
+const indicatorSizeMap: Record<
+  AvatarSize,
+  number
+> = {
+  xs: 8,
+  small: 10,
+  medium: 12,
+  large: 14,
+  xlarge: 18,
+  xxlarge: 22,
+  hero: 26,
+};
 /**
  * Color of the avatar when the image cannot be loaded.
  */
@@ -18,12 +39,18 @@ export type AvatarColor = 0 | 1 | 2 | 3;
 /**
  * Text variant mapping based on avatar size
  */
-const textVariantBySize: Record<AvatarSize, TextProps['variant']> = {
+const textVariantBySize: Record<
+  AvatarSize,
+  TextProps['variant']
+> = {
+  xs: 'body3',
   small: 'body3',
   medium: 'body2',
   large: 'body1',
   xlarge: 'body1',
-} as const;
+  xxlarge: 'heading3',
+  hero: 'heading2',
+};
 
 /**
  * A component that displays an avatar.
@@ -110,31 +137,18 @@ export const Avatar = ({
 };
 
 const styles = StyleSheet.create((theme) => ({
-  container: (params: { size: AvatarSize }) => ({
+ container: (params: { size: AvatarSize }) => {
+  const size = avatarSizeMap[params.size];
+  return {
+    width: size,
+    height: size,
+    borderRadius: size / 2,
+
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    ...(params.size === 'small' && {
-      width: 32,
-      height: 32,
-      borderRadius: theme.borderRadius.full,
-    }),
-    ...(params.size === 'medium' && {
-      width: 44,
-      height: 44,
-      borderRadius: theme.borderRadius.full,
-    }),
-    ...(params.size === 'large' && {
-      width: 56,
-      height: 56,
-      borderRadius: theme.borderRadius.full,
-    }),
-    ...(params.size === 'xlarge' && {
-      width: 256,
-      height: 256,
-      borderRadius: theme.borderRadius.full,
-    }),
-  }),
+  };
+},
   containerColor: (params: { color: AvatarColor }) => ({
     ...(params.color === 0 && {
       backgroundColor: theme.colors.purple,
@@ -166,25 +180,23 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.baseLight,
     fontWeight: 'bold',
   },
-  indicator: (params: { size: AvatarSize }) => ({
+  indicator: (params: { size: AvatarSize }) => {
+  const size =
+    indicatorSizeMap[params.size];
+
+  return {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    borderRadius: theme.borderRadius.full,
+
+    width: size,
+    height: size,
+    borderRadius: size / 2,
+
     borderWidth: 1,
     borderColor: theme.colors.baseLight,
-    backgroundColor: theme.colors.sentimentPositive,
-    ...(params.size === 'small' && {
-      width: 10,
-      height: 10,
-    }),
-    ...(params.size === 'medium' && {
-      width: 12,
-      height: 12,
-    }),
-    ...(params.size === 'large' && {
-      width: 14,
-      height: 14,
-    }),
-  }),
+    backgroundColor:
+      theme.colors.sentimentPositive,
+  };
+},
 }));

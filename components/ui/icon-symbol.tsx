@@ -18,12 +18,72 @@ type IconSymbolName = keyof typeof MAPPING;
  * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
  */
 const MAPPING = {
+  // Navigation
   'house.fill': 'home',
-  'paperplane.fill': 'send',
-  'chevron.left.forwardslash.chevron.right': 'code',
+  magnifyingglass: 'search',
+  'line.3.horizontal': 'menu',
   'chevron.right': 'chevron-right',
+  'chevron.left': 'chevron-left',
+  'arrow.left': 'arrow-back',
+  'arrow.right': 'arrow-forward',
+  ellipsis: 'more-horiz',
+
+  // User / Profile
+  person: 'person',
+  'person.fill': 'person',
+  'person.2.fill': 'groups',
+  'person.crop.circle': 'account-circle',
+
+  // Visibility
   eye: 'visibility',
   'eye.slash': 'visibility-off',
+
+  // Communication
+  'paperplane.fill': 'send',
+  envelope: 'mail',
+  phone: 'phone',
+
+  // Location / Map
+  location: 'location-on',
+  map: 'map',
+  mappin: 'place',
+  'mappin.circle.fill': 'place',
+  safari: 'explore',
+
+  // Actions
+  heart: 'favorite-border',
+  'heart.fill': 'favorite',
+  bookmark: 'bookmark-border',
+  'bookmark.fill': 'bookmark',
+  // squareandarrowup: '',
+  link: 'link',
+
+  // Media
+  camera: 'photo-camera',
+  photo: 'image',
+  play: 'play-arrow',
+
+  // Settings / System
+  gearshape: 'settings',
+  bell: 'notifications-none',
+  'bell.fill': 'notifications',
+  lock: 'lock',
+  'rectangle.portrait.and.arrow.right': 'logout',
+
+  // Status
+  checkmark: 'check',
+  xmark: 'close',
+  exclamationmark: 'error-outline',
+  info: 'info-outline',
+
+  // Content
+  plus: 'add',
+  minus: 'remove',
+  pencil: 'edit',
+  trash: 'delete-outline',
+
+  // Dev
+  'chevron.left.forwardslash.chevron.right': 'code',
 } as IconMapping;
 
 /**

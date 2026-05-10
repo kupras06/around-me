@@ -2,14 +2,12 @@ import { Stack } from 'expo-router';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import AuthGate from '@/components/AuthGate/AuthGate';
-import SharedHeader from '@/components/SharedHeader/SharedHeader';
 import { Text } from '@/craftrn-ui/components/Text';
 
 function ActualSaved() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <SharedHeader />
 
       <Text variant="heading3" style={{ marginTop: 16 }}>
         Saved — Collections & map

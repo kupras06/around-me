@@ -34,7 +34,7 @@ export const useAuth = () => {
       dispatch(register(opts))
         .unwrap()
         .then((result) => result.user),
-    updateProfile: (user: Partial<UserMetadata>) =>
+    updateProfile: (user: UserMetadata) =>
       dispatch(updateProfile(user)).unwrap(),
     resetPassword: (email: string) => dispatch(resetPassword(email)).unwrap(),
     updatePassword: (password: string) =>

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Alert, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import AuthGate from '@/components/AuthGate/AuthGate';
-import SharedHeader from '@/components/SharedHeader/SharedHeader';
 import { Button } from '@/craftrn-ui/components/Button';
 import { InputText } from '@/craftrn-ui/components/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
@@ -69,7 +68,6 @@ function ActualSecurity() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <SharedHeader />
 
       <View style={styles.section}>
         <Text variant="heading3">Security</Text>

@@ -14,7 +14,6 @@ import { StyleSheet } from 'react-native-unistyles';
 import AuthGate from '@/components/AuthGate/AuthGate';
 import { EmailInput } from '@/components/inputs/EmailInput';
 import { PhoneNumberInput } from '@/components/inputs/PhoneNumberInput';
-import SharedHeader from '@/components/SharedHeader/SharedHeader';
 import { Avatar } from '@/craftrn-ui/components/Avatar';
 import { Button } from '@/craftrn-ui/components/Button';
 import { InputText } from '@/craftrn-ui/components/InputText';
@@ -130,7 +129,6 @@ function ActualProfile() {
     <ScrollView>
       <View style={styles.container}>
         <Stack.Screen options={{ headerShown: false }} />
-        <SharedHeader />
 
         <View style={styles.profileHeader}>
           <Pressable

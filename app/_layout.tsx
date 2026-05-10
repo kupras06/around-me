@@ -15,13 +15,17 @@ import { useTheme } from '@/hooks/useTheme';
 import { store } from '@/store';
 import 'react-native-reanimated';
 import { Provider as ReduxProvider } from 'react-redux';
+import SharedHeader from '@/components/SharedHeader/SharedHeader';
 
 function AppContent() {
   const { mode } = useTheme();
-
   return (
     <NavigationThemeProvider value={mode === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          header: ({ options }) => <SharedHeader title={options.title ?? ''} />,
+        }}
+      >
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
       </Stack>
