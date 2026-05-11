@@ -6,7 +6,7 @@ import { EmailInput } from '@/components/inputs/EmailInput';
 import { PasswordInput } from '@/components/inputs/PasswordInput';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function ResetPasswordScreen() {
   const router = useRouter();

@@ -1,16 +1,17 @@
 import { decode } from 'base64-arraybuffer';
 import { invariant } from 'es-toolkit';
-import * as ImagePicker from 'expo-image-picker'; // New import
+import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import AuthGate from '@/components/AuthGate/AuthGate';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { LoaderView } from '@/components/ui/loader-view';
 import { Avatar } from '@/craftrn-ui/components/Avatar';
 import { Button } from '@/craftrn-ui/components/Button';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useUser } from '@/hooks/useAuth';
+import { useAuth, useLogout, useUser } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 import { supabase } from '@/lib/supabase';
 
@@ -126,54 +127,77 @@ function RouteSettingCard({
 
 export default function ProfileScreen() {
   const router = useRouter();
-
+  const { user } = useAuth();
+  const logout = useLogout();
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <Stack.Screen options={{ headerShown: false }} />
-        <ProfileCard />
-        <RouteSettingCard
-          title="Edit Profile"
-          onPress={() => {
-            router.push('/profile/account');
-          }}
-        />
-        <RouteSettingCard
-          title="Security Settings"
-          description="Manage password and two-factor authentication"
-          onPress={() => {
-            router.push('/profile/security');
-          }}
-        />
+    <AuthGate>
+      <ScrollView>
+        <View style={styles.container}>
+          <Stack.Screen options={{ headerShown: false }} />
+          <ProfileCard />
+          <RouteSettingCard
+            title="Edit Profile"
+            onPress={() => {
+              router.push('/profile/account');
+            }}
+          />
+          <RouteSettingCard
+            title="Security Settings"
+            description="Manage password and two-factor authentication"
+            onPress={() => {
+              router.push('/profile/security');
+            }}
+          />
+          {user?.is_creator ? (
+            <RouteSettingCard
+              title="Social Accounts"
+              description="Link and manage your social media accounts"
+              onPress={() => {
+                router.push('/profile/social');
+              }}
+            />
+          ) : (
+            <RouteSettingCard
+              title="I am a creator"
+              description="Switch to creator mode"
+              onPress={() => {
+                router.push({
+                  pathname: '/onboarding',
+                  params: {
+                    returnTo: '/profile',
+                  },
+                });
+              }}
+            />
+          )}
 
-        <RouteSettingCard
-          title="Social Accounts"
-          description="Link and manage your social media accounts"
-          onPress={() => {
-            router.push('/profile/social');
-          }}
-        />
+          <RouteSettingCard
+            title="Terms of Service"
+            description="Read our terms and conditions"
+            onPress={() => {
+              Alert.alert('Terms', 'Terms of Service coming soon!');
+            }}
+          />
+          <RouteSettingCard
+            title=" Privacy Policy"
+            description="Read our privacy policy"
+            onPress={() => {
+              Alert.alert('Privacy', 'Privacy Policy coming soon!');
+            }}
+          />
 
-        <RouteSettingCard
-          title="Terms of Service"
-          description="Read our terms and conditions"
-          onPress={() => {
-            Alert.alert('Terms', 'Terms of Service coming soon!');
-          }}
-        />
-        <RouteSettingCard
-          title=" Privacy Policy"
-          description="Read our privacy policy"
-          onPress={() => {
-            Alert.alert('Privacy', 'Privacy Policy coming soon!');
-          }}
-        />
-
-        <Button variant="negative" onPress={() => supabase.auth.signOut()}>
-          Sign Out
-        </Button>
-      </View>
-    </ScrollView>
+          <Button
+            variant="negative"
+            onPress={logout}
+            iconLeft={
+              <IconSymbol name="arrow.right.circle" size={24} color="contentNegative" />
+            }
+          >
+            Sign Out
+          </Button>
+        </View>
+      </ScrollView>
+    </AuthGate>
   );
 }
 

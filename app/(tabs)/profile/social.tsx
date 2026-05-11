@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import AuthGate from '@/components/AuthGate/AuthGate';
 import { Button } from '@/craftrn-ui/components/Button';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useUser } from '@/hooks/useAuth';
+import { useUser } from '@/hooks/use-auth';
 
 function ActualSocialAccounts() {
   const [loading, setLoading] = useState(false);

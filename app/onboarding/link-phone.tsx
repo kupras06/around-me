@@ -1,14 +1,15 @@
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function LinkPhone() {
   const router = useRouter();
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { linkPhoneNumber } = useAuth();
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,10 @@ export default function LinkPhone() {
     setLoading(true);
     try {
       await linkPhoneNumber(phone);
-      router.push('/onboarding/link-accounts');
+      router.push({
+        pathname: '/onboarding/link-accounts',
+        params: { returnTo },
+      });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Unable to save phone number.'
@@ -64,7 +68,12 @@ export default function LinkPhone() {
           <View style={{ marginTop: 12 }}>
             <Button
               variant="tertiary"
-              onPress={() => router.push('/onboarding/link-accounts')}
+              onPress={() =>
+                router.push({
+                  pathname: '/onboarding/link-accounts',
+                  params: { returnTo },
+                })
+              }
             >
               Skip
             </Button>

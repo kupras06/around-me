@@ -11,7 +11,7 @@ import {
   type ContextMenuElement,
 } from '@/craftrn-ui/components/ContextMenu/ContextMenu';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme } from '@/hooks/use-theme';
 import { Brush } from '@/icons/BrushIcon';
 import { CheckLarge } from '@/icons/CheckLargeIcon';
 import { MoonIcon } from '@/icons/MoonIcon';

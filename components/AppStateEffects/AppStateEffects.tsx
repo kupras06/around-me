@@ -118,10 +118,10 @@ function getRedirectRoute({
   }
 
   if (!user.onboarding_completed && !isOnboardingRoute) {
-    return '/onboarding/link-phone';
+    return '/onboarding';
   }
 
-  if (user.onboarding_completed && (isAuthRoute || isOnboardingRoute)) {
+  if (user.onboarding_completed && isAuthRoute) {
     return '/';
   }
 

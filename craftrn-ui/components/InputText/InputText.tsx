@@ -54,7 +54,7 @@ export const InputText = forwardRef<TextInput, InputTextProps>(
     return (
       <View style={styles.wrapper}>
         {label && (
-          <Text variant="body3" color="contentSecondary" style={styles.label}>
+          <Text variant="body2" color="contentSecondary" style={styles.label}>
             {label}
           </Text>
         )}

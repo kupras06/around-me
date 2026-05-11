@@ -85,6 +85,7 @@ const MAPPING = {
 
   // Dev
   'chevron.left.forwardslash.chevron.right': 'code',
+  'arrow.right.circle':'logout'
 } as IconMapping;
 
 /**

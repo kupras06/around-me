@@ -21,6 +21,7 @@ export type UserMetadata = {
   linked_accounts?: LinkedAccounts;
   onboarding_completed?: boolean;
   avatar_url?: string; // New field
+  user_type?: 'creator' | 'user'; // New field
 };
 
 export type User = {
@@ -35,6 +36,8 @@ export type User = {
   twitter_linked?: boolean;
   instagram_linked?: boolean;
   facebook_linked?: boolean;
+  user_type?: 'creator' | 'user'; // New field
+  is_creator: boolean;
 };
 
 type AuthState = {
@@ -77,6 +80,8 @@ export const mapSupabaseUser = (user: SupabaseUser | null): User | null => {
     avatar_url:
       metadata.avatar_url ||
       `https://ui-avatars.com/api/?name=${metadata?.display_name || user.email || 'User'}`,
+    user_type: metadata.user_type,
+    is_creator: metadata.user_type === 'creator',
   };
 };
 
@@ -291,6 +296,20 @@ export const linkAccounts = createAsyncThunk<
   });
 });
 
+export const setUserType = createAsyncThunk<
+  { user: User | null },
+  { user_type: 'creator' | 'user' },
+  { state: RootState }
+>('auth/setUserType', async ({ user_type }, { getState }) => {
+  const sessionUser = requireSessionUser(getState());
+  const metadata = getCurrentMetadata(sessionUser);
+
+  return await updateMetadata({
+    ...metadata,
+    user_type,
+  });
+});
+
 export const completeOnboarding = createAsyncThunk<
   { user: User | null },
   void,
@@ -422,6 +441,11 @@ const authSlice = createSlice({
         state.loading = false;
         state.initialized = true;
       })
+      .addCase(setUserType.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.loading = false;
+        state.initialized = true;
+      })
       .addCase(completeOnboarding.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.loading = false;
@@ -442,6 +466,7 @@ const authSlice = createSlice({
             updatePassword.pending.type,
             linkPhoneNumber.pending.type,
             linkAccounts.pending.type,
+            setUserType.pending.type,
             completeOnboarding.pending.type,
             updateProfile.pending.type,
           ].includes(action.type),
@@ -459,6 +484,7 @@ const authSlice = createSlice({
             updatePassword.rejected.type,
             linkPhoneNumber.rejected.type,
             linkAccounts.rejected.type,
+            setUserType.rejected.type,
             completeOnboarding.rejected.type,
             updateProfile.rejected.type,
           ].includes(action.type),

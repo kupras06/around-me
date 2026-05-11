@@ -1,4 +1,5 @@
 import { invariant } from 'es-toolkit';
+import { type Href, useRouter } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   completeOnboarding,
@@ -9,15 +10,28 @@ import {
   register,
   resetPassword,
   selectAuth,
+  setUserType,
   type UserMetadata,
   updatePassword,
   updateProfile,
 } from '@/store/slices/authSlice';
 
+export const useLogout = ({
+  redirectTo = '/login',
+}: {
+  redirectTo?: Href;
+} = {}) => {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  return () => {
+    dispatch(logout()).unwrap();
+    router.replace(redirectTo);
+  };
+};
+
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const auth = useAppSelector(selectAuth);
-
   return {
     ...auth,
     isAuthenticated: !!auth.user,
@@ -43,6 +57,8 @@ export const useAuth = () => {
       dispatch(linkPhoneNumber(phone)).unwrap(),
     linkAccounts: (payload: { twitter?: boolean; instagram?: boolean }) =>
       dispatch(linkAccounts(payload)).unwrap(),
+    setUserType: (user_type: 'creator' | 'user') =>
+      dispatch(setUserType({ user_type })).unwrap(),
     completeOnboarding: () => dispatch(completeOnboarding()).unwrap(),
   };
 };

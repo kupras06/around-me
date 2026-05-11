@@ -7,7 +7,7 @@ import AuthGate from '@/components/AuthGate/AuthGate';
 import { Button } from '@/craftrn-ui/components/Button';
 import { InputText } from '@/craftrn-ui/components/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useUser } from '@/hooks/useAuth';
+import { useUser } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase';
 
 function ActualSecurity() {

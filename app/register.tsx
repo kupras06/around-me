@@ -7,7 +7,7 @@ import { PasswordInput } from '@/components/inputs/PasswordInput';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function RegisterScreen() {
   const { register, loading } = useAuth();

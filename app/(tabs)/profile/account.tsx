@@ -7,7 +7,7 @@ import { EmailInput } from '@/components/inputs/EmailInput';
 import { PhoneNumberInput } from '@/components/inputs/PhoneNumberInput';
 import { Button } from '@/craftrn-ui/components/Button';
 import { InputText } from '@/craftrn-ui/components/InputText';
-import { useUser } from '@/hooks/useAuth';
+import { useUser } from '@/hooks/use-auth';
 
 function ActualProfile() {
   const [loading, setLoading] = useState(false);
