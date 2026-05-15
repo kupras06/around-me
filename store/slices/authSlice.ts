@@ -12,7 +12,13 @@ import type { RootState } from '@/store';
 
 WebBrowser.maybeCompleteAuthSession();
 
-export type OAuthProvider = 'x' | 'google' | 'facebook' | 'github' | 'apple' | 'instagram';
+export type OAuthProvider =
+  | 'x'
+  | 'google'
+  | 'facebook'
+  | 'github'
+  | 'apple'
+  | 'instagram';
 type LinkedAccounts = Partial<Record<OAuthProvider, boolean>>;
 export type UserMetadata = {
   display_name?: string;
@@ -353,7 +359,7 @@ export const resetPassword = createAsyncThunk(
     const { error } = await supabase.auth.resetPasswordForEmail(
       normalizedEmail,
       {
-        redirectTo: Linking.createURL('/reset-password'),
+        redirectTo: Linking.createURL('/auth/reset-password'),
       }
     );
 

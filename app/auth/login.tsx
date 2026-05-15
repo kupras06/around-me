@@ -61,7 +61,7 @@ export default function LoginScreen() {
 
           <View style={{ marginTop: 12 }}>
             <Button
-              onPress={() => router.push('/reset-password')}
+              onPress={() => router.push('/auth/reset-password')}
               variant="tertiary"
               size="regular"
             >
@@ -73,7 +73,7 @@ export default function LoginScreen() {
 
           <View>
             <Button
-              onPress={() => router.push('/register')}
+              onPress={() => router.push('/auth/register')}
               variant="neutral"
               size="regular"
             >

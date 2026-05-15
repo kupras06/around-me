@@ -103,7 +103,7 @@ export default function ResetPasswordScreen() {
           <View style={{ marginTop: 12 }}>
             <Button
               variant="tertiary"
-              onPress={() => router.push(updated ? '/' : '/login')}
+              onPress={() => router.push(updated ? '/' : '/auth/login')}
             >
               {updated ? 'Continue' : 'Back to sign in'}
             </Button>

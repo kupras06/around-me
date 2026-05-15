@@ -3,10 +3,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnistyles } from 'react-native-unistyles';
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function TabLayout() {
   const { theme } = useUnistyles();
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
   return (
     <Tabs
       screenOptions={{
@@ -40,6 +42,17 @@ export default function TabLayout() {
           title: 'Saved',
           tabBarIcon: ({ color }) => (
             <IconSymbol name="bookmark" size={24} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="manage"
+        options={{
+          title: 'Manage',
+          href: user?.is_creator ? '/manage' : null,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol name="pencil" size={24} color={color} />
           ),
         }}
       />

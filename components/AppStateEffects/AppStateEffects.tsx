@@ -34,7 +34,7 @@ export function useAuthSubscription() {
       switch (event) {
         case 'PASSWORD_RECOVERY':
           dispatch(setRecoveringPassword(true));
-          router.push('/reset-password');
+          router.push('/auth/reset-password');
           break;
 
         case 'SIGNED_OUT':
@@ -106,12 +106,12 @@ function getRedirectRoute({
   }
 
   if (isRecoveringPassword && currentRoute !== 'reset-password') {
-    return '/reset-password';
+    return '/auth/reset-password';
   }
 
   if (!user) {
     if (isOnboardingRoute) {
-      return '/register';
+      return '/auth/register';
     }
 
     return null;

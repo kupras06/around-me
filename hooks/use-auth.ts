@@ -19,7 +19,7 @@ import {
 } from '@/store/slices/authSlice';
 
 export const useLogout = ({
-  redirectTo = '/login',
+  redirectTo = '/auth/login',
 }: {
   redirectTo?: Href;
 } = {}) => {

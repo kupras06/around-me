@@ -9,7 +9,7 @@ export default function LoginRequiredScreen() {
   const router = useRouter();
 
   const handleLogin = () => {
-    router.replace('/login');
+    router.replace('/auth/login');
   };
 
   const handleDismiss = () => {
