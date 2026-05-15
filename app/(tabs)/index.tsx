@@ -370,7 +370,7 @@ export default function MapScreen() {
               </View>
             </View>
           ) : (
-            <Text variant="body1">No place selected</RNText>
+            <Text variant="body1">No place selected</Text>
           )}
         </View>
       </BottomSheet>
