@@ -1,206 +1,169 @@
-import { decode } from 'base64-arraybuffer';
-import { invariant } from 'es-toolkit';
-import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { FlatList, Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
 import AuthGate from '@/components/AuthGate/AuthGate';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { LoaderView } from '@/components/ui/loader-view';
 import { Avatar } from '@/craftrn-ui/components/Avatar';
 import { Button } from '@/craftrn-ui/components/Button';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth, useLogout, useUser } from '@/hooks/use-auth';
-import { logger } from '@/lib/logger';
+import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase';
 
-function ProfileCard() {
+export default function ProfileScreen() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { theme } = useUnistyles();
+  const [pins, setPins] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const { user, updateProfile } = useUser();
-  const uploadAvatar = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-        base64: true,
-      });
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        setLoading(true);
-        const image = result.assets[0];
-        const fileExtension = image.uri.split('.').pop();
-        const fileName = `avatar-${user.id}.${fileExtension}`; // Simple unique name
-        invariant(image.base64, 'Image base64 is not available.');
-        const { data, error: uploadError } = await supabase.storage
-          .from('assets-images') // Assuming 'avatars' bucket exists and is configured for public access
-          .upload(`${user.id}/${fileName}`, decode(image.base64), {
-            contentType: result.assets[0].mimeType,
-            cacheControl: '3600',
-            upsert: true,
-          });
-        logger.info('Uploaded', data, uploadError);
-        if (uploadError) {
-          logger.error(uploadError);
-          throw uploadError;
-        }
 
-        // Get public URL
-        const { data: publicUrlData } = supabase.storage
-          .from('assets-images')
-          .getPublicUrl(`${user.id}/${fileName}`);
-        logger.info(publicUrlData);
-        if (publicUrlData.publicUrl) {
-          await updateProfile({
-            avatar_url: publicUrlData.publicUrl,
-          });
-          Alert.alert('Success', 'Profile picture updated!');
-        } else {
-          throw new Error('Could not get public URL for avatar.');
-        }
-      }
-    } catch (error: unknown) {
-      Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'Unknown error'
-      );
-      logger.error('Error uploading avatar:', error);
+  useEffect(() => {
+    if (user?.id && user?.is_creator) {
+      fetchPins();
+    }
+  }, [user]);
+
+  const fetchPins = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('pins')
+        .select('*, places(*)')
+        .eq('creator_id', user?.id)
+        .order('pinned_at', { ascending: false });
+
+      if (error) throw error;
+      setPins(data || []);
+    } catch (err) {
+      console.error('Error fetching creator pins:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <LoaderView loading={loading} style={styles.profileHeader}>
-      <Pressable onPress={uploadAvatar}>
-        <Avatar
-          source={{
-            uri: user?.avatar_url,
-          }}
-          size="hero"
-        />
-      </Pressable>
-      <View style={styles.userInfo}>
-        <Text variant="heading3" numberOfLines={1}>
-          {user?.display_name ?? 'Unnamed User'}
-        </Text>
-
-        <Text variant="body2" color="contentSecondary" numberOfLines={1}>
-          {user?.email}
-        </Text>
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <View style={styles.topRow}>
+        <Avatar source={{ uri: user?.avatar_url }} size="large" />
+        <Pressable
+          style={styles.settingsButton}
+          onPress={() => router.push('/profile/settings')}
+        >
+          <IconSymbol name="gearshape" size={24} color={theme.colors.contentPrimary} />
+        </Pressable>
       </View>
-    </LoaderView>
-  );
-}
 
-type RouteSettingCardProps = {
-  title: string;
-  onPress: () => void;
-  description?: string;
-};
-function RouteSettingCard({
-  title,
-  onPress,
-  description,
-}: RouteSettingCardProps) {
-  const { theme } = useUnistyles();
-  return (
-    <View style={styles.contentSection}>
-      <Pressable onPress={onPress} style={styles.routeSettingCard}>
-        <View>
-          <Text variant="heading3">{title}</Text>
-          {description && (
-            <Text variant="body3" color="contentSecondary">
-              {description}
-            </Text>
+      <View style={styles.profileInfo}>
+        <View style={styles.nameRow}>
+          <Text variant="heading2">{user?.display_name}</Text>
+          {user?.tier && (
+             <View style={styles.badge}>
+                <IconSymbol name="checkmark" size={12} color="#fff" />
+             </View>
           )}
         </View>
-        <IconSymbol
-          name="chevron.right"
-          size={24}
-          color={theme.colors.contentSecondary}
-        />
-      </Pressable>
+        <Text variant="body2" style={styles.handle}>
+          {user?.follower_count?.toLocaleString()} followers
+        </Text>
+        
+        {user?.bio && (
+          <Text variant="body2" style={styles.bio}>
+            {user.bio}
+          </Text>
+        )}
+
+        {user?.focus_description && (
+          <Text variant="body3" style={styles.focus}>
+            Focus: {user.focus_description}
+          </Text>
+        )}
+      </View>
+
+      <View style={styles.statsRow}>
+        <View style={styles.stat}>
+          <Text variant="heading3">{pins.length}</Text>
+          <Text variant="body3">Pins</Text>
+        </View>
+      </View>
+
+      <View style={styles.actionRow}>
+        <Button 
+          variant="primary" 
+          onPress={() => router.push('/creator/submit-pin')}
+          style={{ flex: 1 }}
+        >
+          Add Pin
+        </Button>
+        <Button 
+          variant="secondary" 
+          onPress={() => router.push('/creator/tag-post')}
+          style={{ flex: 1 }}
+        >
+          Tag Post
+        </Button>
+      </View>
+
+      <View style={styles.divider} />
+      <Text variant="heading3" style={styles.sectionTitle}>Your Recommendations</Text>
     </View>
   );
-}
 
-export default function ProfileScreen() {
-  const router = useRouter();
-  const { user } = useAuth();
-  const logout = useLogout();
-  return (
-    <AuthGate>
-      <ScrollView>
-        <View style={styles.container}>
-          <Stack.Screen options={{ headerShown: false }} />
-          <ProfileCard />
-          <RouteSettingCard
-            title="Edit Profile"
-            onPress={() => {
-              router.push('/profile/account');
-            }}
-          />
-          <RouteSettingCard
-            title="Security Settings"
-            description="Manage password and two-factor authentication"
-            onPress={() => {
-              router.push('/profile/security');
-            }}
-          />
-          {user?.is_creator ? (
-            <RouteSettingCard
-              title="Social Accounts"
-              description="Link and manage your social media accounts"
-              onPress={() => {
-                router.push('/profile/social');
-              }}
-            />
-          ) : (
-            <RouteSettingCard
-              title="I am a creator"
-              description="Switch to creator mode"
-              onPress={() => {
-                router.push({
-                  pathname: '/onboarding',
-                  params: {
-                    returnTo: '/profile',
-                  },
-                });
-              }}
-            />
-          )}
+  const renderPin = ({ item }: { item: any }) => (
+    <Pressable style={styles.pinCard}>
+      <View style={styles.pinInfo}>
+        <Text variant="body1" style={styles.placeName}>{item.places?.name}</Text>
+        <Text variant="body3" style={styles.placeMeta}>
+          {item.places?.category} • {item.places?.neighbourhood}
+        </Text>
+        <Text variant="body2" style={styles.pinNote} numberOfLines={2}>
+          {item.note}
+        </Text>
+      </View>
+    </Pressable>
+  );
 
-          <RouteSettingCard
-            title="Terms of Service"
-            description="Read our terms and conditions"
-            onPress={() => {
-              Alert.alert('Terms', 'Terms of Service coming soon!');
-            }}
-          />
-          <RouteSettingCard
-            title=" Privacy Policy"
-            description="Read our privacy policy"
-            onPress={() => {
-              Alert.alert('Privacy', 'Privacy Policy coming soon!');
-            }}
-          />
-
-          <Button
-            variant="negative"
-            onPress={logout}
-            iconLeft={
-              <IconSymbol
-                name="arrow.right.circle"
-                size={24}
-                color="contentNegative"
-              />
-            }
+  if (!user?.is_creator) {
+    // For non-creators, we can redirect or show a basic profile
+    // For now, redirecting to settings which is their main profile view
+    return (
+      <AuthGate>
+        <Stack.Screen options={{ headerShown: false }} />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <Avatar source={{ uri: user?.avatar_url }} size="large" />
+          <Text variant="heading2" style={{ marginTop: 16 }}>{user?.display_name}</Text>
+          <Button 
+            onPress={() => router.push('/profile/settings')}
+            style={{ marginTop: 24 }}
           >
-            Sign Out
+            Go to Settings
+          </Button>
+          <Button 
+            variant="tertiary"
+            onPress={() => router.push('/onboarding')}
+            style={{ marginTop: 12 }}
+          >
+            Become a Creator
           </Button>
         </View>
-      </ScrollView>
+      </AuthGate>
+    );
+  }
+
+  return (
+    <AuthGate>
+      <View style={styles.container}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <FlatList
+          data={pins}
+          renderItem={renderPin}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={styles.listContent}
+          refreshing={loading}
+          onRefresh={fetchPins}
+        />
+      </View>
     </AuthGate>
   );
 }
@@ -208,61 +171,92 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    height: '100%',
-    gap: theme.spacing.small,
+    backgroundColor: theme.colors.backgroundScreen,
+  },
+  listContent: {
     padding: theme.spacing.large,
-    paddingBottom: theme.spacing.large + 40,
+    paddingBottom: 100,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    minHeight: 300,
-    alignItems: 'center',
-  },
-  button: {
-    marginBottom: theme.spacing.small,
-  },
-  segmentedContainer: {
+  header: {
     marginBottom: theme.spacing.large,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: theme.spacing.medium,
+  },
+  settingsButton: {
+    padding: theme.spacing.small,
+  },
+  profileInfo: {
+    gap: theme.spacing.xsmall,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.small,
+  },
+  handle: {
+    color: theme.colors.contentSecondary,
+  },
+  badge: {
+    backgroundColor: '#C04A2A',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bio: {
+    marginTop: theme.spacing.small,
+    lineHeight: 20,
+  },
+  focus: {
+    color: theme.colors.contentSecondary,
+    fontStyle: 'italic',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    marginTop: theme.spacing.large,
+    gap: theme.spacing.xlarge,
+  },
+  stat: {
+    alignItems: 'flex-start',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.small,
+    marginTop: theme.spacing.xlarge,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: theme.colors.border,
+    marginVertical: theme.spacing.xlarge,
   },
   sectionTitle: {
     marginBottom: theme.spacing.medium,
   },
-  contentSection: {
-    gap: theme.spacing.medium,
-  },
-  routeSettingCard: {
-    padding: theme.spacing.medium,
-    borderRadius: theme.borderRadius.medium,
+  pinCard: {
     backgroundColor: theme.colors.backgroundNeutral,
+    borderRadius: theme.borderRadius.medium,
+    padding: theme.spacing.medium,
+    marginBottom: theme.spacing.medium,
     borderWidth: 1,
-    display: 'flex',
-    gap: theme.spacing.small,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderColor: theme.colors.borderNeutralSecondary,
+    borderColor: theme.colors.border,
   },
-  aboutItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: theme.spacing.medium,
+  pinInfo: {
+    gap: theme.spacing.xsmall,
   },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    paddingHorizontal: 16,
-    paddingBottom: 30,
+  placeName: {
+    fontWeight: '700',
   },
-
-  avatarWrapper: {
-    position: 'relative',
+  placeMeta: {
+    color: theme.colors.contentSecondary,
+    textTransform: 'uppercase',
   },
-  userInfo: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: 4,
+  pinNote: {
+    fontStyle: 'italic',
+    marginTop: theme.spacing.xsmall,
   },
 }));

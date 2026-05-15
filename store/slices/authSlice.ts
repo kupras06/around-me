@@ -20,8 +20,12 @@ export type UserMetadata = {
   phone_linked?: boolean;
   linked_accounts?: LinkedAccounts;
   onboarding_completed?: boolean;
-  avatar_url?: string; // New field
-  user_type?: 'creator' | 'user'; // New field
+  avatar_url?: string;
+  user_type?: 'creator' | 'user';
+  bio?: string;
+  focus_description?: string;
+  tier?: 'verified' | 'trusted_local' | 'community';
+  follower_count?: number;
 };
 
 export type User = {
@@ -32,12 +36,16 @@ export type User = {
   phone_linked?: boolean;
   linked_accounts?: LinkedAccounts;
   onboarding_completed?: boolean;
-  avatar_url: string; // New field
+  avatar_url: string;
   twitter_linked?: boolean;
   instagram_linked?: boolean;
   facebook_linked?: boolean;
-  user_type?: 'creator' | 'user'; // New field
+  user_type?: 'creator' | 'user';
   is_creator: boolean;
+  bio?: string;
+  focus_description?: string;
+  tier?: 'verified' | 'trusted_local' | 'community';
+  follower_count?: number;
 };
 
 type AuthState = {
@@ -82,6 +90,10 @@ export const mapSupabaseUser = (user: SupabaseUser | null): User | null => {
       `https://ui-avatars.com/api/?name=${metadata?.display_name || user.email || 'User'}`,
     user_type: metadata.user_type,
     is_creator: metadata.user_type === 'creator',
+    bio: metadata.bio,
+    focus_description: metadata.focus_description,
+    tier: metadata.tier,
+    follower_count: metadata.follower_count,
   };
 };
 

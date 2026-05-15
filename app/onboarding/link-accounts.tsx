@@ -37,8 +37,15 @@ export default function LinkAccounts() {
     setLoading(true);
     try {
       await linkAccounts({ twitter, instagram });
-      await completeOnboarding();
-      router.replace((returnTo as Href) || '/');
+      if (user?.is_creator) {
+        router.push({
+          pathname: '/onboarding/creator-setup',
+          params: { returnTo },
+        });
+      } else {
+        await completeOnboarding();
+        router.replace((returnTo as Href) || '/');
+      }
     } catch (err) {
       logger.error('Onboarding error:', err);
     } finally {

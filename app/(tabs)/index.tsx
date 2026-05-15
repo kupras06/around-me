@@ -1,5 +1,5 @@
 import MapboxGL from '@rnmapbox/maps';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Pressable, Text as RNText, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -10,6 +10,8 @@ import {
 } from '@/constants/map';
 import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
 import { Text } from '@/craftrn-ui/components/Text';
+import { useAuth } from '@/hooks/use-auth';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 
 // If no token is provided, we render a lightweight demo map instead of Mapbox.
 const HAS_MAPBOX = Boolean(
@@ -128,6 +130,8 @@ function DemoMap({
 
 export default function MapScreen() {
   const { theme } = useUnistyles();
+  const router = useRouter();
+  const { user } = useAuth();
   const cameraRef = useRef<any>(null);
   const mapRef = useRef<MapboxGL.MapView | null>(null);
 
@@ -253,6 +257,16 @@ export default function MapScreen() {
       >
         <RNText style={{ color: '#fff', fontWeight: '600' }}>◎</RNText>
       </Pressable>
+
+      {/* Add Pin FAB (Creators only) */}
+      {user?.is_creator && (
+        <Pressable
+          style={styles.addPinButton}
+          onPress={() => router.push('/creator/submit-pin')}
+        >
+          <IconSymbol name="plus" size={24} color="#fff" />
+        </Pressable>
+      )}
 
       {/* Bottom sheet for place details */}
       <BottomSheet
@@ -445,6 +459,22 @@ const styles = StyleSheet.create(() => ({
     borderRadius: 44,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  addPinButton: {
+    position: 'absolute',
+    right: 16,
+    bottom: 148,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#1D6E7A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   bottomSheetContent: {
     paddingHorizontal: 16,
