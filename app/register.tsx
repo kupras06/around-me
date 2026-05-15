@@ -8,6 +8,7 @@ import { Button } from '@/craftrn-ui/components/Button/Button';
 import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/use-auth';
+import { SocialAuthButtons } from '@/views/Authentication/SocialAuthButtons';
 
 export default function RegisterScreen() {
   const { register, loading } = useAuth();
@@ -63,6 +64,8 @@ export default function RegisterScreen() {
               {loading ? 'Creating account...' : 'Create account'}
             </Button>
           </View>
+
+          <SocialAuthButtons />
         </View>
       </View>
     </View>

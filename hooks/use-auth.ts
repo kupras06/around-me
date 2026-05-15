@@ -7,10 +7,12 @@ import {
   linkPhoneNumber,
   login,
   logout,
+  type OAuthProvider,
   register,
   resetPassword,
   selectAuth,
   setUserType,
+  signInWithProvider,
   type UserMetadata,
   updatePassword,
   updateProfile,
@@ -57,6 +59,8 @@ export const useAuth = () => {
       dispatch(linkPhoneNumber(phone)).unwrap(),
     linkAccounts: (payload: { twitter?: boolean; instagram?: boolean }) =>
       dispatch(linkAccounts(payload)).unwrap(),
+    signInWithProvider: (provider: OAuthProvider) =>
+      dispatch(signInWithProvider(provider)).unwrap(),
     setUserType: (user_type: 'creator' | 'user') =>
       dispatch(setUserType({ user_type })).unwrap(),
     completeOnboarding: () => dispatch(completeOnboarding()).unwrap(),

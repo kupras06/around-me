@@ -190,7 +190,11 @@ export default function ProfileScreen() {
             variant="negative"
             onPress={logout}
             iconLeft={
-              <IconSymbol name="arrow.right.circle" size={24} color="contentNegative" />
+              <IconSymbol
+                name="arrow.right.circle"
+                size={24}
+                color="contentNegative"
+              />
             }
           >
             Sign Out

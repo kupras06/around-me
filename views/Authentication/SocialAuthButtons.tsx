@@ -1,0 +1,71 @@
+import { View } from 'react-native';
+import { Path, Svg } from 'react-native-svg';
+import { StyleSheet } from 'react-native-unistyles';
+import { Button } from '@/craftrn-ui/components/Button';
+import { useAuth } from '@/hooks/use-auth';
+
+function GoogleIcon() {
+  return (
+    <Svg width={18} height={18} viewBox="0 0 48 48">
+      <Path
+        fill="#FFC107"
+        d="M43.6 20.5H42V20H24v8h11.3C33.6 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 3l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"
+      />
+      <Path
+        fill="#FF3D00"
+        d="M6.3 14.7l6.6 4.8C14.7 15 18.9 12 24 12c3 0 5.7 1.1 7.8 3l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"
+      />
+      <Path
+        fill="#4CAF50"
+        d="M24 44c5.2 0 10-2 13.5-5.2l-6.2-5.2C29.3 35.1 26.8 36 24 36c-5.2 0-9.6-3.3-11.2-8l-6.5 5C9.6 39.5 16.3 44 24 44z"
+      />
+      <Path
+        fill="#1976D2"
+        d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.1-3.3 5.5-6 7.1l6.2 5.2C39.7 36.4 44 30.8 44 24c0-1.3-.1-2.4-.4-3.5z"
+      />
+    </Svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+      <Path
+        fill="#fff"
+        d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.932z"
+      />
+    </Svg>
+  );
+}
+export const SocialAuthButtons = () => {
+  const { signInWithProvider } = useAuth();
+  return (
+    <View style={styles.oauthButtons}>
+      <Button
+        onPress={() => signInWithProvider('google')}
+        size="large"
+        variant="secondary"
+        iconLeft={<GoogleIcon />}
+      >
+        Continue with Google
+      </Button>
+      <Button
+        onPress={() => signInWithProvider('x')}
+        variant="secondary"
+        size="large"
+        iconLeft={<XIcon />}
+      >
+        Continue with X
+      </Button>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create(() => ({
+  oauthButtons: {
+    marginTop: 16,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+}));

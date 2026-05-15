@@ -5,15 +5,15 @@ import {
 } from '@reduxjs/toolkit';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
 import { logger } from '@/lib/logger';
 import { supabase } from '@/lib/supabase';
 import type { RootState } from '@/store';
 
-type LinkedAccounts = {
-  twitter?: boolean;
-  instagram?: boolean;
-};
+WebBrowser.maybeCompleteAuthSession();
 
+export type OAuthProvider = 'x' | 'google' | 'facebook' | 'github' | 'apple';
+type LinkedAccounts = Partial<Record<OAuthProvider, boolean>>;
 export type UserMetadata = {
   display_name?: string;
   phone?: string;
@@ -75,7 +75,7 @@ export const mapSupabaseUser = (user: SupabaseUser | null): User | null => {
     email: user.email,
     phone: metadata.phone,
     phone_linked: metadata.phone_linked ?? false,
-    linked_accounts: metadata.linked_accounts ?? {},
+    linked_accounts: metadata.linked_accounts,
     onboarding_completed: metadata.onboarding_completed ?? false,
     avatar_url:
       metadata.avatar_url ||
@@ -90,13 +90,116 @@ const getCurrentMetadata = (sessionUser: SupabaseUser | null): UserMetadata => {
 };
 
 const requireSessionUser = (state: RootState) => {
-  const sessionUser = state.auth.session?.user;
-
+  const sessionUser = state?.auth.session?.user;
   if (!sessionUser) {
     throw new Error('You must be signed in to continue.');
   }
 
   return sessionUser;
+};
+
+const extractOAuthParamsFromUrl = (url: string) => {
+  const parsedUrl = new URL(url);
+  const hash = parsedUrl.hash.substring(1); // Remove the leading '#'
+  const params = new URLSearchParams(hash);
+
+  return {
+    access_token: params.get('access_token'),
+    expires_in: Number.parseInt(params.get('expires_in') || '0', 10),
+    refresh_token: params.get('refresh_token'),
+    token_type: params.get('token_type'),
+    provider_token: params.get('provider_token'),
+    code: params.get('code'),
+  };
+};
+
+const signInWithOAuthWebBrowser = async (provider: OAuthProvider) => {
+  logger.info(`Starting ${provider} OAuth`);
+  logger.info('Redirect URL:', Linking.createURL('/'));
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: Linking.createURL('/'),
+    },
+  });
+
+  if (error) {
+    logger.error(`${provider} OAuth error:`, error);
+    throw error;
+  }
+
+  const oauthUrl = data.url;
+
+  if (!oauthUrl) {
+    throw new Error('No OAuth URL returned from Supabase');
+  }
+
+  logger.info(`Opening ${provider} OAuth URL in browser`);
+
+  const result = await WebBrowser.openAuthSessionAsync(
+    oauthUrl,
+    Linking.createURL('/'),
+    {
+      showInRecents: true,
+    }
+  );
+
+  logger.info(`${provider} OAuth result:`, result);
+
+  if (result.type === 'success') {
+    const params = extractOAuthParamsFromUrl(result.url);
+    logger.info(`${provider} OAuth params:`, params);
+
+    if (params.access_token && params.refresh_token) {
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: params.access_token,
+        refresh_token: params.refresh_token,
+      });
+
+      if (sessionError) {
+        logger.error(`${provider} session error:`, sessionError);
+        throw sessionError;
+      }
+
+      logger.info(`${provider} OAuth successful`);
+
+      await supabase.auth.updateUser({
+        data: {
+          linked_accounts: {
+            [provider]: true,
+          },
+        },
+      });
+      // Get the current session and user
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const newUserMeta = getCurrentMetadata(session?.user ?? null);
+      newUserMeta.linked_accounts ||= {
+        ...(newUserMeta.linked_accounts || {}),
+        [provider]: true,
+      };
+
+      await supabase.auth.updateUser({
+        data: {
+          linked_accounts: newUserMeta,
+        },
+      });
+      const newUser = await supabase.auth.getUser();
+      return {
+        session,
+        user: mapSupabaseUser(newUser?.data?.user ?? null),
+      };
+    } else {
+      throw new Error('No access token or refresh token in OAuth response');
+    }
+  } else if (result.type === 'cancel') {
+    logger.info(`${provider} OAuth cancelled by user`);
+    throw new Error('OAuth flow was cancelled');
+  } else {
+    throw new Error(`OAuth flow failed with type: ${result.type}`);
+  }
 };
 
 const updateMetadata = async (nextMetadata: UserMetadata) => {
@@ -194,7 +297,6 @@ export const register = createAsyncThunk(
         data: {
           display_name: cleanDisplayName,
           phone_linked: false,
-          linked_accounts: {},
           onboarding_completed: false,
         } satisfies UserMetadata,
       },
@@ -294,6 +396,13 @@ export const linkAccounts = createAsyncThunk<
       ...payload,
     },
   });
+});
+
+export const signInWithProvider = createAsyncThunk<
+  { session: Session | null; user: User | null },
+  OAuthProvider
+>('auth/signInWithProvider', async (provider) => {
+  return await signInWithOAuthWebBrowser(provider);
 });
 
 export const setUserType = createAsyncThunk<
@@ -456,6 +565,12 @@ const authSlice = createSlice({
         state.loading = false;
         state.initialized = true;
       })
+      .addCase(signInWithProvider.fulfilled, (state, action) => {
+        state.session = action.payload.session;
+        state.user = action.payload.user;
+        state.loading = false;
+        state.initialized = true;
+      })
       .addMatcher(
         (action) =>
           [
@@ -469,6 +584,7 @@ const authSlice = createSlice({
             setUserType.pending.type,
             completeOnboarding.pending.type,
             updateProfile.pending.type,
+            signInWithProvider.pending.type,
           ].includes(action.type),
         (state) => {
           state.loading = true;
@@ -487,6 +603,7 @@ const authSlice = createSlice({
             setUserType.rejected.type,
             completeOnboarding.rejected.type,
             updateProfile.rejected.type,
+            signInWithProvider.rejected.type,
           ].includes(action.type),
         (state) => {
           state.loading = false;
