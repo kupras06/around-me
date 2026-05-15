@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useMemo } from 'react';
-import type { AccessibilityProps } from 'react-native';
+import { ActivityIndicator, type AccessibilityProps } from 'react-native';
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -52,6 +52,11 @@ export type Props = {
    */
   disabled?: boolean;
   /**
+   * Whether the button is in a loading state.
+   * @default false
+   */
+  loading?: boolean;
+  /**
    * The size of the button.
    * @default 'regular'
    */
@@ -82,6 +87,7 @@ export const Button = ({
   onPress,
   size = 'regular',
   disabled = false,
+  loading = false,
   variant = 'primary',
   animationConfig,
   iconLeft,
@@ -174,7 +180,7 @@ export const Button = ({
   return (
     <PressableScale
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
       hitSlop={hitSlop[size]}
       role="button"
       animationConfig={animationConfig}
@@ -182,14 +188,23 @@ export const Button = ({
       {...accessibilityProps}
     >
       <Animated.View
-        style={[styles.button({ size, disabled }), backgroundStyle]}
+        style={[
+          styles.button({ size, disabled: disabled || loading }),
+          backgroundStyle,
+        ]}
       >
-        {iconLeft && (
-          <Animated.View style={styles.iconLeft}>{iconLeft}</Animated.View>
+        {loading ? (
+          <ActivityIndicator color={colorConfig.textUnpressed} />
+        ) : (
+          <>
+            {iconLeft && (
+              <Animated.View style={styles.iconLeft}>{iconLeft}</Animated.View>
+            )}
+            <Animated.Text style={[styles.text({ size }), textStyle]}>
+              {children}
+            </Animated.Text>
+          </>
         )}
-        <Animated.Text style={[styles.text({ size }), textStyle]}>
-          {children}
-        </Animated.Text>
       </Animated.View>
     </PressableScale>
   );
