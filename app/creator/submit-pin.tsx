@@ -53,7 +53,6 @@ export default function SubmitPin() {
       const table = status === 'approved' ? 'pins' : 'submissions';
 
       const { error: pinError } = await supabase.from(table).insert({
-        creator_id: user?.id,
         place_id: placeData.id,
         note,
         status,
@@ -195,6 +194,7 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.borderRadius.small,
     padding: theme.spacing.medium,
     fontSize: 16,
+    color: theme.colors.contentPrimary,
   },
   textArea: {
     minHeight: 100,

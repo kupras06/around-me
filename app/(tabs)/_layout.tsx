@@ -58,6 +58,17 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
+        name="admin"
+        options={{
+          title: 'Admin',
+          href: user?.is_admin ? '/admin' : null,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol name="lock" size={24} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="creators"
         options={{
           title: 'Creators',

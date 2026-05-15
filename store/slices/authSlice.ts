@@ -32,6 +32,7 @@ export type UserMetadata = {
   focus_description?: string;
   tier?: 'verified' | 'trusted_local' | 'community';
   follower_count?: number;
+  is_admin?: boolean;
 };
 
 export type User = {
@@ -48,10 +49,12 @@ export type User = {
   facebook_linked?: boolean;
   user_type?: 'creator' | 'user';
   is_creator: boolean;
+  is_admin: boolean;
   bio?: string;
   focus_description?: string;
   tier?: 'verified' | 'trusted_local' | 'community';
   follower_count?: number;
+  is_admin?: boolean;
 };
 
 type AuthState = {
@@ -96,6 +99,7 @@ export const mapSupabaseUser = (user: SupabaseUser | null): User | null => {
       `https://ui-avatars.com/api/?name=${metadata?.display_name || user.email || 'User'}`,
     user_type: metadata.user_type,
     is_creator: metadata.user_type === 'creator',
+    is_admin: metadata.is_admin ?? false,
     bio: metadata.bio,
     focus_description: metadata.focus_description,
     tier: metadata.tier,
@@ -311,6 +315,8 @@ export const register = createAsyncThunk(
       throw new Error('Email and password are required.');
     }
 
+    const isAdmin = normalizedEmail.endsWith('@around.me');
+
     const { data, error } = await supabase.auth.signUp({
       email: normalizedEmail,
       password,
@@ -319,6 +325,7 @@ export const register = createAsyncThunk(
           display_name: cleanDisplayName,
           phone_linked: false,
           onboarding_completed: false,
+          is_admin: isAdmin,
         } satisfies UserMetadata,
       },
     });
