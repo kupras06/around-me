@@ -49,7 +49,6 @@ export type User = {
   facebook_linked?: boolean;
   user_type?: 'creator' | 'user';
   is_creator: boolean;
-  is_admin: boolean;
   bio?: string;
   focus_description?: string;
   tier?: 'verified' | 'trusted_local' | 'community';

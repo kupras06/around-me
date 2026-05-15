@@ -15,9 +15,11 @@ import { useAuth, useLogout, useUser } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 import { supabase } from '@/lib/supabase';
 
-function ProfileCard() {
+function ProfileHero() {
   const [loading, setLoading] = useState(false);
   const { user, updateProfile } = useUser();
+  const { theme } = useUnistyles();
+
   const uploadAvatar = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -30,98 +32,108 @@ function ProfileCard() {
         setLoading(true);
         const image = result.assets[0];
         const fileExtension = image.uri.split('.').pop();
-        const fileName = `avatar-${user.id}.${fileExtension}`; // Simple unique name
+        const fileName = `avatar-${user.id}.${fileExtension}`;
         invariant(image.base64, 'Image base64 is not available.');
         const { data, error: uploadError } = await supabase.storage
-          .from('assets-images') // Assuming 'avatars' bucket exists and is configured for public access
+          .from('assets-images')
           .upload(`${user.id}/${fileName}`, decode(image.base64), {
             contentType: result.assets[0].mimeType,
             cacheControl: '3600',
             upsert: true,
           });
-        logger.info('Uploaded', data, uploadError);
-        if (uploadError) {
-          logger.error(uploadError);
-          throw uploadError;
-        }
+        if (uploadError) throw uploadError;
 
-        // Get public URL
         const { data: publicUrlData } = supabase.storage
           .from('assets-images')
           .getPublicUrl(`${user.id}/${fileName}`);
-        logger.info(publicUrlData);
+        
         if (publicUrlData.publicUrl) {
-          await updateProfile({
-            avatar_url: publicUrlData.publicUrl,
-          });
+          await updateProfile({ avatar_url: publicUrlData.publicUrl });
           Alert.alert('Success', 'Profile picture updated!');
         } else {
           throw new Error('Could not get public URL for avatar.');
         }
       }
     } catch (error: unknown) {
-      Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'Unknown error'
-      );
-      logger.error('Error uploading avatar:', error);
+      Alert.alert('Error', error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <LoaderView loading={loading} style={styles.profileHeader}>
-      <Pressable onPress={uploadAvatar}>
-        <Avatar
-          source={{
-            uri: user?.avatar_url,
-          }}
-          size="hero"
-        />
-      </Pressable>
-      <View style={styles.userInfo}>
-        <Text variant="heading3" numberOfLines={1}>
-          {user?.display_name ?? 'Unnamed User'}
+    <View style={styles.heroContainer}>
+      <LoaderView loading={loading}>
+        <Pressable onPress={uploadAvatar} style={styles.avatarContainer}>
+          <Avatar
+            source={{ uri: user?.avatar_url }}
+            size="hero"
+          />
+          <View style={styles.editBadge}>
+            <IconSymbol name="pencil" size={14} color={theme.colors.white} />
+          </View>
+        </Pressable>
+      </LoaderView>
+      
+      <View style={styles.heroText}>
+        <Text variant="heading2" style={styles.displayName}>
+          {user?.display_name ?? 'User'}
         </Text>
-
-        <Text variant="body2" color="contentSecondary" numberOfLines={1}>
+        <Text variant="body2" style={styles.emailText}>
           {user?.email}
         </Text>
       </View>
-    </LoaderView>
+    </View>
   );
 }
 
-type RouteSettingCardProps = {
+type SettingItemProps = {
   title: string;
   onPress: () => void;
   description?: string;
+  icon: keyof typeof IconSymbol;
+  color?: string;
 };
-function RouteSettingCard({
-  title,
-  onPress,
-  description,
-}: RouteSettingCardProps) {
+
+function SettingItem({ title, onPress, description, icon, color }: SettingItemProps) {
   const { theme } = useUnistyles();
   return (
-    <View style={styles.contentSection}>
-      <Pressable onPress={onPress} style={styles.routeSettingCard}>
-        <View>
-          <Text variant="heading3">{title}</Text>
-          {description && (
-            <Text variant="body3" color="contentSecondary">
-              {description}
-            </Text>
-          )}
-        </View>
+    <Pressable 
+      onPress={onPress} 
+      style={({ pressed }) => [
+        styles.settingItem,
+        pressed && styles.settingItemPressed
+      ]}
+    >
+      <View style={[styles.iconWrapper, color && { backgroundColor: color + '15' }]}>
         <IconSymbol
-          name="chevron.right"
-          size={24}
-          color={theme.colors.contentSecondary}
+          name={icon as any}
+          size={20}
+          color={color || theme.colors.contentSecondary}
         />
-      </Pressable>
-    </View>
+      </View>
+      <View style={styles.settingContent}>
+        <Text variant="body1" style={styles.settingTitle}>{title}</Text>
+        {description && (
+          <Text variant="body3" style={styles.settingDescription}>
+            {description}
+          </Text>
+        )}
+      </View>
+      <IconSymbol
+        name="chevron.right"
+        size={20}
+        color={theme.colors.contentTertiary}
+      />
+    </Pressable>
+  );
+}
+
+function SectionHeader({ title }: { title: string }) {
+  return (
+    <Text variant="body4" style={styles.sectionHeader}>
+      {title.toUpperCase()}
+    </Text>
   );
 }
 
@@ -129,84 +141,96 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const logout = useLogout();
+  const { theme } = useUnistyles();
+
   return (
     <AuthGate>
-      <ScrollView>
-        <View style={styles.container}>
-          <Stack.Screen options={{ headerShown: false }} />
-          <ProfileCard />
-          <RouteSettingCard
-            title="Edit Profile"
-            onPress={() => {
-              router.push('/profile/account');
-            }}
-          />
-          <RouteSettingCard
-            title="Security Settings"
-            description="Manage password and two-factor authentication"
-            onPress={() => {
-              router.push('/profile/security');
-            }}
-          />
-          {user?.is_creator ? (
-            <RouteSettingCard
-              title="Social Accounts"
-              description="Manage linked Instagram and Twitter accounts"
-              onPress={() => {
-                router.push('/profile/social');
-              }}
+      <Stack.Screen options={{ headerShown: false }} />
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <ProfileHero />
+
+        <View style={styles.sectionsContainer}>
+          <SectionHeader title="Account" />
+          <View style={styles.sectionCard}>
+            <SettingItem
+              title="Edit Profile"
+              icon="person"
+              onPress={() => router.push('/profile/account')}
             />
-          ) : (
-            <RouteSettingCard
-              title="Become a Creator"
-              description="Start sharing recommendations and build your audience"
-              onPress={() => {
-                router.push({
-                  pathname: '/onboarding',
-                  params: {
-                    returnTo: '/profile',
-                  },
-                });
-              }}
+            <View style={styles.separator} />
+            <SettingItem
+              title="Security Settings"
+              description="Password & authentication"
+              icon="lock"
+              onPress={() => router.push('/profile/security')}
             />
+            {user?.is_creator && (
+              <>
+                <View style={styles.separator} />
+                <SettingItem
+                  title="Social Accounts"
+                  description="Instagram & Twitter"
+                  icon="link"
+                  onPress={() => router.push('/profile/social')}
+                />
+              </>
+            )}
+          </View>
+
+          <SectionHeader title="Preferences" />
+          <View style={styles.sectionCard}>
+            <SettingItem
+              title="App Preferences"
+              description="Theme & notifications"
+              icon="gearshape"
+              onPress={() => Alert.alert('Settings', 'App preferences coming soon!')}
+            />
+          </View>
+
+          {!user?.is_creator && (
+            <>
+              <SectionHeader title="Creators" />
+              <View style={styles.sectionCard}>
+                <SettingItem
+                  title="Become a Creator"
+                  description="Share recommendations"
+                  icon="pencil"
+                  color={theme.colors.contentAccentSecondary}
+                  onPress={() => router.push({ pathname: '/onboarding', params: { returnTo: '/profile' } })}
+                />
+              </View>
+            </>
           )}
 
-          <RouteSettingCard
-            title="App Preferences"
-            description="Theme, notifications, and language"
-            onPress={() => {
-              Alert.alert('Settings', 'App preferences coming soon!');
-            }}
-          />
+          <SectionHeader title="Support & Legal" />
+          <View style={styles.sectionCard}>
+            <SettingItem
+              title="Terms of Service"
+              icon="info"
+              onPress={() => Alert.alert('Terms', 'Terms of Service coming soon!')}
+            />
+            <View style={styles.separator} />
+            <SettingItem
+              title="Privacy Policy"
+              icon="eye"
+              onPress={() => Alert.alert('Privacy', 'Privacy Policy coming soon!')}
+            />
+          </View>
 
-          <RouteSettingCard
-            title="Terms of Service"
-            description="Read our terms and conditions"
-            onPress={() => {
-              Alert.alert('Terms', 'Terms of Service coming soon!');
-            }}
-          />
-          <RouteSettingCard
-            title=" Privacy Policy"
-            description="Read our privacy policy"
-            onPress={() => {
-              Alert.alert('Privacy', 'Privacy Policy coming soon!');
-            }}
-          />
-
-          <Button
-            variant="negative"
-            onPress={logout}
-            iconLeft={
-              <IconSymbol
-                name="arrow.right.circle"
-                size={24}
-                color="contentNegative"
-              />
-            }
-          >
-            Sign Out
-          </Button>
+          <View style={{ marginTop: theme.spacing.xlarge }}>
+            <Button
+              variant="negative"
+              size="large"
+              onPress={logout}
+              iconLeft={<IconSymbol name="arrow.right.circle" size={20} color={theme.colors.sentimentNegative} />}
+            >
+              Sign Out
+            </Button>
+          </View>
         </View>
       </ScrollView>
     </AuthGate>
@@ -216,61 +240,94 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    height: '100%',
-    gap: theme.spacing.small,
-    padding: theme.spacing.large,
-    paddingBottom: theme.spacing.large + 40,
+    backgroundColor: theme.colors.backgroundScreen,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    minHeight: 300,
+  scrollContent: {
+    paddingBottom: theme.spacing.xxlarge + 40,
+  },
+  heroContainer: {
+    paddingTop: theme.spacing.xxlarge,
+    paddingBottom: theme.spacing.xlarge,
     alignItems: 'center',
+    backgroundColor: theme.colors.backgroundScreenSecondary,
+    borderBottomWidth: 0.5,
+    borderBottomColor: theme.colors.borderNeutral,
   },
-  button: {
-    marginBottom: theme.spacing.small,
-  },
-  segmentedContainer: {
-    marginBottom: theme.spacing.large,
-  },
-  sectionTitle: {
-    marginBottom: theme.spacing.medium,
-  },
-  contentSection: {
-    gap: theme.spacing.medium,
-  },
-  routeSettingCard: {
-    padding: theme.spacing.medium,
-    borderRadius: theme.borderRadius.medium,
-    backgroundColor: theme.colors.backgroundNeutral,
-    borderWidth: 1,
-    display: 'flex',
-    gap: theme.spacing.small,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderColor: theme.colors.borderNeutralSecondary,
-  },
-  aboutItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: theme.spacing.medium,
-  },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    paddingHorizontal: 16,
-    paddingBottom: 30,
-  },
-
-  avatarWrapper: {
+  avatarContainer: {
     position: 'relative',
   },
-  userInfo: {
-    flex: 1,
+  editBadge: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    backgroundColor: theme.colors.contentAccentSecondary,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    borderWidth: 2,
+    borderColor: theme.colors.backgroundScreenSecondary,
+  },
+  heroText: {
+    marginTop: theme.spacing.medium,
+    alignItems: 'center',
+  },
+  displayName: {
+    color: theme.colors.contentPrimary,
+    fontWeight: '700',
+  },
+  emailText: {
+    color: theme.colors.contentSecondary,
+    marginTop: theme.spacing.xxsmall,
+  },
+  sectionsContainer: {
+    padding: theme.spacing.large,
+  },
+  sectionHeader: {
+    marginTop: theme.spacing.xlarge,
+    marginBottom: theme.spacing.small,
+    marginHorizontal: theme.spacing.small,
+    color: theme.colors.contentTertiary,
+  },
+  sectionCard: {
+    backgroundColor: theme.colors.backgroundElevated,
+    borderRadius: theme.borderRadius.large,
+    borderWidth: 0.5,
+    borderColor: theme.colors.borderNeutral,
+    overflow: 'hidden',
+  },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: theme.spacing.medium,
+    gap: theme.spacing.medium,
+  },
+  settingItemPressed: {
+    backgroundColor: theme.colors.backgroundScreenSecondary,
+  },
+  iconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: theme.colors.backgroundScreenSecondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingContent: {
+    flex: 1,
+    gap: 2,
+  },
+  settingTitle: {
+    fontWeight: '500',
+    color: theme.colors.contentPrimary,
+  },
+  settingDescription: {
+    color: theme.colors.contentSecondary,
+  },
+  separator: {
+    height: 0.5,
+    backgroundColor: theme.colors.borderNeutral,
+    marginLeft: theme.spacing.xxlarge + theme.spacing.medium, // Align with text
   },
 }));
