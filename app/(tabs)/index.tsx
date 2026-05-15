@@ -288,7 +288,10 @@ export default function MapScreen() {
           {selectedPin ? (
             <View>
               <View style={styles.sheetHeader}>
-                <Text variant="heading3">{selectedPin.name}</Text>
+                <View>
+                  <Text variant="heading2" style={{ marginBottom: 2 }}>{selectedPin.name}</Text>
+                  <Text variant="body3" color="contentSecondary">{selectedPin.address}</Text>
+                </View>
                 <View
                   style={[
                     styles.categoryPill,
@@ -307,82 +310,67 @@ export default function MapScreen() {
                     {selectedPin.creator.initials}
                   </RNText>
                 </View>
-                <View style={{ marginLeft: 8 }}>
-                  <RNText style={{ fontWeight: '600' }}>
+                <View style={{ marginLeft: 10 }}>
+                  <Text variant="body2" style={{ fontWeight: '500' }}>
                     {selectedPin.creator.display_name}{' '}
-                    {selectedPin.creator.verified ? '✓' : ''}
-                  </RNText>
-                  <RNText style={{ color: theme.colors.contentSecondary }}>
-                    {selectedPin.address}
-                  </RNText>
+                    {selectedPin.creator.verified && (
+                      <RNText style={{ color: theme.colors.interactivePrimary }}>✓</RNText>
+                    )}
+                  </Text>
                 </View>
               </View>
 
-              <RNText
-                style={{ marginTop: 12, color: theme.colors.contentPrimary }}
-              >
-                {selectedPin.blurb}
-              </RNText>
+              <View style={{ marginTop: 16, marginBottom: 24 }}>
+                <Text variant="creatorNote" color="contentPrimary">
+                  "{selectedPin.blurb}"
+                </Text>
+              </View>
 
-              {/* Action row (flat icons + text) */}
+              {/* Action row */}
               <View style={styles.actionRow}>
-                <Pressable style={styles.actionItem}>
-                  <RNText>Save</RNText>
+                <Pressable style={[styles.actionButton, styles.actionButtonOutline]}>
+                  <Text variant="body2" style={{ fontWeight: '500' }}>Save</Text>
                 </Pressable>
-                <Pressable style={styles.actionItem}>
-                  <RNText>Directions</RNText>
+                <Pressable style={[styles.actionButton, styles.actionButtonOutline]}>
+                  <Text variant="body2" style={{ fontWeight: '500' }}>Share</Text>
                 </Pressable>
-                <Pressable style={styles.actionItem}>
-                  <RNText>Call</RNText>
-                </Pressable>
-                <Pressable style={styles.actionItem}>
-                  <RNText>Share</RNText>
-                </Pressable>
-                <Pressable style={styles.actionItem}>
-                  <RNText>Open</RNText>
+                <Pressable style={[styles.actionButton, styles.actionButtonFilled]}>
+                  <Text variant="body2" style={{ fontWeight: '500', color: '#fff' }}>Directions</Text>
                 </Pressable>
               </View>
 
-              {/* Nearby curated picks (by same creator) */}
-              <RNText style={{ marginTop: 12, fontWeight: '600' }}>
-                More from {selectedPin.creator.display_name}
-              </RNText>
-              <View style={styles.nearbyList}>
-                {pins
-                  .filter(
-                    (p) =>
-                      p.creator.id === selectedPin.creator.id &&
-                      p.id !== selectedPin.id
-                  )
-                  .map((p) => (
-                    <Pressable
-                      key={p.id}
-                      onPress={() => setSelectedPin(p)}
-                      style={styles.nearbyItem}
-                    >
-                      <View
-                        style={[
-                          styles.nearbyThumb,
-                          { backgroundColor: CATEGORY_COLORS[p.category] },
-                        ]}
-                      />
-                      <RNText style={{ marginTop: 6 }}>{p.name}</RNText>
-                    </Pressable>
-                  ))}
+              {/* Nearby curated picks */}
+              <View style={{ marginTop: 32 }}>
+                <Text variant="heading3" style={{ marginBottom: 12 }}>
+                  More from {selectedPin.creator.display_name}
+                </Text>
+                <View style={styles.nearbyList}>
+                  {pins
+                    .filter(
+                      (p) =>
+                        p.creator.id === selectedPin.creator.id &&
+                        p.id !== selectedPin.id
+                    )
+                    .map((p) => (
+                      <Pressable
+                        key={p.id}
+                        onPress={() => setSelectedPin(p)}
+                        style={styles.nearbyItem}
+                      >
+                        <View
+                          style={[
+                            styles.nearbyThumb,
+                            { backgroundColor: CATEGORY_COLORS[p.category] },
+                          ]}
+                        />
+                        <Text variant="body3" style={{ marginTop: 8 }}>{p.name}</Text>
+                      </Pressable>
+                    ))}
+                </View>
               </View>
-
-              {/* Expand / Collapse toggle */}
-              <Pressable
-                onPress={() => setSheetExpanded((v) => !v)}
-                style={{ marginTop: 12, alignSelf: 'center' }}
-              >
-                <RNText style={{ color: theme.colors.contentAccent }}>
-                  {sheetExpanded ? 'Collapse' : 'More details'}
-                </RNText>
-              </Pressable>
             </View>
           ) : (
-            <RNText>No place selected</RNText>
+            <Text variant="body1">No place selected</RNText>
           )}
         </View>
       </BottomSheet>
@@ -513,26 +501,33 @@ const styles = StyleSheet.create(() => ({
   },
   actionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 8,
     marginTop: 12,
   },
-  actionItem: {
+  actionButton: {
+    flex: 1,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 8,
+  },
+  actionButtonOutline: {
+    borderWidth: 0.5,
+    borderColor: '#DFC0B8',
+  },
+  actionButtonFilled: {
+    backgroundColor: '#C04A2A',
   },
   nearbyList: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
+    gap: 16,
   },
   nearbyItem: {
-    alignItems: 'center',
-    marginRight: 12,
+    width: 120,
   },
   nearbyThumb: {
-    width: 80,
-    height: 56,
-    borderRadius: 8,
+    width: '100%',
+    aspectRatio: 1.6,
+    borderRadius: 4,
   },
 }));

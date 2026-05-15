@@ -1,7 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, TextInput, TouchableOpacity, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { Text } from '@/craftrn-ui/components/Text';
@@ -13,19 +13,20 @@ const CATEGORIES = [
   { label: 'Café', value: 'cafe', color: '#C04A2A' },
   { label: 'Diner', value: 'diner', color: '#BA7517' },
   { label: 'Store', value: 'store', color: '#1D6E7A' },
-  { label: 'Experience', value: 'experience', color: '#666666' },
+  { label: 'Experience', value: 'experience', color: '#8B716A' },
 ];
 
 export default function SubmitPin() {
   const router = useRouter();
   const { user } = useAuth();
+  const { theme } = useUnistyles();
 
   const [placeName, setPlaceName] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0].value);
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubit = async () => {
+  const handleSubmit = async () => {
     if (!placeName || !note) {
       alert('Please fill in all required fields');
       return;
@@ -34,13 +35,12 @@ export default function SubmitPin() {
     setLoading(true);
     try {
       // 1. Create or find Place (simplified for MVP)
-      // In real app, we'd use Google Place ID to avoid duplicates
       const { data: placeData, error: placeError } = await supabase
         .from('places')
         .insert({
           name: placeName,
           category,
-          neighbourhood: 'Indiranagar', // Default for MVP
+          neighbourhood: 'Indiranagar',
           city: 'Bengaluru',
         })
         .select()
@@ -83,6 +83,7 @@ export default function SubmitPin() {
           <TextInput
             style={styles.input}
             placeholder="Search for a place..."
+            placeholderTextColor={theme.colors.contentTertiary}
             value={placeName}
             onChangeText={setPlaceName}
           />
@@ -99,11 +100,12 @@ export default function SubmitPin() {
             {CATEGORIES.map((cat) => (
               <TouchableOpacity
                 key={cat.value}
+                activeOpacity={0.7}
                 style={[
                   styles.categoryCard,
                   category === cat.value && {
                     borderColor: cat.color,
-                    backgroundColor: cat.color + '10',
+                    backgroundColor: cat.color + '08',
                   },
                 ]}
                 onPress={() => setCategory(cat.value)}
@@ -117,7 +119,7 @@ export default function SubmitPin() {
                     styles.categoryText,
                     category === cat.value && {
                       color: cat.color,
-                      fontWeight: '700',
+                      fontWeight: '500',
                     },
                   ]}
                 >
@@ -135,14 +137,15 @@ export default function SubmitPin() {
             </Text>
             <Text
               variant="body3"
-              style={[styles.charCount, note.length > 160 && { color: 'red' }]}
+              style={[styles.charCount, note.length > 160 && { color: theme.colors.sentimentNegative }]}
             >
               {note.length}/160
             </Text>
           </View>
           <TextInput
-            style={[styles.input, styles.textArea]}
+            style={[styles.input, styles.textArea, { fontStyle: 'italic' }]}
             placeholder="What makes this place special? (160 chars max)"
+            placeholderTextColor={theme.colors.contentTertiary}
             value={note}
             onChangeText={(text) => setNote(text.slice(0, 160))}
             multiline
@@ -152,7 +155,7 @@ export default function SubmitPin() {
 
         <View style={styles.actions}>
           <Button
-            onPress={handleSubit}
+            onPress={handleSubmit}
             size="large"
             loading={loading}
             disabled={!placeName || !note || note.length > 160}
@@ -172,13 +175,14 @@ const styles = StyleSheet.create((theme) => ({
   },
   content: {
     padding: theme.spacing.large,
-    gap: theme.spacing.xlarge,
+    gap: 32,
   },
   inputGroup: {
     gap: theme.spacing.small,
   },
   label: {
-    fontWeight: '600',
+    fontWeight: '500',
+    color: theme.colors.contentSecondary,
   },
   labelRow: {
     flexDirection: 'row',
@@ -186,23 +190,26 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
   },
   charCount: {
-    color: theme.colors.contentSecondary,
+    color: theme.colors.contentTertiary,
   },
   input: {
-    borderWidth: 1,
-    borderColor: theme.colors.informativePrimary,
-    borderRadius: theme.borderRadius.small,
+    borderWidth: 0.5,
+    borderColor: '#DFC0B8',
+    borderRadius: theme.borderRadius.medium,
     padding: theme.spacing.medium,
     fontSize: 16,
     color: theme.colors.contentPrimary,
+    backgroundColor: '#fff',
   },
   textArea: {
-    minHeight: 100,
+    minHeight: 120,
     textAlignVertical: 'top',
+    lineHeight: 24,
   },
   hint: {
-    color: theme.colors.contentSecondary,
+    color: theme.colors.contentTertiary,
     fontStyle: 'italic',
+    marginTop: 4,
   },
   categoryGrid: {
     flexDirection: 'row',
@@ -213,21 +220,22 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     padding: theme.spacing.medium,
-    borderWidth: 1,
-    borderColor: theme.colors.informativePrimary,
+    borderWidth: 0.5,
+    borderColor: '#DFC0B8',
     borderRadius: theme.borderRadius.medium,
     minWidth: '47%',
     gap: theme.spacing.small,
+    backgroundColor: '#fff',
   },
   colorDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   categoryText: {
     color: theme.colors.contentPrimary,
   },
   actions: {
-    marginTop: theme.spacing.large,
+    marginTop: 16,
   },
 }));

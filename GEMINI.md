@@ -35,6 +35,7 @@ AroundMe is a curated map discovery app (Bengaluru MVP).
 ### 3. Styling & Theming
 - **Tool**: Always use `Unistyles` for styles. Avoid inline styles or standard `StyleSheet` where possible.
 - **Theme**: Access colors, spacing, and border radii via the `theme` object in `StyleSheet.create((theme) => (...))`.
+- **Guideline**: Adhere strictly to [DESIGN_GUIDELINE.md](./DESIGN_GUIDELINE.md) for all UI/UX implementation.
 
 ## Context Management & Workflow Guidelines
 

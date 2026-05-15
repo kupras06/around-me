@@ -252,6 +252,6 @@ const styles = StyleSheet.create((theme) => ({
     ...(size === 'large' && {
       ...theme.textVariants.body1,
     }),
-    fontWeight: '700',
+    fontWeight: '500',
   }),
 }));

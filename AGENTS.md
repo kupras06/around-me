@@ -119,6 +119,12 @@ export default function ScreenName() {
 - Uses Unistyles for dynamic theming
 - Theme colors defined in central theme files
 - Consistent spacing and typography system
+- **Design Standard**: Strictly follow the [DESIGN_GUIDELINE.md](./DESIGN_GUIDELINE.md) for all UI/UX work.
+
+## Documentation
+- **PRD.md**: Product Requirements Document
+- **DESIGN_GUIDELINE.md**: Visual and interaction design standards
+- **tasks.md**: Current development tasks and progress
 
 ### 4. Navigation Strategy
 - File-based routing with Expo Router

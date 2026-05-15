@@ -11,7 +11,14 @@ export type Props = {
    * Variant of the text.
    * @default 'body1'
    */
-  variant?: 'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2' | 'body3';
+  variant?:
+    | 'heading1'
+    | 'heading2'
+    | 'heading3'
+    | 'body1'
+    | 'body2'
+    | 'body3'
+    | 'creatorNote';
   /**
    * Color of the text.
    * @default 'contentPrimary'
@@ -52,6 +59,9 @@ const styles = StyleSheet.create((theme) => ({
       fontSize: variantStyle.fontSize,
       lineHeight: variantStyle.lineHeight,
       fontWeight: variantStyle.fontWeight,
+      ...('fontStyle' in variantStyle && {
+        fontStyle: variantStyle.fontStyle,
+      }),
       ...('letterSpacing' in variantStyle && {
         letterSpacing: variantStyle.letterSpacing,
       }),
