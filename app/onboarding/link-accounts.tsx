@@ -10,7 +10,7 @@ import { logger } from '@/lib/logger';
 export default function LinkAccounts() {
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
-  const { linkAccounts, completeOnboarding, signInWithProvider } = useAuth();
+  const { linkAccounts, completeOnboarding, signInWithProvider,user} = useAuth();
   const [twitter, setTwitter] = useState(false);
   const [instagram, setInstagram] = useState(false);
   const [loading, setLoading] = useState(false);

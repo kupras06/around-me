@@ -1,5 +1,5 @@
 import { Stack, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -17,14 +17,7 @@ export default function ProfileScreen() {
   const { theme } = useUnistyles();
   const [pins, setPins] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (user?.id && user?.is_creator) {
-      fetchPins();
-    }
-  }, [user]);
-
-  const fetchPins = async () => {
+ const fetchPins = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -40,7 +33,14 @@ export default function ProfileScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+  useEffect(() => {
+    if (user?.id && user?.is_creator) {
+      fetchPins();
+    }
+  }, [user,fetchPins]);
+
+ 
 
   const renderHeader = () => (
     <View style={styles.header}>

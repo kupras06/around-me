@@ -106,7 +106,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   input: {
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: theme.colors.contentPrimary,
     borderRadius: theme.borderRadius.small,
     padding: theme.spacing.medium,
     fontSize: 16,

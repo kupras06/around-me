@@ -12,7 +12,7 @@ import type { RootState } from '@/store';
 
 WebBrowser.maybeCompleteAuthSession();
 
-export type OAuthProvider = 'x' | 'google' | 'facebook' | 'github' | 'apple';
+export type OAuthProvider = 'x' | 'google' | 'facebook' | 'github' | 'apple' | 'instagram';
 type LinkedAccounts = Partial<Record<OAuthProvider, boolean>>;
 export type UserMetadata = {
   display_name?: string;
@@ -128,6 +128,9 @@ const extractOAuthParamsFromUrl = (url: string) => {
 const signInWithOAuthWebBrowser = async (provider: OAuthProvider) => {
   logger.info(`Starting ${provider} OAuth`);
   logger.info('Redirect URL:', Linking.createURL('/'));
+  if (provider === 'instagram') {
+    throw new Error('Instagram OAuth is not supported yet');
+  }
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
