@@ -6,13 +6,13 @@ import { StyleSheet } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { PressableScale } from '@/craftrn-ui/components/PressableScale/PressableScale';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/use-auth';
+import { useProfile } from '@/hooks/use-auth';
 
 export default function OnboardingScreen() {
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
 
-  const { completeOnboarding, setUserType } = useAuth();
+  const { completeOnboarding, setUserType } = useProfile();
 
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
 
@@ -119,13 +119,10 @@ export default function OnboardingScreen() {
                     params: { returnTo },
                   })
                 }
-              >
-                Continue
-              </Button>
+                title="Continue"
+              />
 
-              <Button variant="tertiary" size="large" onPress={handleFinish}>
-                Skip for now
-              </Button>
+              <Button variant="tertiary" size="large" onPress={handleFinish} title="Skip for now" />
             </View>
           </View>
         </View>
@@ -158,9 +155,8 @@ export default function OnboardingScreen() {
                   params: { returnTo },
                 })
               }
-            >
-              Get started
-            </Button>
+              title="Get started"
+            />
           </View>
         </View>
       </View>

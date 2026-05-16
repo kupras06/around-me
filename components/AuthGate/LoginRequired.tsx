@@ -41,13 +41,8 @@ export default function LoginRequiredScreen() {
         </Text>
 
         <View style={styles.buttonContainer}>
-          <Button variant="primary" onPress={handleLogin}>
-            Sign In
-          </Button>
-
-          <Button variant="tertiary" onPress={handleDismiss}>
-            Maybe Later
-          </Button>
+          <Button variant="primary" onPress={handleLogin} title="Sign In" />
+          <Button variant="tertiary" onPress={handleDismiss} title="Maybe Later" />
         </View>
       </View>
     </BottomSheet>

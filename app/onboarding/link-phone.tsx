@@ -5,12 +5,12 @@ import { StyleSheet } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/use-auth';
+import { useProfile } from '@/hooks/use-auth';
 
 export default function LinkPhone() {
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
-  const { linkPhoneNumber } = useAuth();
+  const { linkPhoneNumber } = useProfile();
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,15 +51,17 @@ export default function LinkPhone() {
           />
 
           {error && (
-            <Text variant="body3" color="sentimentNegative" style={styles.error}>
+            <Text
+              variant="body3"
+              color="sentimentNegative"
+              style={styles.error}
+            >
               {error}
             </Text>
           )}
 
           <View style={styles.actions}>
-            <Button onPress={handleLink} size="large" loading={loading}>
-              Link phone
-            </Button>
+            <Button onPress={handleLink} size="large" loading={loading} title="Link phone" />
             <Button
               variant="tertiary"
               onPress={() =>
@@ -69,9 +71,8 @@ export default function LinkPhone() {
                 })
               }
               size="large"
-            >
-              Skip
-            </Button>
+              title="Skip"
+            />
           </View>
         </View>
       </View>

@@ -4,14 +4,18 @@ import { Appearance } from 'react-native';
 import { UnistylesRuntime } from 'react-native-unistyles';
 import { supabase } from '@/lib/supabase';
 import { setStoredThemePreference } from '@/lib/theme-preference';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { getCurrentAuthUser } from '@/store/features/auth/auth.service';
 import {
   bootstrapAuth,
-  mapSupabaseUser,
-  selectAuth,
+  selectAuthState,
   setAuthState,
-  setRecoveringPassword,
-} from '@/store/slices/authSlice';
+} from '@/store/features/auth/auth.slice';
+import {
+  clearProfile,
+  fetchProfile,
+  selectProfile,
+} from '@/store/features/profile/profile.slice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectTheme, setResolvedMode } from '@/store/slices/themeSlice';
 
 const AUTH_ROUTES = new Set(['login', 'register', 'reset-password']);
@@ -24,21 +28,26 @@ export function useAuthSubscription() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      dispatch(
-        setAuthState({
-          session,
-          user: mapSupabaseUser(session?.user ?? null),
-        })
-      );
+      void (async () => {
+        const authUser = session ? await getCurrentAuthUser() : null;
+        dispatch(setAuthState({ session, authUser }));
+
+        if (authUser) {
+          void dispatch(fetchProfile(authUser.id));
+        } else {
+          dispatch(clearProfile());
+        }
+      })();
 
       switch (event) {
         case 'PASSWORD_RECOVERY':
-          dispatch(setRecoveringPassword(true));
-          router.push('/auth/reset-password');
+          router.push({
+            pathname: '/auth/reset-password',
+            params: { mode: 'recovery' },
+          });
           break;
 
         case 'SIGNED_OUT':
-          dispatch(setRecoveringPassword(false));
           break;
       }
     });
@@ -88,25 +97,17 @@ function getRedirectRoute({
   user,
   initialized,
   loading,
-  isRecoveringPassword,
-  currentRoute,
   isAuthRoute,
   isOnboardingRoute,
 }: {
-  user: ReturnType<typeof selectAuth>['user'];
+  user: ReturnType<typeof selectProfile>;
   initialized: boolean;
   loading: boolean;
-  isRecoveringPassword: boolean;
-  currentRoute?: string;
   isAuthRoute: boolean;
   isOnboardingRoute: boolean;
 }) {
   if (!initialized || loading) {
     return null;
-  }
-
-  if (isRecoveringPassword && currentRoute !== 'reset-password') {
-    return '/auth/reset-password';
   }
 
   if (!user) {
@@ -131,8 +132,9 @@ function useAuthRedirects() {
   const router = useRouter();
   const segments = useSegments();
 
-  const { user, loading, initialized, isRecoveringPassword } =
-    useAppSelector(selectAuth);
+  const { authUser, loading, initialized } = useAppSelector(selectAuthState);
+  const profile = useAppSelector(selectProfile);
+  const user = authUser && profile ? profile : null;
 
   const currentRoute = segments[segments.length - 1];
 
@@ -145,8 +147,6 @@ function useAuthRedirects() {
       user,
       initialized,
       loading,
-      isRecoveringPassword,
-      currentRoute,
       isAuthRoute,
       isOnboardingRoute,
     });
@@ -154,16 +154,7 @@ function useAuthRedirects() {
     if (redirect) {
       router.replace(redirect);
     }
-  }, [
-    currentRoute,
-    initialized,
-    isAuthRoute,
-    isOnboardingRoute,
-    isRecoveringPassword,
-    loading,
-    router,
-    user,
-  ]);
+  }, [initialized, isAuthRoute, isOnboardingRoute, loading, router, user]);
 }
 export function AppStateEffects() {
   const dispatch = useAppDispatch();

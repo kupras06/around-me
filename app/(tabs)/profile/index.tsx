@@ -11,13 +11,12 @@ import { LoaderView } from '@/components/ui/loader-view';
 import { Avatar } from '@/craftrn-ui/components/Avatar';
 import { Button } from '@/craftrn-ui/components/Button';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth, useLogout, useUser } from '@/hooks/use-auth';
-import { logger } from '@/lib/logger';
+import { useCurrentUser, useLogout, useProfile } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase';
 
 function ProfileHero() {
   const [loading, setLoading] = useState(false);
-  const { user, updateProfile } = useUser();
+  const { userProfile, updateProfile } = useProfile();
   const { theme } = useUnistyles();
 
   const uploadAvatar = async () => {
@@ -32,11 +31,11 @@ function ProfileHero() {
         setLoading(true);
         const image = result.assets[0];
         const fileExtension = image.uri.split('.').pop();
-        const fileName = `avatar-${user.id}.${fileExtension}`;
+        const fileName = `avatar-${userProfile?.user_id}.${fileExtension}`;
         invariant(image.base64, 'Image base64 is not available.');
-        const { data, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('assets-images')
-          .upload(`${user.id}/${fileName}`, decode(image.base64), {
+          .upload(`${userProfile?.user_id}/${fileName}`, decode(image.base64), {
             contentType: result.assets[0].mimeType,
             cacheControl: '3600',
             upsert: true,
@@ -45,8 +44,8 @@ function ProfileHero() {
 
         const { data: publicUrlData } = supabase.storage
           .from('assets-images')
-          .getPublicUrl(`${user.id}/${fileName}`);
-        
+          .getPublicUrl(`${userProfile?.user_id}/${fileName}`);
+
         if (publicUrlData.publicUrl) {
           await updateProfile({ avatar_url: publicUrlData.publicUrl });
           Alert.alert('Success', 'Profile picture updated!');
@@ -55,7 +54,10 @@ function ProfileHero() {
         }
       }
     } catch (error: unknown) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'Unknown error');
+      Alert.alert(
+        'Error',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
     } finally {
       setLoading(false);
     }
@@ -66,7 +68,7 @@ function ProfileHero() {
       <LoaderView loading={loading}>
         <Pressable onPress={uploadAvatar} style={styles.avatarContainer}>
           <Avatar
-            source={{ uri: user?.avatar_url }}
+            source={{ uri: userProfile?.avatar_url || undefined }}
             size="hero"
           />
           <View style={styles.editBadge}>
@@ -74,14 +76,14 @@ function ProfileHero() {
           </View>
         </Pressable>
       </LoaderView>
-      
+
       <View style={styles.heroText}>
         <Text variant="heading2" style={styles.displayName}>
-          {user?.display_name ?? 'User'}
+          {userProfile?.display_name ?? 'User'}
         </Text>
-        <Text variant="body2" style={styles.emailText}>
-          {user?.email}
-        </Text>
+        {/* <Text variant="body2" style={styles.emailText}>
+          {userProfile?.email || 'No email'}
+        </Text> */}
       </View>
     </View>
   );
@@ -91,29 +93,39 @@ type SettingItemProps = {
   title: string;
   onPress: () => void;
   description?: string;
-  icon: keyof typeof IconSymbol;
+  icon: React.ComponentProps<typeof IconSymbol>['name'];
   color?: string;
 };
 
-function SettingItem({ title, onPress, description, icon, color }: SettingItemProps) {
+function SettingItem({
+  title,
+  onPress,
+  description,
+  icon,
+  color,
+}: SettingItemProps) {
   const { theme } = useUnistyles();
   return (
-    <Pressable 
-      onPress={onPress} 
+    <Pressable
+      onPress={onPress}
       style={({ pressed }) => [
         styles.settingItem,
-        pressed && styles.settingItemPressed
+        pressed && styles.settingItemPressed,
       ]}
     >
-      <View style={[styles.iconWrapper, color && { backgroundColor: color + '15' }]}>
+      <View
+        style={[styles.iconWrapper, color && { backgroundColor: `${color}15` }]}
+      >
         <IconSymbol
-          name={icon as any}
+          name={icon}
           size={20}
           color={color || theme.colors.contentSecondary}
         />
       </View>
       <View style={styles.settingContent}>
-        <Text variant="body1" style={styles.settingTitle}>{title}</Text>
+        <Text variant="body1" style={styles.settingTitle}>
+          {title}
+        </Text>
         {description && (
           <Text variant="body3" style={styles.settingDescription}>
             {description}
@@ -131,7 +143,7 @@ function SettingItem({ title, onPress, description, icon, color }: SettingItemPr
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <Text variant="body4" style={styles.sectionHeader}>
+    <Text variant="body3" style={styles.sectionHeader}>
       {title.toUpperCase()}
     </Text>
   );
@@ -139,14 +151,14 @@ function SectionHeader({ title }: { title: string }) {
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useCurrentUser();
   const logout = useLogout();
   const { theme } = useUnistyles();
 
   return (
     <AuthGate>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView 
+      <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -187,7 +199,9 @@ export default function ProfileScreen() {
               title="App Preferences"
               description="Theme & notifications"
               icon="gearshape"
-              onPress={() => Alert.alert('Settings', 'App preferences coming soon!')}
+              onPress={() =>
+                Alert.alert('Settings', 'App preferences coming soon!')
+              }
             />
           </View>
 
@@ -200,7 +214,12 @@ export default function ProfileScreen() {
                   description="Share recommendations"
                   icon="pencil"
                   color={theme.colors.contentAccentSecondary}
-                  onPress={() => router.push({ pathname: '/onboarding', params: { returnTo: '/profile' } })}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/onboarding',
+                      params: { returnTo: '/profile' },
+                    })
+                  }
                 />
               </View>
             </>
@@ -211,13 +230,17 @@ export default function ProfileScreen() {
             <SettingItem
               title="Terms of Service"
               icon="info"
-              onPress={() => Alert.alert('Terms', 'Terms of Service coming soon!')}
+              onPress={() =>
+                Alert.alert('Terms', 'Terms of Service coming soon!')
+              }
             />
             <View style={styles.separator} />
             <SettingItem
               title="Privacy Policy"
               icon="eye"
-              onPress={() => Alert.alert('Privacy', 'Privacy Policy coming soon!')}
+              onPress={() =>
+                Alert.alert('Privacy', 'Privacy Policy coming soon!')
+              }
             />
           </View>
 
@@ -226,7 +249,13 @@ export default function ProfileScreen() {
               variant="negative"
               size="large"
               onPress={logout}
-              iconLeft={<IconSymbol name="arrow.right.circle" size={20} color={theme.colors.sentimentNegative} />}
+              iconLeft={
+                <IconSymbol
+                  name="arrow.right.circle"
+                  size={20}
+                  color={theme.colors.sentimentNegative}
+                />
+              }
             >
               Sign Out
             </Button>

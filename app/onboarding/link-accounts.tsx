@@ -4,14 +4,15 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth, useCurrentUser, useProfile } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 
 export default function LinkAccounts() {
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
-  const { linkAccounts, completeOnboarding, signInWithProvider, user } =
-    useAuth();
+  const { signInWithProvider } = useAuth();
+  const { completeOnboarding } = useProfile();
+  const { linkAccounts, user } = useCurrentUser();
   const [twitter, setTwitter] = useState(false);
   const [instagram, setInstagram] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -77,10 +78,9 @@ export default function LinkAccounts() {
             <Button
               variant={twitter ? 'tertiary' : 'primary'}
               onPress={handleTwitterOAuth}
+              title={twitter ? 'Disconnect' : 'Connect Twitter'}
               size="large"
-            >
-              {twitter ? 'Disconnect' : 'Connect Twitter'}
-            </Button>
+            />
           </View>
 
           <View style={styles.accountSection}>
@@ -95,20 +95,15 @@ export default function LinkAccounts() {
             <Button
               variant={instagram ? 'tertiary' : 'primary'}
               onPress={handleInstagramOAuth}
+              title={instagram ? 'Disconnect' : 'Connect Instagram'}
               size="large"
-            >
-              {instagram ? 'Disconnect' : 'Connect Instagram'}
-            </Button>
+            />
           </View>
         </View>
 
         <View style={styles.footerActions}>
-          <Button onPress={handleFinish} size="large" loading={loading}>
-            Finish
-          </Button>
-          <Button variant="tertiary" onPress={handleFinish} size="large">
-            Skip & finish
-          </Button>
+          <Button onPress={handleFinish} size="large" loading={loading} title="Finish" />
+          <Button variant="tertiary" onPress={handleFinish} size="large" title="Skip & finish" />
         </View>
       </View>
     </View>

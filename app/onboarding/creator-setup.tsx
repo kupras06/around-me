@@ -6,27 +6,24 @@ import { StyleSheet } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrentUser, useProfile } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 
 export default function CreatorSetup() {
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
-  const { user, updateProfile, completeOnboarding } = useAuth();
+  const { user } = useCurrentUser();
+  const { updateProfile, completeOnboarding } = useProfile();
 
   const [bio, setBio] = useState(user?.bio || '');
-  const [focus, setFocus] = useState(user?.focus_description || '');
   const [loading, setLoading] = useState(false);
 
   const handleFinish = async () => {
     setLoading(true);
     try {
-      // In a real app, we'd have a specific updateCreator thunk,
-      // but for MVP we use user_metadata
       await updateProfile({
         bio,
-        focus_description: focus,
-      } as any); // Type cast as we added these to UserMetadata but maybe not to updateProfile payload yet
+      });
 
       await completeOnboarding();
       router.replace((returnTo as Href) || '/');
@@ -66,15 +63,6 @@ export default function CreatorSetup() {
             placeholder="A short bio about yourself"
             value={bio}
             onChangeText={setBio}
-            multiline
-            style={styles.textArea}
-          />
-
-          <InputText
-            label="What do you focus on?"
-            placeholder="e.g. Bangalore coffee, brunch spots, Indiranagar locals"
-            value={focus}
-            onChangeText={setFocus}
             multiline
             style={styles.textArea}
           />

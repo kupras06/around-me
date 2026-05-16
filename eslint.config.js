@@ -14,13 +14,19 @@ module.exports = [
       'react-native/no-unused-styles': 'error',
       'react-native/no-inline-styles': 'warn',
       'react-native/no-color-literals': 'warn',
-      'react-native/no-raw-text': ['error', { skip: ['Text', 'Animated.Text', 'RNText'] }],
+      'react-native/no-raw-text': [
+        'error',
+        { skip: ['Text', 'Animated.Text', 'RNText','Button'] },
+      ],
       'react-native/sort-styles': ['warn', 'asc'],
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
       'react/react-in-jsx-scope': 'off',
     },
   },
   {
-    ignores: ['dist/*', '.expo/*', 'android/*', 'ios/*'],
+    ignores: ['dist/*', '.expo/*', 'android/*', 'ios/*', 'supabase/*', 'craftrn-ui/*'],
   },
 ];

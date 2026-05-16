@@ -6,7 +6,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrentUser } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 import { supabase } from '@/lib/supabase';
 
@@ -19,7 +19,7 @@ const CATEGORIES = [
 
 export default function SubmitPin() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useCurrentUser();
   const { theme } = useUnistyles();
 
   const [placeName, setPlaceName] = useState('');
@@ -102,7 +102,7 @@ export default function SubmitPin() {
                   styles.categoryCard,
                   category === cat.value && {
                     borderColor: cat.color,
-                    backgroundColor: cat.color + '08',
+                    backgroundColor: `${cat.color}08`,
                   },
                 ]}
                 onPress={() => setCategory(cat.value)}
@@ -138,11 +138,14 @@ export default function SubmitPin() {
             style={[styles.textArea, { fontStyle: 'italic' }]}
           />
           <Text
-              variant="body3"
-              style={[styles.charCount, note.length > 160 && { color: theme.colors.sentimentNegative }]}
-            >
-              {note.length}/160
-            </Text>
+            variant="body3"
+            style={[
+              styles.charCount,
+              note.length > 160 && { color: theme.colors.sentimentNegative },
+            ]}
+          >
+            {note.length}/160
+          </Text>
         </View>
 
         <View style={styles.actions}>

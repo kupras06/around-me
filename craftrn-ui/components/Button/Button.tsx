@@ -41,7 +41,11 @@ export type Props = {
   /**
    * The text content of the button.
    */
-  children: string | string[];
+  children?: React.ReactNode;
+  /**
+   * The title of the button.
+   */
+  title?: string;
   /**
    * Callback function triggered when the button is pressed.
    */
@@ -85,6 +89,7 @@ export type ButtonProps = Props & AccessibilityProps;
 export const Button = ({
   children,
   onPress,
+  title,
   size = 'regular',
   disabled = false,
   loading = false,
@@ -201,7 +206,7 @@ export const Button = ({
               <Animated.View style={styles.iconLeft}>{iconLeft}</Animated.View>
             )}
             <Animated.Text style={[styles.text({ size }), textStyle]}>
-              {children}
+              {title || children}
             </Animated.Text>
           </>
         )}

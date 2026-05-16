@@ -6,13 +6,14 @@ import AuthGate from '@/components/AuthGate/AuthGate';
 import SharedHeader from '@/components/SharedHeader/SharedHeader';
 import { Button } from '@/craftrn-ui/components/Button';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth, useCurrentUser } from '@/hooks/use-auth';
 
 function ActualSocialAccounts() {
-  const { user, signInWithProvider, linkAccounts, loading: authLoading } = useAuth();
+  const { signInWithProvider, loading: authLoading } = useAuth();
+  const { user, linkAccounts, loading: userLoading } = useCurrentUser();
   const [localLoading, setLocalLoading] = useState(false);
 
-  const isLoading = authLoading || localLoading;
+  const isLoading = authLoading || userLoading || localLoading;
 
   const handleLink = async (provider: 'x' | 'instagram' | 'facebook') => {
     try {
@@ -61,8 +62,13 @@ function ActualSocialAccounts() {
           <Text variant="heading3" style={styles.centerText}>
             Creators Only
           </Text>
-          <Text variant="body2" color="contentSecondary" style={styles.emptyStateSubtext}>
-            Social account linking is currently only available for verified creators and trusted locals.
+          <Text
+            variant="body2"
+            color="contentSecondary"
+            style={styles.emptyStateSubtext}
+          >
+            Social account linking is currently only available for verified
+            creators and trusted locals.
           </Text>
         </View>
       </View>
@@ -77,22 +83,32 @@ function ActualSocialAccounts() {
       <View style={styles.content}>
         <View style={styles.intro}>
           <Text variant="body1" color="contentSecondary">
-            Connect your social profiles to verify your creator status and sync your recommendations.
+            Connect your social profiles to verify your creator status and sync
+            your recommendations.
           </Text>
         </View>
 
         <View style={styles.accountList}>
           <View style={styles.accountCard}>
             <View style={styles.accountInfo}>
-              <Text variant="body1" style={styles.accountName}>X (Twitter)</Text>
-              <Text variant="body3" color={user.twitter_linked ? 'interactivePrimary' : 'contentTertiary'}>
+              <Text variant="body1" style={styles.accountName}>
+                X (Twitter)
+              </Text>
+              <Text
+                variant="body3"
+                color={
+                  user.twitter_linked ? 'contentAccent' : 'contentTertiary'
+                }
+              >
                 {user.twitter_linked ? 'Connected' : 'Not linked'}
               </Text>
             </View>
             <Button
               variant={user.twitter_linked ? 'neutral-secondary' : 'primary'}
               size="small"
-              onPress={() => user.twitter_linked ? handleUnlink('x') : handleLink('x')}
+              onPress={() =>
+                user.twitter_linked ? handleUnlink('x') : handleLink('x')
+              }
               loading={isLoading}
             >
               {user.twitter_linked ? 'Unlink' : 'Link'}
@@ -101,15 +117,26 @@ function ActualSocialAccounts() {
 
           <View style={styles.accountCard}>
             <View style={styles.accountInfo}>
-              <Text variant="body1" style={styles.accountName}>Instagram</Text>
-              <Text variant="body3" color={user.instagram_linked ? 'interactivePrimary' : 'contentTertiary'}>
+              <Text variant="body1" style={styles.accountName}>
+                Instagram
+              </Text>
+              <Text
+                variant="body3"
+                color={
+                  user.instagram_linked ? 'contentAccent' : 'contentTertiary'
+                }
+              >
                 {user.instagram_linked ? 'Connected' : 'Not linked'}
               </Text>
             </View>
             <Button
               variant={user.instagram_linked ? 'neutral-secondary' : 'primary'}
               size="small"
-              onPress={() => user.instagram_linked ? handleUnlink('instagram') : handleLink('instagram')}
+              onPress={() =>
+                user.instagram_linked
+                  ? handleUnlink('instagram')
+                  : handleLink('instagram')
+              }
               loading={isLoading}
             >
               {user.instagram_linked ? 'Unlink' : 'Link'}
@@ -118,15 +145,26 @@ function ActualSocialAccounts() {
 
           <View style={styles.accountCard}>
             <View style={styles.accountInfo}>
-              <Text variant="body1" style={styles.accountName}>Facebook</Text>
-              <Text variant="body3" color={user.facebook_linked ? 'interactivePrimary' : 'contentTertiary'}>
+              <Text variant="body1" style={styles.accountName}>
+                Facebook
+              </Text>
+              <Text
+                variant="body3"
+                color={
+                  user.facebook_linked ? 'contentAccent' : 'contentTertiary'
+                }
+              >
                 {user.facebook_linked ? 'Connected' : 'Not linked'}
               </Text>
             </View>
             <Button
               variant={user.facebook_linked ? 'neutral-secondary' : 'primary'}
               size="small"
-              onPress={() => user.facebook_linked ? handleUnlink('facebook') : handleLink('facebook')}
+              onPress={() =>
+                user.facebook_linked
+                  ? handleUnlink('facebook')
+                  : handleLink('facebook')
+              }
               loading={isLoading}
             >
               {user.facebook_linked ? 'Unlink' : 'Link'}
@@ -135,8 +173,13 @@ function ActualSocialAccounts() {
         </View>
 
         <View style={styles.footer}>
-          <Text variant="body3" color="contentTertiary" style={styles.centerText}>
-            Linking your accounts allows AroundMe to verify your following and auto-approve your pins.
+          <Text
+            variant="body3"
+            color="contentTertiary"
+            style={styles.centerText}
+          >
+            Linking your accounts allows AroundMe to verify your following and
+            auto-approve your pins.
           </Text>
         </View>
       </View>

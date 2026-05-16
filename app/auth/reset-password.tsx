@@ -1,7 +1,7 @@
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
-import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 import { EmailInput } from '@/components/inputs/EmailInput';
 import { PasswordInput } from '@/components/inputs/PasswordInput';
 import { Button } from '@/craftrn-ui/components/Button/Button';
@@ -10,8 +10,11 @@ import { useAuth } from '@/hooks/use-auth';
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
+  const { mode } = useLocalSearchParams<{ mode?: string }>();
   const { resetPassword, updatePassword, loading, isRecoveringPassword } =
     useAuth();
+  const recoveringPassword =
+    mode === 'recovery' || Boolean(isRecoveringPassword);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [sent, setSent] = useState(false);
@@ -48,35 +51,32 @@ export default function ResetPasswordScreen() {
 
       <View style={styles.content}>
         <Text variant="heading3">
-          {isRecoveringPassword ? 'Set a new password' : 'Reset password'}
+          {recoveringPassword ? 'Set a new password' : 'Reset password'}
         </Text>
         <Text variant="body2" style={styles.subtitle}>
-          {isRecoveringPassword
+          {recoveringPassword
             ? 'Enter your new password to finish recovering your account.'
             : "Enter the email associated with your account and we'll send reset instructions."}
         </Text>
 
         <View style={styles.form}>
-          {isRecoveringPassword ? (
+          {recoveringPassword ? (
             <PasswordInput password={password} setPassword={setPassword} />
           ) : (
             <EmailInput email={email} setEmail={setEmail} />
           )}
 
           {error && (
-            <Text
-              variant="body3"
-              style={styles.error}
-            >
+            <Text variant="body3" style={styles.error}>
               {error}
             </Text>
           )}
 
-          {!isRecoveringPassword && sent ? (
+          {!recoveringPassword && sent ? (
             <Text variant="body2" style={styles.message}>
               Instructions sent — check your inbox.
             </Text>
-          ) : isRecoveringPassword && updated ? (
+          ) : recoveringPassword && updated ? (
             <Text variant="body2" style={styles.message}>
               Password updated. You can continue to the app.
             </Text>
@@ -84,15 +84,15 @@ export default function ResetPasswordScreen() {
             <View style={styles.spacerMedium}>
               <Button
                 onPress={
-                  isRecoveringPassword ? handlePasswordUpdate : handleReset
+                  recoveringPassword ? handlePasswordUpdate : handleReset
                 }
                 size="large"
               >
                 {loading
-                  ? isRecoveringPassword
+                  ? recoveringPassword
                     ? 'Updating...'
                     : 'Sending...'
-                  : isRecoveringPassword
+                  : recoveringPassword
                     ? 'Update password'
                     : 'Send reset link'}
               </Button>

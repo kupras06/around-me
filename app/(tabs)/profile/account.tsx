@@ -7,23 +7,23 @@ import { EmailInput } from '@/components/inputs/EmailInput';
 import { PhoneNumberInput } from '@/components/inputs/PhoneNumberInput';
 import { Button } from '@/craftrn-ui/components/Button';
 import { InputText } from '@/craftrn-ui/components/InputText';
-import { useUser } from '@/hooks/use-auth';
+import { useProfile } from '@/hooks/use-auth';
 
 function ActualProfile() {
   const [loading, setLoading] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const { user, updateProfile, linkPhoneNumber } = useUser();
+  const { userProfile, updateProfile, linkPhoneNumber } = useProfile();
   useEffect(() => {
     const getProfile = async () => {
       setLoading(true);
-      setDisplayName(user.display_name ?? '');
-      setPhoneNumber(user.phone ?? '');
+      setDisplayName(userProfile?.display_name ?? '');
+      setPhoneNumber(userProfile?.phone ?? '');
       setLoading(false);
     };
 
     getProfile();
-  }, [user]);
+  }, [userProfile]);
 
   const handleUpdateProfile = async () => {
     setLoading(true);
@@ -70,7 +70,7 @@ function ActualProfile() {
           value={displayName}
           onChangeText={setDisplayName}
         />
-        <EmailInput email={user?.email || ''} disabled />
+        <EmailInput email={userProfile?.email || ''} disabled />
 
         <PhoneNumberInput
           phoneNumber={phoneNumber}
@@ -81,7 +81,7 @@ function ActualProfile() {
           onPress={handleLinkPhoneNumber}
           disabled={loading}
         >
-          {user.phone_linked ? 'Update Phone Number' : 'Link Phone Number'}
+          {userProfile?.phone ? 'Update Phone Number' : 'Link Phone Number'}
         </Button>
         <Button
           variant="primary"

@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import {  View } from 'react-native';
 import { Path, Svg } from 'react-native-svg';
 import { StyleSheet } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button';
@@ -45,18 +45,16 @@ export const SocialAuthButtons = () => {
         onPress={() => signInWithProvider('google')}
         size="large"
         variant="secondary"
+        title="Continue with Google"
         iconLeft={<GoogleIcon />}
-      >
-        Continue with Google
-      </Button>
+      />
       <Button
         onPress={() => signInWithProvider('x')}
         variant="secondary"
         size="large"
+        title="Continue with X"
         iconLeft={<XIcon />}
-      >
-        Continue with X
-      </Button>
+      />
     </View>
   );
 };

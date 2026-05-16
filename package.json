@@ -16,6 +16,7 @@
     "lint:biome": "biome lint .",
     "lint:biome:fix": "biome lint --write .",
     "check": "biome check .",
+    "db:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID --schema public > ./lib/database.types.ts",
     "check:fix": "biome check --write ."
   },
   "dependencies": {
@@ -71,6 +72,7 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "eslint-plugin-react-native": "^5.0.0",
+    "supabase": "^2.98.2",
     "typescript": "~5.9.2"
   },
   "private": true

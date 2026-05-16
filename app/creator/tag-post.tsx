@@ -6,16 +6,16 @@ import { StyleSheet } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrentUser } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 import { supabase } from '@/lib/supabase';
 
 export default function TagPost() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useCurrentUser();
 
   const [url, setUrl] = useState('');
-  const [placeId, setPlaceId] = useState('');
+  const [placeId, setPlaceId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
@@ -27,7 +27,7 @@ export default function TagPost() {
     setLoading(true);
     try {
       const { error } = await supabase.from('submissions').insert({
-        creator_id: user?.id,
+        user_id: user?.id,
         post_url: url,
         place_id: placeId,
         platform:
@@ -71,10 +71,11 @@ export default function TagPost() {
         <InputText
           label="Place ID"
           placeholder="Enter Place ID..."
-          value={placeId}
-          onChangeText={setPlaceId}
+          value={placeId?.toString() || ''}
+          onChangeText={(text) => setPlaceId(text ? Number(text) : null)}
           autoCapitalize="none"
           autoCorrect={false}
+          keyboardType="numeric"
         />
 
         <View style={styles.actions}>

@@ -1,8 +1,9 @@
 import MapboxGL from '@rnmapbox/maps';
 import { Stack, useRouter } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type ElementRef, useEffect, useRef, useState } from 'react';
 import { Dimensions, Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import {
   CATEGORY_COLORS,
   DEFAULT_NEIGHBORHOOD_CENTER,
@@ -10,8 +11,7 @@ import {
 } from '@/constants/map';
 import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/use-auth';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useCurrentUser } from '@/hooks/use-auth';
 
 // If no token is provided, we render a lightweight demo map instead of Mapbox.
 const HAS_MAPBOX = Boolean(
@@ -86,7 +86,9 @@ function DemoMap({
   const DEMO_SCALE = 50000;
 
   return (
-    <View style={[styles.map, { backgroundColor: theme.colors.backgroundScreen }]}>
+    <View
+      style={[styles.map, { backgroundColor: theme.colors.backgroundScreen }]}
+    >
       {pins.map((pin) => {
         const dx = (pin.longitude - center.longitude) * DEMO_SCALE;
         const dy = (pin.latitude - center.latitude) * DEMO_SCALE;
@@ -115,9 +117,7 @@ function DemoMap({
                 isSelected && { transform: [{ scale: 1.4 }] },
               ]}
             >
-              <Text style={styles.pinAvatarText}>
-                {pin.creator.initials}
-              </Text>
+              <Text style={styles.pinAvatarText}>{pin.creator.initials}</Text>
             </View>
           </Pressable>
         );
@@ -129,8 +129,8 @@ function DemoMap({
 export default function MapScreen() {
   const { theme } = useUnistyles();
   const router = useRouter();
-  const { user } = useAuth();
-  const cameraRef = useRef<any>(null);
+  const { user } = useCurrentUser();
+  const cameraRef = useRef<ElementRef<typeof MapboxGL.Camera> | null>(null);
 
   useEffect(() => {
     if (HAS_MAPBOX && MapboxGL?.setAccessToken) {
@@ -209,7 +209,8 @@ export default function MapScreen() {
                     styles.pinCircle,
                     {
                       backgroundColor:
-                        CATEGORY_COLORS[pin.category] ?? theme.colors.interactivePrimary,
+                        CATEGORY_COLORS[pin.category] ??
+                        theme.colors.interactivePrimary,
                     },
                   ]}
                 >
@@ -235,7 +236,10 @@ export default function MapScreen() {
       )}
 
       <Pressable
-        style={[styles.myLocationButton, { backgroundColor: theme.colors.interactivePrimary }]}
+        style={[
+          styles.myLocationButton,
+          { backgroundColor: theme.colors.interactivePrimary },
+        ]}
         onPress={centerOnUser}
       >
         <Text style={{ color: theme.colors.interactivePrimaryContent }}>◎</Text>
@@ -243,10 +247,17 @@ export default function MapScreen() {
 
       {user?.is_creator && (
         <Pressable
-          style={[styles.addPinButton, { backgroundColor: theme.colors.interactiveSecondary }]}
+          style={[
+            styles.addPinButton,
+            { backgroundColor: theme.colors.interactiveSecondary },
+          ]}
           onPress={() => router.push('/creator/submit-pin')}
         >
-          <IconSymbol name="plus" size={24} color={theme.colors.interactiveSecondaryContent} />
+          <IconSymbol
+            name="plus"
+            size={24}
+            color={theme.colors.interactiveSecondaryContent}
+          />
         </Pressable>
       )}
 
@@ -265,8 +276,12 @@ export default function MapScreen() {
             <View>
               <View style={styles.sheetHeader}>
                 <View style={{ flex: 1 }}>
-                  <Text variant="heading2" style={{ marginBottom: 2 }}>{selectedPin.name}</Text>
-                  <Text variant="body3" color="contentSecondary">{selectedPin.address}</Text>
+                  <Text variant="heading2" style={{ marginBottom: 2 }}>
+                    {selectedPin.name}
+                  </Text>
+                  <Text variant="body3" color="contentSecondary">
+                    {selectedPin.address}
+                  </Text>
                 </View>
                 <View
                   style={[
@@ -290,32 +305,68 @@ export default function MapScreen() {
                   <Text variant="body2" style={{ fontWeight: '500' }}>
                     {selectedPin.creator.display_name}{' '}
                     {selectedPin.creator.verified && (
-                      <Text style={{ color: theme.colors.interactivePrimary }}>✓</Text>
+                      <Text style={{ color: theme.colors.interactivePrimary }}>
+                        ✓
+                      </Text>
                     )}
                   </Text>
                 </View>
               </View>
 
-              <View style={{ marginTop: theme.spacing.medium, marginBottom: theme.spacing.large }}>
-                <Text variant="body1" color="contentPrimary" style={{ fontStyle: 'italic' }}>
+              <View
+                style={{
+                  marginTop: theme.spacing.medium,
+                  marginBottom: theme.spacing.large,
+                }}
+              >
+                <Text
+                  variant="body1"
+                  color="contentPrimary"
+                  style={{ fontStyle: 'italic' }}
+                >
                   "{selectedPin.blurb}"
                 </Text>
               </View>
 
               <View style={styles.actionRow}>
-                <Pressable style={[styles.actionButton, styles.actionButtonOutline]}>
-                  <Text variant="body2" style={{ fontWeight: '500' }}>Save</Text>
+                <Pressable
+                  style={[styles.actionButton, styles.actionButtonOutline]}
+                >
+                  <Text variant="body2" style={{ fontWeight: '500' }}>
+                    Save
+                  </Text>
                 </Pressable>
-                <Pressable style={[styles.actionButton, styles.actionButtonOutline]}>
-                  <Text variant="body2" style={{ fontWeight: '500' }}>Share</Text>
+                <Pressable
+                  style={[styles.actionButton, styles.actionButtonOutline]}
+                >
+                  <Text variant="body2" style={{ fontWeight: '500' }}>
+                    Share
+                  </Text>
                 </Pressable>
-                <Pressable style={[styles.actionButton, styles.actionButtonFilled, { backgroundColor: theme.colors.interactivePrimary }]}>
-                  <Text variant="body2" style={{ fontWeight: '500', color: theme.colors.interactivePrimaryContent }}>Directions</Text>
+                <Pressable
+                  style={[
+                    styles.actionButton,
+                    styles.actionButtonFilled,
+                    { backgroundColor: theme.colors.interactivePrimary },
+                  ]}
+                >
+                  <Text
+                    variant="body2"
+                    style={{
+                      fontWeight: '500',
+                      color: theme.colors.interactivePrimaryContent,
+                    }}
+                  >
+                    Directions
+                  </Text>
                 </Pressable>
               </View>
 
               <View style={{ marginTop: theme.spacing.xxlarge }}>
-                <Text variant="heading3" style={{ marginBottom: theme.spacing.medium }}>
+                <Text
+                  variant="heading3"
+                  style={{ marginBottom: theme.spacing.medium }}
+                >
                   More from {selectedPin.creator.display_name}
                 </Text>
                 <View style={styles.nearbyList}>
@@ -337,7 +388,12 @@ export default function MapScreen() {
                             { backgroundColor: CATEGORY_COLORS[p.category] },
                           ]}
                         />
-                        <Text variant="body3" style={{ marginTop: theme.spacing.xsmall }}>{p.name}</Text>
+                        <Text
+                          variant="body3"
+                          style={{ marginTop: theme.spacing.xsmall }}
+                        >
+                          {p.name}
+                        </Text>
                       </Pressable>
                     ))}
                 </View>
@@ -371,7 +427,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   pinLetter: {
-    color: theme.colors.contentPrimaryInverse,
+    color: theme.colors.interactivePrimaryContent,
     fontWeight: '700',
     fontSize: 14,
   },
@@ -428,7 +484,7 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.borderRadius.full,
   },
   categoryPillText: {
-    color: theme.colors.contentPrimaryInverse,
+    color: theme.colors.interactivePrimaryContent,
     fontWeight: '700',
     fontSize: 12,
   },
@@ -481,4 +537,3 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.borderRadius.small,
   },
 }));
-

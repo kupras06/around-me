@@ -3,12 +3,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnistyles } from 'react-native-unistyles';
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrentUser } from '@/hooks/use-auth';
 
 export default function TabLayout() {
   const { theme } = useUnistyles();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user } = useCurrentUser();
   return (
     <Tabs
       screenOptions={{

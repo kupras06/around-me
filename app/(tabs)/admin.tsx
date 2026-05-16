@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -6,31 +6,18 @@ import { StyleSheet } from 'react-native-unistyles';
 import AuthGate from '@/components/AuthGate/AuthGate';
 import { Button } from '@/craftrn-ui/components/Button';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/use-auth';
-import { supabase } from '@/lib/supabase';
+import { useCurrentUser } from '@/hooks/use-auth';
+import type { Tables } from '@/lib/database.types';
 import { logger } from '@/lib/logger';
+import { supabase } from '@/lib/supabase';
 
-type Submission = {
-  id: string;
-  creator_id: string;
-  place_id: string;
-  post_url?: string;
-  note?: string;
-  status: 'pending' | 'approved' | 'rejected';
-  submitted_at: string;
-  creators: {
-    display_name: string;
-    handle: string;
-  };
-  places: {
-    name: string;
-    category: string;
-    neighbourhood: string;
-  };
+type SubmissionStatus = 'pending' | 'approved' | 'rejected';
+type Submission = Tables<'submissions'> & {
+  places: Pick<Tables<'places'>, 'name' | 'category' | 'neighbourhood'> | null;
 };
 
 export default function AdminReviewScreen() {
-  const { user } = useAuth();
+  const { user } = useCurrentUser();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -39,12 +26,12 @@ export default function AdminReviewScreen() {
     try {
       const { data, error } = await supabase
         .from('submissions')
-        .select('*, creators(display_name, handle), places(name, category, neighbourhood)')
+        .select('*, places(name, category, neighbourhood)')
         .eq('status', 'pending')
         .order('submitted_at', { ascending: true });
 
       if (error) throw error;
-      setSubmissions(data || []);
+      setSubmissions((data ?? []) as Submission[]);
     } catch (err) {
       logger.error('Error fetching submissions:', err);
     } finally {
@@ -58,7 +45,7 @@ export default function AdminReviewScreen() {
     }
   }, [user, fetchSubmissions]);
 
-  const handleReview = async (id: string, status: 'approved' | 'rejected') => {
+  const handleReview = async (id: number, status: SubmissionStatus) => {
     try {
       const { error } = await supabase
         .from('submissions')
@@ -69,8 +56,8 @@ export default function AdminReviewScreen() {
 
       // If approved, in a real app we might trigger a DB function to create a PIN
       // or do it here manually if RLS allows.
-      
-      setSubmissions(prev => prev.filter(s => s.id !== id));
+
+      setSubmissions((prev) => prev.filter((s) => s.id !== id));
       alert(`Submission ${status}!`);
     } catch (err) {
       logger.error(`Error updating submission status:`, err);
@@ -81,39 +68,49 @@ export default function AdminReviewScreen() {
   const renderSubmission = ({ item }: { item: Submission }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Text variant="body1" style={styles.placeName}>{item.places?.name}</Text>
-        <Text variant="body3" style={styles.category}>{item.places?.category}</Text>
+        <Text variant="body1" style={styles.placeName}>
+          {item.places?.name}
+        </Text>
+        <Text variant="body3" style={styles.category}>
+          {item.places?.category}
+        </Text>
       </View>
-      
+
       <Text variant="body2" style={styles.creatorInfo}>
-        By {item.creators?.display_name} (@{item.creators?.handle})
+        Submitted by {item.user_id ?? 'Unknown user'}
       </Text>
 
       {item.note && (
-        <Text variant="body2" style={styles.note}>"{item.note}"</Text>
+        <Text variant="body2" style={styles.note}>
+          {item.note}
+        </Text>
       )}
 
       {item.post_url && (
-        <Text variant="body3" style={styles.url}>{item.post_url}</Text>
+        <Text variant="body3" style={styles.url}>
+          {item.post_url}
+        </Text>
       )}
 
       <View style={styles.actions}>
-        <Button 
-          variant="primary" 
-          size="small" 
-          onPress={() => handleReview(item.id, 'approved')}
-          style={{ flex: 1 }}
-        >
-          Approve
-        </Button>
-        <Button 
-          variant="negative" 
-          size="small" 
-          onPress={() => handleReview(item.id, 'rejected')}
-          style={{ flex: 1 }}
-        >
-          Reject
-        </Button>
+        <View style={styles.actionButton}>
+          <Button
+            variant="primary"
+            size="small"
+            onPress={() => handleReview(item.id, 'approved')}
+          >
+            Approve
+          </Button>
+        </View>
+        <View style={styles.actionButton}>
+          <Button
+            variant="negative"
+            size="small"
+            onPress={() => handleReview(item.id, 'rejected')}
+          >
+            Reject
+          </Button>
+        </View>
       </View>
     </View>
   );
@@ -130,11 +127,13 @@ export default function AdminReviewScreen() {
   return (
     <AuthGate>
       <View style={styles.container}>
-        <Stack.Screen options={{ title: 'Review Submissions', headerShown: true }} />
+        <Stack.Screen
+          options={{ title: 'Review Submissions', headerShown: true }}
+        />
         <FlatList
           data={submissions}
           renderItem={renderSubmission}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContent}
           refreshing={loading}
           onRefresh={fetchSubmissions}
@@ -205,6 +204,9 @@ const styles = StyleSheet.create((theme, runtime) => ({
   actions: {
     flexDirection: 'row',
     gap: theme.spacing.small,
+  },
+  actionButton: {
+    flex: 1,
   },
   centered: {
     flex: 1,

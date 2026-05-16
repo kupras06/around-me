@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
-import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 import { EmailInput } from '@/components/inputs/EmailInput';
 import { PasswordInput } from '@/components/inputs/PasswordInput';
 import { Button } from '@/craftrn-ui/components/Button/Button';
@@ -50,10 +50,7 @@ export default function RegisterScreen() {
           <PasswordInput password={password} setPassword={setPassword} />
 
           {error && (
-            <Text
-              variant="body3"
-              style={styles.error}
-            >
+            <Text variant="body3" style={styles.error}>
               {error}
             </Text>
           )}

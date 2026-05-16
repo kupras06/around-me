@@ -8,45 +8,35 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/craftrn-ui/components/Avatar';
 import { Button } from '@/craftrn-ui/components/Button';
 import { Text } from '@/craftrn-ui/components/Text';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrentUser } from '@/hooks/use-auth';
+import type { Tables } from '@/lib/database.types';
 import { supabase } from '@/lib/supabase';
 
-type Place = {
-  id: string;
-  name: string;
-  category: string;
-  neighbourhood: string;
-  city: string;
-  created_at: string;
-};
-
-type Pin = {
-  id: string;
-  creator_id: string;
-  place_id: string;
-  note: string;
-  status: 'approved' | 'pending';
-  pinned_at: string;
-  places: Place;
+type Pin = Tables<'pins'> & {
+  places: Tables<'places'> | null;
 };
 
 export default function ManageScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useCurrentUser();
   const { theme } = useUnistyles();
   const [pins, setPins] = useState<Pin[]>([]);
   const [loading, setLoading] = useState(false);
   const fetchPins = useCallback(async () => {
+    if (!user?.id) {
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('pins')
         .select('*, places(*)')
-        .eq('creator_id', user?.id)
+        .eq('user_id', user?.id)
         .order('pinned_at', { ascending: false });
 
       if (error) throw error;
-      setPins(data || []);
+      setPins((data ?? []) as Pin[]);
     } catch (err) {
       console.error('Error fetching creator pins:', err);
     } finally {
@@ -63,8 +53,8 @@ export default function ManageScreen() {
     <View style={styles.header}>
       <View style={styles.topRow}>
         <Avatar source={{ uri: user?.avatar_url }} size="large" />
-        <Button 
-          variant="secondary" 
+        <Button
+          variant="secondary"
           size="small"
           onPress={() => router.push('/onboarding/creator-setup')}
         >
@@ -82,18 +72,13 @@ export default function ManageScreen() {
           )}
         </View>
         <Text variant="body2" style={styles.handle}>
-          {user?.follower_count?.toLocaleString()} followers • {user?.tier?.replace('_', ' ').toUpperCase()}
+          {user?.follower_count?.toLocaleString()} followers •{' '}
+          {user?.tier?.replace('_', ' ').toUpperCase()}
         </Text>
 
         {user?.bio && (
           <Text variant="body2" style={styles.bio}>
             {user.bio}
-          </Text>
-        )}
-
-        {user?.focus_description && (
-          <Text variant="body3" style={styles.focus}>
-            Focus: {user.focus_description}
           </Text>
         )}
       </View>
@@ -102,7 +87,6 @@ export default function ManageScreen() {
         <Button
           variant="primary"
           onPress={() => router.push('/creator/submit-pin')}
-          style={{ flex: 1 }}
           iconLeft={<IconSymbol name="plus" size={18} color="#fff" />}
         >
           Add Pin
@@ -110,8 +94,13 @@ export default function ManageScreen() {
         <Button
           variant="secondary"
           onPress={() => router.push('/creator/tag-post')}
-          style={{ flex: 1 }}
-          iconLeft={<IconSymbol name="link" size={18} color={theme.colors.contentPrimary} />}
+          iconLeft={
+            <IconSymbol
+              name="link"
+              size={18}
+              color={theme.colors.contentPrimary}
+            />
+          }
         >
           Tag Post
         </Button>
@@ -131,7 +120,11 @@ export default function ManageScreen() {
           <Text variant="body1" style={styles.placeName}>
             {item.places?.name}
           </Text>
-          <IconSymbol name="chevron.right" size={18} color={theme.colors.contentSecondary} />
+          <IconSymbol
+            name="chevron.right"
+            size={18}
+            color={theme.colors.contentSecondary}
+          />
         </View>
         <Text variant="body3" style={styles.placeMeta}>
           {item.places?.category} • {item.places?.neighbourhood}
@@ -148,16 +141,19 @@ export default function ManageScreen() {
       <AuthGate>
         <Stack.Screen options={{ headerShown: false }} />
         <View style={styles.emptyContainer}>
-          <IconSymbol name="person.crop.circle" size={64} color={theme.colors.contentSecondary} />
-          <Text variant="heading2" style={{ marginTop: 16 }}>Creator Mode</Text>
-          <Text variant="body2" style={styles.emptyText}>
-            This tab is for managing recommendations. Become a creator to start pinning places!
+          <IconSymbol
+            name="person.crop.circle"
+            size={64}
+            color={theme.colors.contentSecondary}
+          />
+          <Text variant="heading2" style={{ marginTop: 16 }}>
+            Creator Mode
           </Text>
-          <Button
-            variant="primary"
-            onPress={() => router.push('/onboarding')}
-            style={{ marginTop: 24 }}
-          >
+          <Text variant="body2" style={styles.emptyText}>
+            This tab is for managing recommendations. Become a creator to start
+            pinning places!
+          </Text>
+          <Button variant="primary" onPress={() => router.push('/onboarding')}>
             Become a Creator
           </Button>
         </View>
@@ -172,7 +168,7 @@ export default function ManageScreen() {
         <FlatList
           data={pins}
           renderItem={renderPin}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           ListHeaderComponent={renderHeader}
           contentContainerStyle={styles.listContent}
           refreshing={loading}
