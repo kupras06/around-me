@@ -237,7 +237,7 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.backgroundScreen,
@@ -246,7 +246,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingBottom: theme.spacing.xxlarge + 40,
   },
   heroContainer: {
-    paddingTop: theme.spacing.xxlarge,
+    paddingTop: runtime.insets.top + theme.spacing.xxlarge,
     paddingBottom: theme.spacing.xlarge,
     alignItems: 'center',
     backgroundColor: theme.colors.backgroundScreenSecondary,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.backgroundElevated,
     borderRadius: theme.borderRadius.large,
     borderWidth: 0.5,
-    borderColor: theme.colors.borderNeutral,
+    borderColor: theme.colors.borderNeutralSecondary,
     overflow: 'hidden',
   },
   settingItem: {
@@ -327,7 +327,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   separator: {
     height: 0.5,
-    backgroundColor: theme.colors.borderNeutral,
+    backgroundColor: theme.colors.borderNeutralSecondary,
     marginLeft: theme.spacing.xxlarge + theme.spacing.medium, // Align with text
   },
 }));

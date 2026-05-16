@@ -183,14 +183,16 @@ export default function ManageScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.backgroundScreen,
+    paddingTop: runtime.insets.top,
   },
   listContent: {
-    padding: theme.spacing.large,
-    paddingBottom: 100,
+    paddingHorizontal: theme.spacing.large,
+    paddingTop: theme.spacing.large,
+    paddingBottom: runtime.insets.bottom + theme.spacing.large,
   },
   header: {
     marginBottom: theme.spacing.large,
@@ -200,9 +202,6 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: theme.spacing.medium,
-  },
-  settingsButton: {
-    padding: theme.spacing.small,
   },
   profileInfo: {
     gap: theme.spacing.xsmall,
@@ -216,7 +215,7 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.contentSecondary,
   },
   badge: {
-    backgroundColor: '#C04A2A',
+    backgroundColor: theme.colors.interactivePrimary,
     width: 18,
     height: 18,
     borderRadius: 9,
@@ -231,34 +230,26 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.contentSecondary,
     fontStyle: 'italic',
   },
-  statsRow: {
-    flexDirection: 'row',
-    marginTop: theme.spacing.large,
-    gap: theme.spacing.xlarge,
-  },
-  stat: {
-    alignItems: 'flex-start',
-  },
   actionRow: {
     flexDirection: 'row',
     gap: theme.spacing.small,
     marginTop: theme.spacing.xlarge,
   },
   divider: {
-    height: 1,
-    backgroundColor: theme.colors.border,
+    height: 0.5,
+    backgroundColor: theme.colors.borderNeutralSecondary,
     marginVertical: theme.spacing.xlarge,
   },
   sectionTitle: {
     marginBottom: theme.spacing.medium,
   },
   pinCard: {
-    backgroundColor: theme.colors.backgroundNeutral,
+    backgroundColor: theme.colors.backgroundElevated,
     borderRadius: theme.borderRadius.medium,
     padding: theme.spacing.medium,
     marginBottom: theme.spacing.medium,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderWidth: 0.5,
+    borderColor: theme.colors.borderNeutralSecondary,
   },
   pinHeader: {
     flexDirection: 'row',

@@ -1,9 +1,10 @@
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Button } from '@/craftrn-ui/components/Button/Button';
+import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
@@ -14,11 +15,12 @@ export default function TagPost() {
   const { user } = useAuth();
 
   const [url, setUrl] = useState('');
+  const [placeId, setPlaceId] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!url) {
-      alert('Please enter a post URL');
+    if (!url || !placeId) {
+      alert('Please enter a post URL and place ID');
       return;
     }
 
@@ -27,6 +29,7 @@ export default function TagPost() {
       const { error } = await supabase.from('submissions').insert({
         creator_id: user?.id,
         post_url: url,
+        place_id: placeId,
         platform:
           url.includes('twitter.com') || url.includes('x.com')
             ? 'twitter'
@@ -56,19 +59,23 @@ export default function TagPost() {
           Verified creators&apos; posts are automatically mapped.
         </Text>
 
-        <View style={styles.inputGroup}>
-          <Text variant="body2" style={styles.label}>
-            Post URL
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="https://instagram.com/p/..."
-            value={url}
-            onChangeText={setUrl}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-        </View>
+        <InputText
+          label="Post URL"
+          placeholder="https://instagram.com/p/..."
+          value={url}
+          onChangeText={setUrl}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+
+        <InputText
+          label="Place ID"
+          placeholder="Enter Place ID..."
+          value={placeId}
+          onChangeText={setPlaceId}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
 
         <View style={styles.actions}>
           <Button
@@ -97,19 +104,6 @@ const styles = StyleSheet.create((theme) => ({
   subtitle: {
     color: theme.colors.contentSecondary,
     lineHeight: 22,
-  },
-  inputGroup: {
-    gap: theme.spacing.small,
-  },
-  label: {
-    fontWeight: '600',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: theme.colors.contentPrimary,
-    borderRadius: theme.borderRadius.small,
-    padding: theme.spacing.medium,
-    fontSize: 16,
   },
   actions: {
     marginTop: theme.spacing.large,

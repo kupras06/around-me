@@ -121,12 +121,14 @@ export default function SecurityScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
     gap: theme.spacing.large,
-    padding: theme.spacing.large,
-    paddingBottom: theme.spacing.large + 40,
+    paddingHorizontal: theme.spacing.large,
+    paddingTop: runtime.insets.top + theme.spacing.large,
+    paddingBottom: runtime.insets.bottom + theme.spacing.large,
+    backgroundColor: theme.colors.backgroundScreen,
   },
   loadingContainer: {
     flex: 1,

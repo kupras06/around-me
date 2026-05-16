@@ -23,10 +23,12 @@ export default function CreatorsScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
-    padding: theme.spacing.large,
-    paddingBottom: theme.spacing.large + 40,
+    paddingTop: runtime.insets.top + theme.spacing.large,
+    paddingHorizontal: theme.spacing.large,
+    paddingBottom: runtime.insets.bottom + theme.spacing.large,
+    backgroundColor: theme.colors.backgroundScreen,
   },
 }));

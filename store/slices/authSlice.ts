@@ -96,6 +96,9 @@ export const mapSupabaseUser = (user: SupabaseUser | null): User | null => {
     avatar_url:
       metadata.avatar_url ||
       `https://ui-avatars.com/api/?name=${metadata?.display_name || user.email || 'User'}`,
+    twitter_linked: !!metadata.linked_accounts?.x,
+    instagram_linked: !!metadata.linked_accounts?.instagram,
+    facebook_linked: !!metadata.linked_accounts?.facebook,
     user_type: metadata.user_type,
     is_creator: metadata.user_type === 'creator',
     is_admin: metadata.is_admin ?? false,
@@ -134,9 +137,13 @@ const extractOAuthParamsFromUrl = (url: string) => {
   };
 };
 
-const signInWithOAuthWebBrowser = async (provider: OAuthProvider) => {
+const signInWithOAuthWebBrowser = async (
+  provider: OAuthProvider,
+  currentUserId?: string
+) => {
   logger.info(`Starting ${provider} OAuth`);
-  logger.info('Redirect URL:', Linking.createURL('/'));
+  const oldSession = (await supabase.auth.getSession()).data.session;
+
   if (provider === 'instagram') {
     throw new Error('Instagram OAuth is not supported yet');
   }
@@ -185,17 +192,29 @@ const signInWithOAuthWebBrowser = async (provider: OAuthProvider) => {
         throw sessionError;
       }
 
+      const {
+        data: { user: newUser },
+      } = await supabase.auth.getUser();
+
+      if (currentUserId && newUser && newUser.id !== currentUserId) {
+        // Mismatch: This social account is already linked to another user.
+        // We must restore the old session and throw an error.
+        if (oldSession) {
+          await supabase.auth.setSession({
+            access_token: oldSession.access_token,
+            refresh_token: oldSession.refresh_token,
+          });
+        } else {
+          await supabase.auth.signOut();
+        }
+        throw new Error(
+          `This ${provider === 'x' ? 'X (Twitter)' : provider} account is already linked to another AroundMe account.`
+        );
+      }
+
       logger.info(`${provider} OAuth successful`);
 
-      await supabase.auth.updateUser({
-        data: {
-          linked_accounts: {
-            [provider]: true,
-          },
-        },
-      });
-      // Get the current session and user
-
+      // Update metadata for the current user
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -210,10 +229,11 @@ const signInWithOAuthWebBrowser = async (provider: OAuthProvider) => {
           linked_accounts: newUserMeta,
         },
       });
-      const newUser = await supabase.auth.getUser();
+
+      const finalUser = await supabase.auth.getUser();
       return {
         session,
-        user: mapSupabaseUser(newUser?.data?.user ?? null),
+        user: mapSupabaseUser(finalUser?.data?.user ?? null),
       };
     } else {
       throw new Error('No access token or refresh token in OAuth response');
@@ -427,9 +447,12 @@ export const linkAccounts = createAsyncThunk<
 
 export const signInWithProvider = createAsyncThunk<
   { session: Session | null; user: User | null },
-  OAuthProvider
->('auth/signInWithProvider', async (provider) => {
-  return await signInWithOAuthWebBrowser(provider);
+  OAuthProvider,
+  { state: RootState }
+>('auth/signInWithProvider', async (provider, { getState }) => {
+  const state = getState() as RootState;
+  const currentUserId = state.auth.user?.id;
+  return await signInWithOAuthWebBrowser(provider, currentUserId);
 });
 
 export const setUserType = createAsyncThunk<

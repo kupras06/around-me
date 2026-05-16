@@ -33,37 +33,35 @@ export default function RegisterScreen() {
 
       <View style={styles.content}>
         <Text variant="heading3">Create an account</Text>
-        <Text variant="body2" style={{ marginTop: 8, color: '#666' }}>
+        <Text variant="body2" style={styles.subtitle}>
           Join AroundMe to save places and follow creators.
         </Text>
 
-        <View style={{ marginTop: 16 }}>
+        <View style={styles.form}>
           <InputText
             autoFocus
             label="Display name"
             value={displayName}
             onChangeText={setDisplayName}
           />
-          <View style={{ height: 12 }} />
+          <View style={styles.spacerSmall} />
           <EmailInput email={email} setEmail={setEmail} />
-          <View style={{ height: 12 }} />
+          <View style={styles.spacerSmall} />
           <PasswordInput password={password} setPassword={setPassword} />
 
           {error && (
             <Text
               variant="body3"
-              color="sentimentNegative"
-              style={{ marginTop: 8 }}
+              style={styles.error}
             >
               {error}
             </Text>
           )}
 
-          <View style={{ marginTop: 16 }}>
-            <Button onPress={handleRegister} size="large">
-              {loading ? 'Creating account...' : 'Create account'}
-            </Button>
-          </View>
+          <View style={styles.spacerMedium} />
+          <Button onPress={handleRegister} size="large">
+            {loading ? 'Creating account...' : 'Create account'}
+          </Button>
 
           <SocialAuthButtons />
         </View>
@@ -72,12 +70,28 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
-    paddingTop: UnistylesRuntime.insets.top + theme.spacing.large,
+    backgroundColor: theme.colors.backgroundScreen,
+    paddingTop: runtime.insets.top + theme.spacing.xlarge,
+    paddingHorizontal: theme.spacing.large,
+    paddingBottom: runtime.insets.bottom + theme.spacing.xlarge,
   },
   content: {
-    padding: theme.spacing.large,
+    flex: 1,
   },
+  subtitle: {
+    marginTop: theme.spacing.small,
+    color: theme.colors.contentSecondary,
+  },
+  form: {
+    marginTop: theme.spacing.xxlarge,
+  },
+  error: {
+    marginTop: theme.spacing.small,
+    color: theme.colors.sentimentNegative,
+  },
+  spacerSmall: { height: theme.spacing.small },
+  spacerMedium: { height: theme.spacing.medium },
 }));

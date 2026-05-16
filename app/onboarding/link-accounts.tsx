@@ -1,7 +1,7 @@
 import { type Href, Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
-import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/use-auth';
@@ -59,12 +59,12 @@ export default function LinkAccounts() {
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.content}>
         <Text variant="heading3">Link social accounts</Text>
-        <Text variant="body2" style={{ marginTop: 8, color: '#666' }}>
+        <Text variant="body2" style={styles.subtitle}>
           Connect your social accounts to showcase your content and grow your
           audience.
         </Text>
 
-        <View style={{ marginTop: 16 }}>
+        <View style={styles.accountsContainer}>
           <View style={styles.accountSection}>
             <View style={styles.accountHeader}>
               <Text variant="body1" style={styles.accountTitle}>
@@ -82,8 +82,6 @@ export default function LinkAccounts() {
               {twitter ? 'Disconnect' : 'Connect Twitter'}
             </Button>
           </View>
-
-          <View style={{ marginTop: 24 }} />
 
           <View style={styles.accountSection}>
             <View style={styles.accountHeader}>
@@ -104,14 +102,11 @@ export default function LinkAccounts() {
           </View>
         </View>
 
-        <View style={{ marginTop: 24 }}>
-          <Button onPress={handleFinish} size="large">
-            {loading ? 'Saving...' : 'Finish'}
+        <View style={styles.footerActions}>
+          <Button onPress={handleFinish} size="large" loading={loading}>
+            Finish
           </Button>
-        </View>
-
-        <View style={{ marginTop: 12 }}>
-          <Button variant="tertiary" onPress={handleFinish}>
+          <Button variant="tertiary" onPress={handleFinish} size="large">
             Skip & finish
           </Button>
         </View>
@@ -120,27 +115,43 @@ export default function LinkAccounts() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
-    paddingTop: UnistylesRuntime.insets.top + theme.spacing.large,
+    backgroundColor: theme.colors.backgroundScreen,
+    paddingTop: runtime.insets.top + theme.spacing.xlarge,
   },
   content: {
-    padding: theme.spacing.large,
+    flex: 1,
+    paddingHorizontal: theme.spacing.large,
+    paddingBottom: runtime.insets.bottom + theme.spacing.large,
+  },
+  subtitle: {
+    marginTop: theme.spacing.small,
+    color: theme.colors.contentSecondary,
+  },
+  accountsContainer: {
+    marginTop: theme.spacing.xxlarge,
+    gap: theme.spacing.large,
   },
   accountSection: {
-    marginBottom: theme.spacing.medium,
+    padding: theme.spacing.medium,
+    borderWidth: 0.5,
+    borderColor: theme.colors.borderNeutralSecondary,
+    borderRadius: theme.borderRadius.medium,
   },
   accountHeader: {
-    marginBottom: theme.spacing.small,
+    marginBottom: theme.spacing.medium,
   },
   accountTitle: {
-    fontSize: 16,
     fontWeight: '600',
-    marginBottom: theme.spacing.xsmall,
   },
   accountDescription: {
-    fontSize: 14,
     color: theme.colors.contentSecondary,
+    marginTop: theme.spacing.xsmall,
+  },
+  footerActions: {
+    marginTop: theme.spacing.xxlarge,
+    gap: theme.spacing.small,
   },
 }));

@@ -154,24 +154,26 @@ export default function AdminReviewScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.backgroundScreen,
+    paddingTop: runtime.insets.top,
   },
   listContent: {
     padding: theme.spacing.large,
+    paddingBottom: runtime.insets.bottom + theme.spacing.large,
   },
   title: {
     marginBottom: theme.spacing.large,
   },
   card: {
-    backgroundColor: theme.colors.backgroundNeutral,
+    backgroundColor: theme.colors.backgroundElevated,
     borderRadius: theme.borderRadius.medium,
     padding: theme.spacing.medium,
     marginBottom: theme.spacing.medium,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderWidth: 0.5,
+    borderColor: theme.colors.borderNeutralSecondary,
   },
   cardHeader: {
     flexDirection: 'row',

@@ -1,7 +1,7 @@
 import MapboxGL from '@rnmapbox/maps';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Dimensions, Pressable, Text as RNText, View } from 'react-native';
+import { Dimensions, Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import {
   CATEGORY_COLORS,
@@ -80,20 +80,18 @@ function DemoMap({
   onPinPress: (p: Pin) => void;
   selectedPinId?: string | null;
 }) {
-  // Simple, non-geospatial demo mapping from lat/lng to pixels for demo purposes.
-  // This keeps the UI functional without a Mapbox token.
+  const { theme } = useUnistyles();
   const mapWidth = SCREEN_WIDTH;
   const mapHeight = SCREEN_HEIGHT;
-  const DEMO_SCALE = 50000; // pixels per degree (heuristic for demo)
+  const DEMO_SCALE = 50000;
 
-  console.log('DemoMap rendered with pins:', pins.length);
   return (
-    <View style={[styles.map, { backgroundColor: '#F7F6F3' }]}>
+    <View style={[styles.map, { backgroundColor: theme.colors.backgroundScreen }]}>
       {pins.map((pin) => {
         const dx = (pin.longitude - center.longitude) * DEMO_SCALE;
         const dy = (pin.latitude - center.latitude) * DEMO_SCALE;
         const x = mapWidth / 2 + dx;
-        const y = mapHeight / 2 - dy; // invert lat for screen Y
+        const y = mapHeight / 2 - dy;
         const isSelected = selectedPinId === pin.id;
 
         return (
@@ -108,7 +106,7 @@ function DemoMap({
                 { backgroundColor: CATEGORY_COLORS[pin.category] },
               ]}
             >
-              <RNText style={styles.pinLetter}>{pin.category}</RNText>
+              <Text style={styles.pinLetter}>{pin.category}</Text>
             </View>
 
             <View
@@ -117,9 +115,9 @@ function DemoMap({
                 isSelected && { transform: [{ scale: 1.4 }] },
               ]}
             >
-              <RNText style={styles.pinAvatarText}>
+              <Text style={styles.pinAvatarText}>
                 {pin.creator.initials}
-              </RNText>
+              </Text>
             </View>
           </Pressable>
         );
@@ -133,9 +131,7 @@ export default function MapScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const cameraRef = useRef<any>(null);
-  const mapRef = useRef<MapboxGL.MapView | null>(null);
 
-  // Set Mapbox token at runtime only if present.
   useEffect(() => {
     if (HAS_MAPBOX && MapboxGL?.setAccessToken) {
       MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
@@ -144,18 +140,11 @@ export default function MapScreen() {
 
   const [pins] = useState<Pin[]>(MOCK_PINS);
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
-  const [sheetExpanded, setSheetExpanded] = useState(false);
   const [sheetVisible, setSheetVisible] = useState(false);
-
-  const collapsedHeight = useMemo(() => SCREEN_HEIGHT * 0.36, []);
-  const expandedHeight = useMemo(() => SCREEN_HEIGHT * 0.74, []);
 
   useEffect(() => {
     if (selectedPin) {
       setSheetVisible(true);
-      setSheetExpanded(false);
-
-      // If Mapbox is available, center camera on selected pin for better context.
       if (
         HAS_MAPBOX &&
         cameraRef.current &&
@@ -186,17 +175,13 @@ export default function MapScreen() {
       });
       return;
     }
-
-    // Demo fallback: noop (could animate pins or show toast)
   }
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Map or demo fallback when Mapbox token is missing */}
       {HAS_MAPBOX ? (
         <MapboxGL.MapView
-          ref={mapRef}
           style={styles.map}
           styleURL={MapboxGL.StyleURL.Street}
           logoEnabled={false}
@@ -211,7 +196,6 @@ export default function MapScreen() {
             zoomLevel={15}
           />
 
-          {/* Pins */}
           {pins.map((pin) => (
             <MapboxGL.PointAnnotation
               key={pin.id}
@@ -225,17 +209,17 @@ export default function MapScreen() {
                     styles.pinCircle,
                     {
                       backgroundColor:
-                        CATEGORY_COLORS[pin.category] ?? '#C04A2A',
+                        CATEGORY_COLORS[pin.category] ?? theme.colors.interactivePrimary,
                     },
                   ]}
                 >
-                  <RNText style={styles.pinLetter}>{pin.category}</RNText>
+                  <Text style={styles.pinLetter}>{pin.category}</Text>
                 </View>
 
                 <View style={styles.pinAvatar}>
-                  <RNText style={styles.pinAvatarText}>
+                  <Text style={styles.pinAvatarText}>
                     {pin.creator.initials}
-                  </RNText>
+                  </Text>
                 </View>
               </View>
             </MapboxGL.PointAnnotation>
@@ -250,25 +234,22 @@ export default function MapScreen() {
         />
       )}
 
-      {/* My-location floating button */}
       <Pressable
-        style={[styles.myLocationButton, { backgroundColor: '#C04A2A' }]}
+        style={[styles.myLocationButton, { backgroundColor: theme.colors.interactivePrimary }]}
         onPress={centerOnUser}
       >
-        <RNText style={{ color: '#fff', fontWeight: '600' }}>◎</RNText>
+        <Text style={{ color: theme.colors.interactivePrimaryContent }}>◎</Text>
       </Pressable>
 
-      {/* Add Pin FAB (Creators only) */}
       {user?.is_creator && (
         <Pressable
-          style={styles.addPinButton}
+          style={[styles.addPinButton, { backgroundColor: theme.colors.interactiveSecondary }]}
           onPress={() => router.push('/creator/submit-pin')}
         >
-          <IconSymbol name="plus" size={24} color="#fff" />
+          <IconSymbol name="plus" size={24} color={theme.colors.interactiveSecondaryContent} />
         </Pressable>
       )}
 
-      {/* Bottom sheet for place details */}
       <BottomSheet
         visible={sheetVisible}
         onRequestClose={() => {
@@ -279,16 +260,11 @@ export default function MapScreen() {
         enableOverlayTapToClose
         showHandleBar
       >
-        <View
-          style={[
-            styles.bottomSheetContent,
-            { minHeight: sheetExpanded ? expandedHeight : collapsedHeight },
-          ]}
-        >
+        <View style={styles.bottomSheetContent}>
           {selectedPin ? (
             <View>
               <View style={styles.sheetHeader}>
-                <View>
+                <View style={{ flex: 1 }}>
                   <Text variant="heading2" style={{ marginBottom: 2 }}>{selectedPin.name}</Text>
                   <Text variant="body3" color="contentSecondary">{selectedPin.address}</Text>
                 </View>
@@ -298,35 +274,34 @@ export default function MapScreen() {
                     { backgroundColor: CATEGORY_COLORS[selectedPin.category] },
                   ]}
                 >
-                  <RNText style={styles.categoryPillText}>
+                  <Text style={styles.categoryPillText}>
                     {selectedPin.category}
-                  </RNText>
+                  </Text>
                 </View>
               </View>
 
               <View style={styles.creatorRow}>
                 <View style={styles.creatorAvatarSmall}>
-                  <RNText style={styles.creatorAvatarText}>
+                  <Text style={styles.creatorAvatarText}>
                     {selectedPin.creator.initials}
-                  </RNText>
+                  </Text>
                 </View>
-                <View style={{ marginLeft: 10 }}>
+                <View style={{ marginLeft: theme.spacing.small }}>
                   <Text variant="body2" style={{ fontWeight: '500' }}>
                     {selectedPin.creator.display_name}{' '}
                     {selectedPin.creator.verified && (
-                      <RNText style={{ color: theme.colors.interactivePrimary }}>✓</RNText>
+                      <Text style={{ color: theme.colors.interactivePrimary }}>✓</Text>
                     )}
                   </Text>
                 </View>
               </View>
 
-              <View style={{ marginTop: 16, marginBottom: 24 }}>
-                <Text variant="creatorNote" color="contentPrimary">
+              <View style={{ marginTop: theme.spacing.medium, marginBottom: theme.spacing.large }}>
+                <Text variant="body1" color="contentPrimary" style={{ fontStyle: 'italic' }}>
                   "{selectedPin.blurb}"
                 </Text>
               </View>
 
-              {/* Action row */}
               <View style={styles.actionRow}>
                 <Pressable style={[styles.actionButton, styles.actionButtonOutline]}>
                   <Text variant="body2" style={{ fontWeight: '500' }}>Save</Text>
@@ -334,14 +309,13 @@ export default function MapScreen() {
                 <Pressable style={[styles.actionButton, styles.actionButtonOutline]}>
                   <Text variant="body2" style={{ fontWeight: '500' }}>Share</Text>
                 </Pressable>
-                <Pressable style={[styles.actionButton, styles.actionButtonFilled]}>
-                  <Text variant="body2" style={{ fontWeight: '500', color: '#fff' }}>Directions</Text>
+                <Pressable style={[styles.actionButton, styles.actionButtonFilled, { backgroundColor: theme.colors.interactivePrimary }]}>
+                  <Text variant="body2" style={{ fontWeight: '500', color: theme.colors.interactivePrimaryContent }}>Directions</Text>
                 </Pressable>
               </View>
 
-              {/* Nearby curated picks */}
-              <View style={{ marginTop: 32 }}>
-                <Text variant="heading3" style={{ marginBottom: 12 }}>
+              <View style={{ marginTop: theme.spacing.xxlarge }}>
+                <Text variant="heading3" style={{ marginBottom: theme.spacing.medium }}>
                   More from {selectedPin.creator.display_name}
                 </Text>
                 <View style={styles.nearbyList}>
@@ -363,7 +337,7 @@ export default function MapScreen() {
                             { backgroundColor: CATEGORY_COLORS[p.category] },
                           ]}
                         />
-                        <Text variant="body3" style={{ marginTop: 8 }}>{p.name}</Text>
+                        <Text variant="body3" style={{ marginTop: theme.spacing.xsmall }}>{p.name}</Text>
                       </Pressable>
                     ))}
                 </View>
@@ -378,7 +352,7 @@ export default function MapScreen() {
   );
 }
 
-const styles = StyleSheet.create(() => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
   },
@@ -397,7 +371,7 @@ const styles = StyleSheet.create(() => ({
     justifyContent: 'center',
   },
   pinLetter: {
-    color: '#fff',
+    color: theme.colors.contentPrimaryInverse,
     fontWeight: '700',
     fontSize: 14,
   },
@@ -409,39 +383,20 @@ const styles = StyleSheet.create(() => ({
     height: 18,
     borderRadius: 18,
     borderWidth: 0.5,
-    borderColor: '#F7F6F3',
+    borderColor: theme.colors.borderNeutralSecondary,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#666',
+    backgroundColor: theme.colors.backgroundScreen,
   },
   pinAvatarText: {
-    color: '#fff',
+    color: theme.colors.contentPrimary,
     fontSize: 10,
     fontWeight: '700',
   },
-  searchBox: {
-    position: 'absolute',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    minWidth: 180,
-    elevation: 3,
-  },
-  searchText: {
-    fontSize: 14,
-  },
-  filterButton: {
-    position: 'absolute',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-  },
   myLocationButton: {
     position: 'absolute',
-    right: 16,
-    bottom: 88,
+    right: theme.spacing.large,
+    bottom: theme.spacing.xxlarge * 2,
     width: 44,
     height: 44,
     borderRadius: 44,
@@ -450,23 +405,17 @@ const styles = StyleSheet.create(() => ({
   },
   addPinButton: {
     position: 'absolute',
-    right: 16,
-    bottom: 148,
+    right: theme.spacing.large,
+    bottom: theme.spacing.xxlarge * 3.5,
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#1D6E7A',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
   },
   bottomSheetContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: theme.spacing.large,
+    paddingVertical: theme.spacing.medium,
   },
   sheetHeader: {
     flexDirection: 'row',
@@ -474,18 +423,19 @@ const styles = StyleSheet.create(() => ({
     justifyContent: 'space-between',
   },
   categoryPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: theme.spacing.small,
+    paddingVertical: theme.spacing.xsmall,
+    borderRadius: theme.borderRadius.full,
   },
   categoryPillText: {
-    color: '#fff',
+    color: theme.colors.contentPrimaryInverse,
     fontWeight: '700',
+    fontSize: 12,
   },
   creatorRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: theme.spacing.small,
   },
   creatorAvatarSmall: {
     width: 36,
@@ -493,34 +443,34 @@ const styles = StyleSheet.create(() => ({
     borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#666',
+    backgroundColor: theme.colors.backgroundElevated,
   },
   creatorAvatarText: {
-    color: '#fff',
+    color: theme.colors.contentPrimary,
     fontWeight: '700',
   },
   actionRow: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 12,
+    gap: theme.spacing.small,
+    marginTop: theme.spacing.small,
   },
   actionButton: {
     flex: 1,
     height: 44,
-    borderRadius: 22,
+    borderRadius: theme.borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
   actionButtonOutline: {
     borderWidth: 0.5,
-    borderColor: '#DFC0B8',
+    borderColor: theme.colors.borderNeutralSecondary,
   },
   actionButtonFilled: {
-    backgroundColor: '#C04A2A',
+    backgroundColor: theme.colors.interactivePrimary,
   },
   nearbyList: {
     flexDirection: 'row',
-    gap: 16,
+    gap: theme.spacing.medium,
   },
   nearbyItem: {
     width: 120,
@@ -528,6 +478,7 @@ const styles = StyleSheet.create(() => ({
   nearbyThumb: {
     width: '100%',
     aspectRatio: 1.6,
-    borderRadius: 4,
+    borderRadius: theme.borderRadius.small,
   },
 }));
+

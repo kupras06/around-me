@@ -50,13 +50,13 @@ export default function ResetPasswordScreen() {
         <Text variant="heading3">
           {isRecoveringPassword ? 'Set a new password' : 'Reset password'}
         </Text>
-        <Text variant="body2" style={{ marginTop: 8, color: '#666' }}>
+        <Text variant="body2" style={styles.subtitle}>
           {isRecoveringPassword
             ? 'Enter your new password to finish recovering your account.'
             : "Enter the email associated with your account and we'll send reset instructions."}
         </Text>
 
-        <View style={{ marginTop: 16 }}>
+        <View style={styles.form}>
           {isRecoveringPassword ? (
             <PasswordInput password={password} setPassword={setPassword} />
           ) : (
@@ -66,23 +66,22 @@ export default function ResetPasswordScreen() {
           {error && (
             <Text
               variant="body3"
-              color="sentimentNegative"
-              style={{ marginTop: 12 }}
+              style={styles.error}
             >
               {error}
             </Text>
           )}
 
           {!isRecoveringPassword && sent ? (
-            <Text variant="body2" style={{ marginTop: 12 }}>
+            <Text variant="body2" style={styles.message}>
               Instructions sent — check your inbox.
             </Text>
           ) : isRecoveringPassword && updated ? (
-            <Text variant="body2" style={{ marginTop: 12 }}>
+            <Text variant="body2" style={styles.message}>
               Password updated. You can continue to the app.
             </Text>
           ) : (
-            <View style={{ marginTop: 16 }}>
+            <View style={styles.spacerMedium}>
               <Button
                 onPress={
                   isRecoveringPassword ? handlePasswordUpdate : handleReset
@@ -100,7 +99,7 @@ export default function ResetPasswordScreen() {
             </View>
           )}
 
-          <View style={{ marginTop: 12 }}>
+          <View style={styles.spacerSmall}>
             <Button
               variant="tertiary"
               onPress={() => router.push(updated ? '/' : '/auth/login')}
@@ -114,12 +113,31 @@ export default function ResetPasswordScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
-    paddingTop: UnistylesRuntime.insets.top + theme.spacing.large,
+    backgroundColor: theme.colors.backgroundScreen,
+    paddingTop: runtime.insets.top + theme.spacing.xlarge,
+    paddingHorizontal: theme.spacing.large,
+    paddingBottom: runtime.insets.bottom + theme.spacing.xlarge,
   },
   content: {
-    padding: theme.spacing.large,
+    flex: 1,
   },
+  subtitle: {
+    marginTop: theme.spacing.small,
+    color: theme.colors.contentSecondary,
+  },
+  form: {
+    marginTop: theme.spacing.xxlarge,
+  },
+  error: {
+    marginTop: theme.spacing.medium,
+    color: theme.colors.sentimentNegative,
+  },
+  message: {
+    marginTop: theme.spacing.medium,
+  },
+  spacerSmall: { height: theme.spacing.small },
+  spacerMedium: { height: theme.spacing.medium },
 }));

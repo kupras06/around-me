@@ -1,9 +1,10 @@
 import { type Href, Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, TextInput, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Button } from '@/craftrn-ui/components/Button/Button';
+import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
@@ -60,31 +61,23 @@ export default function CreatorSetup() {
         </View>
 
         <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text variant="body2" style={styles.label}>
-              Bio
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="A short bio about yourself"
-              value={bio}
-              onChangeText={setBio}
-              multiline
-            />
-          </View>
+          <InputText
+            label="Bio"
+            placeholder="A short bio about yourself"
+            value={bio}
+            onChangeText={setBio}
+            multiline
+            style={styles.textArea}
+          />
 
-          <View style={styles.inputGroup}>
-            <Text variant="body2" style={styles.label}>
-              What do you focus on?
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. Bangalore coffee, brunch spots, Indiranagar locals"
-              value={focus}
-              onChangeText={setFocus}
-              multiline
-            />
-          </View>
+          <InputText
+            label="What do you focus on?"
+            placeholder="e.g. Bangalore coffee, brunch spots, Indiranagar locals"
+            value={focus}
+            onChangeText={setFocus}
+            multiline
+            style={styles.textArea}
+          />
         </View>
 
         <View style={styles.actions}>
@@ -131,20 +124,9 @@ const styles = StyleSheet.create((theme) => ({
   form: {
     gap: theme.spacing.large,
   },
-  inputGroup: {
-    gap: theme.spacing.small,
-  },
-  label: {
-    fontWeight: '600',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: theme.colors.contentPrimary,
-    borderRadius: theme.borderRadius.small,
-    padding: theme.spacing.medium,
+  textArea: {
     minHeight: 80,
     textAlignVertical: 'top',
-    fontSize: 16,
   },
   actions: {
     marginTop: theme.spacing.xxlarge,

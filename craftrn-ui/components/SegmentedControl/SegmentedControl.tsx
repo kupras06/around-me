@@ -16,8 +16,6 @@ export function SegmentedControl({
   selectedValue,
   onValueChange,
 }: SegmentedControlProps) {
-  const { theme } = useUnistyles();
-
   return (
     <View style={styles.container}>
       {values.map((value, index) => (

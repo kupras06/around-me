@@ -1,9 +1,10 @@
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { Button } from '@/craftrn-ui/components/Button/Button';
+import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
@@ -77,13 +78,9 @@ export default function SubmitPin() {
       <Stack.Screen options={{ title: 'Add New Pin', headerShown: true }} />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.inputGroup}>
-          <Text variant="body2" style={styles.label}>
-            Place Name
-          </Text>
-          <TextInput
-            style={styles.input}
+          <InputText
+            label="Place Name"
             placeholder="Search for a place..."
-            placeholderTextColor={theme.colors.contentTertiary}
             value={placeName}
             onChangeText={setPlaceName}
           />
@@ -131,26 +128,21 @@ export default function SubmitPin() {
         </View>
 
         <View style={styles.inputGroup}>
-          <View style={styles.labelRow}>
-            <Text variant="body2" style={styles.label}>
-              Your Note
-            </Text>
-            <Text
+          <InputText
+            label="Your Note"
+            placeholder="What makes this place special? (160 chars max)"
+            value={note}
+            onChangeText={(text) => setNote(text.slice(0, 160))}
+            multiline
+            numberOfLines={4}
+            style={[styles.textArea, { fontStyle: 'italic' }]}
+          />
+          <Text
               variant="body3"
               style={[styles.charCount, note.length > 160 && { color: theme.colors.sentimentNegative }]}
             >
               {note.length}/160
             </Text>
-          </View>
-          <TextInput
-            style={[styles.input, styles.textArea, { fontStyle: 'italic' }]}
-            placeholder="What makes this place special? (160 chars max)"
-            placeholderTextColor={theme.colors.contentTertiary}
-            value={note}
-            onChangeText={(text) => setNote(text.slice(0, 160))}
-            multiline
-            numberOfLines={4}
-          />
         </View>
 
         <View style={styles.actions}>
@@ -184,22 +176,9 @@ const styles = StyleSheet.create((theme) => ({
     fontWeight: '500',
     color: theme.colors.contentSecondary,
   },
-  labelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   charCount: {
     color: theme.colors.contentTertiary,
-  },
-  input: {
-    borderWidth: 0.5,
-    borderColor: '#DFC0B8',
-    borderRadius: theme.borderRadius.medium,
-    padding: theme.spacing.medium,
-    fontSize: 16,
-    color: theme.colors.contentPrimary,
-    backgroundColor: '#fff',
+    textAlign: 'right',
   },
   textArea: {
     minHeight: 120,
@@ -221,11 +200,11 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     padding: theme.spacing.medium,
     borderWidth: 0.5,
-    borderColor: '#DFC0B8',
+    borderColor: theme.colors.contentPrimary,
     borderRadius: theme.borderRadius.medium,
     minWidth: '47%',
     gap: theme.spacing.small,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.backgroundScreen,
   },
   colorDot: {
     width: 8,

@@ -1,9 +1,10 @@
 import { type Href, Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Button } from '@/craftrn-ui/components/Button/Button';
+import { PressableScale } from '@/craftrn-ui/components/PressableScale/PressableScale';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -45,11 +46,7 @@ export default function OnboardingScreen() {
   if (isCreator === null) {
     return (
       <>
-        <Stack.Screen
-          options={{
-            headerShown: false,
-          }}
-        />
+        <Stack.Screen options={{ headerShown: false }} />
 
         <View style={styles.container}>
           <View style={styles.content}>
@@ -63,7 +60,7 @@ export default function OnboardingScreen() {
             </View>
 
             <View style={styles.actions}>
-              <Pressable
+              <PressableScale
                 style={styles.onboardingCard}
                 onPress={handleChooseCreator}
               >
@@ -74,9 +71,9 @@ export default function OnboardingScreen() {
                 <Text variant="body2" style={styles.cardDescription}>
                   Share your favorite places and build a trusted local profile.
                 </Text>
-              </Pressable>
+              </PressableScale>
 
-              <Pressable
+              <PressableScale
                 style={styles.onboardingCard}
                 onPress={handleChooseUser}
               >
@@ -88,7 +85,7 @@ export default function OnboardingScreen() {
                   Discover cafés, restaurants, stores, and experiences
                   recommended by creators.
                 </Text>
-              </Pressable>
+              </PressableScale>
             </View>
           </View>
         </View>
@@ -99,11 +96,7 @@ export default function OnboardingScreen() {
   if (isCreator) {
     return (
       <>
-        <Stack.Screen
-          options={{
-            headerShown: false,
-          }}
-        />
+        <Stack.Screen options={{ headerShown: false }} />
 
         <View style={styles.container}>
           <View style={styles.content}>
@@ -142,11 +135,7 @@ export default function OnboardingScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerShown: false,
-        }}
-      />
+      <Stack.Screen options={{ headerShown: false }} />
 
       <View style={styles.container}>
         <View style={styles.content}>
@@ -182,64 +171,42 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
-
     backgroundColor: theme.colors.backgroundScreen,
-
     paddingTop: runtime.insets.top + theme.spacing.xlarge,
   },
-
   content: {
     flex: 1,
-
     justifyContent: 'space-between',
-
     paddingHorizontal: theme.spacing.large,
-
     paddingBottom: runtime.insets.bottom + theme.spacing.xlarge,
   },
-
   hero: {
     marginTop: theme.spacing.xxlarge,
-
     gap: theme.spacing.medium,
   },
-
   description: {
     maxWidth: 320,
-
     lineHeight: 26,
-
     color: theme.colors.contentSecondary,
   },
-
   actions: {
     gap: theme.spacing.medium,
   },
-
   onboardingCard: {
     gap: theme.spacing.small,
-
     padding: theme.spacing.large,
-
     borderWidth: 0.5,
-
-    borderColor: theme.colors.contentPrimary,
-
+    borderColor: theme.colors.borderNeutralSecondary,
     borderRadius: theme.borderRadius.large,
-
-    backgroundColor: theme.colors.backgroundScreen,
+    backgroundColor: theme.colors.backgroundElevated,
   },
-
   cardTitle: {
     color: theme.colors.contentPrimary,
   },
-
   cardDescription: {
     lineHeight: 22,
-
     color: theme.colors.contentSecondary,
   },
-
   footerActions: {
     gap: theme.spacing.small,
   },

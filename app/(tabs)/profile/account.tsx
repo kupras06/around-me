@@ -103,24 +103,18 @@ export default function AccountScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
     gap: theme.spacing.large,
-    padding: theme.spacing.large,
-    paddingBottom: theme.spacing.large + 40,
+    paddingHorizontal: theme.spacing.large,
+    paddingTop: runtime.insets.top + theme.spacing.large,
+    paddingBottom: runtime.insets.bottom + theme.spacing.large,
+    backgroundColor: theme.colors.backgroundScreen,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  profileHeader: {
-    alignItems: 'center',
-    gap: theme.spacing.medium,
-    marginBottom: theme.spacing.medium,
-  },
-  button: {
-    marginBottom: theme.spacing.small,
   },
 }));
