@@ -195,7 +195,7 @@ export default function ManageScreen() {
           <Text variant="heading2">{user?.display_name}</Text>
           {user?.tier && (
             <View style={styles.badge}>
-              <IconSymbol name="checkmark" size={12} color="#fff" />
+              <IconSymbol name="checkmark" size={12} color="interactiveSecondaryContent" />
             </View>
           )}
         </View>
@@ -226,7 +226,7 @@ export default function ManageScreen() {
             <IconSymbol
               name="link"
               size={18}
-              color={theme.colors.contentSecondary}
+              color={'contentSecondary'}
             />
           }
         >
@@ -330,7 +330,7 @@ export default function ManageScreen() {
                     <IconSymbol
                       name="pencil"
                       size={14}
-                      color={theme.colors.contentPrimary}
+                      color={'contentPrimary'}
                     />
                   }
                 >
@@ -362,7 +362,7 @@ export default function ManageScreen() {
           <IconSymbol
             name="person.crop.circle"
             size={64}
-            color={theme.colors.contentSecondary}
+            color={'contentSecondary'}
           />
           <Text variant="heading2" style={{ marginTop: 16 }}>
             Creator Mode

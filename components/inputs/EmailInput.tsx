@@ -14,7 +14,7 @@ export function EmailInput({ email, setEmail, disabled }: EmailInputProps) {
       label="Email"
       value={email}
       onChangeText={setEmail}
-      itemLeft={<IconSymbol name="mail" />}
+      itemLeft={<IconSymbol name="mail" color="contentSecondary" />}
       keyboardType="email-address"
       autoComplete="email"
       editable={!disabled}

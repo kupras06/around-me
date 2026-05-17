@@ -26,11 +26,11 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Map',
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({  focused }) => (
             <IconSymbol
               name="location"
               size={focused ? 28 : 24}
-              color={color}
+              color={focused ? 'contentAccentSecondary' : 'contentSecondary'}
             />
           ),
         }}
@@ -40,8 +40,8 @@ export default function TabLayout() {
         name="saved"
         options={{
           title: 'Saved',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol name="bookmark" size={24} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <IconSymbol name="bookmark" size={24} color={focused ? 'contentAccentSecondary' : 'contentSecondary'}/>
           ),
         }}
       />
@@ -51,8 +51,8 @@ export default function TabLayout() {
         options={{
           title: 'Manage',
           href: user?.is_creator ? '/manage' : null,
-          tabBarIcon: ({ color }) => (
-            <IconSymbol name="pencil" size={24} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <IconSymbol name="pencil" size={24} color={focused ? 'contentAccentSecondary' : 'contentSecondary'} />
           ),
         }}
       />
@@ -62,8 +62,8 @@ export default function TabLayout() {
         options={{
           title: 'Admin',
           href: user?.is_admin ? '/admin' : null,
-          tabBarIcon: ({ color }) => (
-            <IconSymbol name="lock" size={24} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <IconSymbol name="lock" size={24} color={focused ? 'contentAccentSecondary' : 'contentSecondary'} />
           ),
         }}
       />
@@ -72,8 +72,8 @@ export default function TabLayout() {
         name="creators"
         options={{
           title: 'Creators',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol name="person.2.fill" size={24} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <IconSymbol name="person.2.fill" size={24} color={focused ? 'contentAccentSecondary' : 'contentSecondary'} />
           ),
         }}
       />
@@ -83,8 +83,8 @@ export default function TabLayout() {
         options={{
           popToTopOnBlur: true,
           title: 'Profile',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol name="person" size={24} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <IconSymbol name="person" size={24} color={focused ? 'contentAccentSecondary' : 'contentSecondary'} />
           ),
         }}
       />

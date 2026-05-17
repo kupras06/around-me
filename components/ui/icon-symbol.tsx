@@ -4,7 +4,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import type { SymbolViewProps, SymbolWeight } from 'expo-symbols';
 import type { ComponentProps } from 'react';
 import type { OpaqueColorValue, StyleProp, TextStyle } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { UnistylesThemes, useUnistyles } from 'react-native-unistyles';
+import type { UnistyleTheme } from '@/craftrn-ui/themes/unistyles';
 
 type IconMapping = Record<
   SymbolViewProps['name'],
@@ -101,7 +102,7 @@ export function IconSymbol({
 }: {
   name: IconSymbolName;
   size?: number;
-  color?: string | OpaqueColorValue;
+  color?: keyof UnistyleTheme['colors'];
   style?: StyleProp<TextStyle>;
   weight?: SymbolWeight;
 }) {
@@ -110,7 +111,7 @@ export function IconSymbol({
     <MaterialIcons
       size={size}
       name={MAPPING[name] || name}
-      color={color || theme.colors.interactiveNeutral}
+      color={theme.colors[color || 'contentSecondary']}
       style={style}
     />
   );

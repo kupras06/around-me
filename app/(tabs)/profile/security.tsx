@@ -1,14 +1,16 @@
 import { invariant } from 'es-toolkit';
 import { Stack } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import AuthGate from '@/components/AuthGate/AuthGate';
+import { PasswordInput } from '@/components/inputs/PasswordInput';
 import { Button } from '@/craftrn-ui/components/Button';
-import { InputText } from '@/craftrn-ui/components/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useUser } from '@/hooks/use-auth';
+import { getConfirmedPasswordError } from '@/lib/password-validation';
 import { supabase } from '@/lib/supabase';
+import { PasswordRequirements } from '@/views/Authentication/PasswordRequirements';
 
 function ActualSecurity() {
   const [loading, setLoading] = useState(false);
@@ -16,25 +18,40 @@ function ActualSecurity() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { user } = useUser();
-
+  const passwordError = useMemo(
+    () =>
+      getConfirmedPasswordError({
+        password: newPassword,
+        confirmPassword,
+      }),
+    [confirmPassword, newPassword]
+  );
   const handleUpdatePassword = async () => {
-    if (
-      !currentPassword.trim() ||
-      !newPassword.trim() ||
-      !confirmPassword.trim()
-    ) {
-      Alert.alert('Error', 'Please fill in all password fields');
+    if (!currentPassword) {
+      Alert.alert('Error', 'Enter your current password.');
       return;
     }
 
-    if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match');
+    const blockingError = passwordError;
+
+    if (blockingError) {
+      Alert.alert('Error', blockingError);
       return;
     }
 
     setLoading(true);
     try {
       invariant(user.email, 'User email is required');
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+
+      if (signInError) {
+        Alert.alert('Error', 'Current password is incorrect.');
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -42,15 +59,16 @@ function ActualSecurity() {
       if (error) {
         Alert.alert('Error', error.message);
       } else {
-        Alert.alert('Success', 'Password updated successfully!');
+        Alert.alert('Success', 'Password updated successfully.');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
       }
     } catch (error) {
       Alert.alert('Error', (error as Error).message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleEnable2FA = () => {
@@ -72,26 +90,35 @@ function ActualSecurity() {
       <View style={styles.section}>
         <Text variant="heading3">Security</Text>
 
-        <InputText
-          label="Current Password"
-          value={currentPassword}
-          onChangeText={setCurrentPassword}
-          secureTextEntry
+        <Text variant="body2" color="contentSecondary">
+          Update your password. Your new password must meet the same rules used
+          during account creation and password recovery.
+        </Text>
+
+        <PasswordInput
+          label="Current password"
+          password={currentPassword}
+          setPassword={setCurrentPassword}
         />
 
-        <InputText
-          label="New Password"
-          value={newPassword}
-          onChangeText={setNewPassword}
-          secureTextEntry
+        <PasswordInput
+          label="New password"
+          password={newPassword}
+          setPassword={setNewPassword}
         />
 
-        <InputText
-          label="Confirm New Password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
+        <PasswordInput
+          label="Confirm new password"
+          password={confirmPassword}
+          setPassword={setConfirmPassword}
+          error={
+            confirmPassword && newPassword !== confirmPassword
+              ? 'Passwords do not match.'
+              : undefined
+          }
         />
+
+        <PasswordRequirements password={newPassword} />
 
         <Button
           variant="primary"
