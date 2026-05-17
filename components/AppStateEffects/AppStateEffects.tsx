@@ -115,6 +115,10 @@ function getRedirectRoute({
       return '/auth/register';
     }
 
+    if (!isAuthRoute) {
+      return '/auth/login';
+    }
+
     return null;
   }
 
@@ -134,6 +138,8 @@ function useAuthRedirects() {
 
   const { authUser, loading, initialized } = useAppSelector(selectAuthState);
   const profile = useAppSelector(selectProfile);
+  const profileLoading = useAppSelector((state) => state.profile.loading);
+  const isLoading = loading || (!!authUser && profileLoading);
   const user = authUser && profile ? profile : null;
 
   const currentRoute = segments[segments.length - 1];
@@ -146,7 +152,7 @@ function useAuthRedirects() {
     const redirect = getRedirectRoute({
       user,
       initialized,
-      loading,
+      loading: isLoading,
       isAuthRoute,
       isOnboardingRoute,
     });
@@ -154,7 +160,7 @@ function useAuthRedirects() {
     if (redirect) {
       router.replace(redirect);
     }
-  }, [initialized, isAuthRoute, isOnboardingRoute, loading, router, user]);
+  }, [initialized, isAuthRoute, isOnboardingRoute, isLoading, router, user]);
 }
 export function AppStateEffects() {
   const dispatch = useAppDispatch();

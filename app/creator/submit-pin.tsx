@@ -54,6 +54,7 @@ export default function SubmitPin() {
       const table = status === 'approved' ? 'pins' : 'submissions';
 
       const { error: pinError } = await supabase.from(table).insert({
+        user_id: user?.id,
         place_id: placeData.id,
         note,
         status,

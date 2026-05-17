@@ -1,27 +1,49 @@
 import { Stack, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Pressable, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import AuthGate from '@/components/AuthGate/AuthGate';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/craftrn-ui/components/Avatar';
 import { Button } from '@/craftrn-ui/components/Button';
+import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useCurrentUser } from '@/hooks/use-auth';
 import type { Tables } from '@/lib/database.types';
+import { logger } from '@/lib/logger';
 import { supabase } from '@/lib/supabase';
 
 type Pin = Tables<'pins'> & {
   places: Tables<'places'> | null;
 };
 
+type Submission = Tables<'submissions'> & {
+  places: Tables<'places'> | null;
+};
+
+type ManageItem = {
+  id: number;
+  type: 'pin' | 'submission';
+  note: string | null;
+  places: Tables<'places'> | null;
+  status: string;
+  sortDate: string | null;
+};
+
 export default function ManageScreen() {
   const router = useRouter();
   const { user } = useCurrentUser();
   const { theme } = useUnistyles();
-  const [pins, setPins] = useState<Pin[]>([]);
+  const [items, setItems] = useState<ManageItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [noteDraft, setNoteDraft] = useState('');
+  const [savingKey, setSavingKey] = useState<string | null>(null);
+
+  const getItemKey = (item: Pick<ManageItem, 'id' | 'type'>) =>
+    `${item.type}-${item.id}`;
+
   const fetchPins = useCallback(async () => {
     if (!user?.id) {
       return;
@@ -29,16 +51,49 @@ export default function ManageScreen() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('pins')
-        .select('*, places(*)')
-        .eq('user_id', user?.id)
-        .order('pinned_at', { ascending: false });
+      const [pinResult, submissionResult] = await Promise.all([
+        supabase
+          .from('pins')
+          .select('*, places(*)')
+          .eq('user_id', user.id)
+          .order('pinned_at', { ascending: false }),
+        supabase
+          .from('submissions')
+          .select('*, places(*)')
+          .eq('user_id', user.id)
+          .order('submitted_at', { ascending: false }),
+      ]);
 
-      if (error) throw error;
-      setPins((data ?? []) as Pin[]);
+      if (pinResult.error) throw pinResult.error;
+      if (submissionResult.error) throw submissionResult.error;
+
+      const approvedPins = ((pinResult.data ?? []) as Pin[]).map((pin) => ({
+        id: pin.id,
+        type: 'pin' as const,
+        note: pin.note,
+        places: pin.places,
+        status: pin.status ?? 'approved',
+        sortDate: pin.pinned_at ?? pin.created_at,
+      }));
+
+      const submissions = ((submissionResult.data ?? []) as Submission[]).map(
+        (submission) => ({
+          id: submission.id,
+          type: 'submission' as const,
+          note: submission.note,
+          places: submission.places,
+          status: submission.status ?? 'pending',
+          sortDate: submission.submitted_at,
+        })
+      );
+
+      setItems(
+        [...approvedPins, ...submissions].sort((a, b) =>
+          (b.sortDate ?? '').localeCompare(a.sortDate ?? '')
+        )
+      );
     } catch (err) {
-      console.error('Error fetching creator pins:', err);
+      logger.error('Error fetching creator pins:', err);
     } finally {
       setLoading(false);
     }
@@ -48,6 +103,79 @@ export default function ManageScreen() {
       fetchPins();
     }
   }, [user, fetchPins]);
+
+  const startEditing = (item: ManageItem) => {
+    setEditingKey(getItemKey(item));
+    setNoteDraft(item.note ?? '');
+  };
+
+  const cancelEditing = () => {
+    setEditingKey(null);
+    setNoteDraft('');
+  };
+
+  const handleSaveNote = async (item: ManageItem) => {
+    if (!user?.id) {
+      return;
+    }
+
+    const key = getItemKey(item);
+    setSavingKey(key);
+    try {
+      const { error } = await supabase
+        .from(item.type === 'pin' ? 'pins' : 'submissions')
+        .update({ note: noteDraft.trim() })
+        .eq('id', item.id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setItems((prev) =>
+        prev.map((current) =>
+          getItemKey(current) === key
+            ? { ...current, note: noteDraft.trim() }
+            : current
+        )
+      );
+      cancelEditing();
+    } catch (err) {
+      logger.error('Error updating recommendation note:', err);
+      alert('Failed to update note.');
+    } finally {
+      setSavingKey(null);
+    }
+  };
+
+  const handleResubmit = async (item: ManageItem) => {
+    if (!user?.id || item.type !== 'submission') {
+      return;
+    }
+
+    const key = getItemKey(item);
+    setSavingKey(key);
+    try {
+      const { error } = await supabase
+        .from('submissions')
+        .update({ status: 'pending' })
+        .eq('id', item.id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setItems((prev) =>
+        prev.map((current) =>
+          getItemKey(current) === key
+            ? { ...current, status: 'pending' }
+            : current
+        )
+      );
+    } catch (err) {
+      logger.error('Error resubmitting recommendation:', err);
+      alert('Failed to resubmit recommendation.');
+    } finally {
+      setSavingKey(null);
+    }
+  };
 
   const renderHeader = () => (
     <View style={styles.header}>
@@ -87,7 +215,7 @@ export default function ManageScreen() {
         <Button
           variant="primary"
           onPress={() => router.push('/creator/submit-pin')}
-          iconLeft={<IconSymbol name="plus" size={18} color="#fff" />}
+          iconLeft={<IconSymbol name="plus" size={18} />}
         >
           Add Pin
         </Button>
@@ -98,7 +226,7 @@ export default function ManageScreen() {
             <IconSymbol
               name="link"
               size={18}
-              color={theme.colors.contentPrimary}
+              color={theme.colors.contentSecondary}
             />
           }
         >
@@ -108,33 +236,123 @@ export default function ManageScreen() {
 
       <View style={styles.divider} />
       <Text variant="heading3" style={styles.sectionTitle}>
-        Your Recommendations ({pins.length})
+        Your Recommendations ({items.length})
       </Text>
     </View>
   );
 
-  const renderPin = ({ item }: { item: Pin }) => (
-    <Pressable style={styles.pinCard}>
-      <View style={styles.pinInfo}>
-        <View style={styles.pinHeader}>
-          <Text variant="body1" style={styles.placeName}>
-            {item.places?.name}
-          </Text>
-          <IconSymbol
-            name="chevron.right"
-            size={18}
-            color={theme.colors.contentSecondary}
-          />
-        </View>
-        <Text variant="body3" style={styles.placeMeta}>
-          {item.places?.category} • {item.places?.neighbourhood}
-        </Text>
-        <Text variant="body2" style={styles.pinNote} numberOfLines={2}>
-          {item.note}
+  const renderStatus = (item: ManageItem) => {
+    const status = item.type === 'pin' ? 'approved' : item.status;
+    const statusStyle =
+      status === 'approved'
+        ? styles.statusApproved
+        : status === 'rejected'
+          ? styles.statusRejected
+          : styles.statusPending;
+
+    return (
+      <View style={[styles.statusBadge, statusStyle]}>
+        <Text variant="body3" style={styles.statusText}>
+          {status.toUpperCase()}
         </Text>
       </View>
-    </Pressable>
-  );
+    );
+  };
+
+  const renderPin = ({ item }: { item: ManageItem }) => {
+    const itemKey = getItemKey(item);
+    const isEditing = editingKey === itemKey;
+    const isSaving = savingKey === itemKey;
+    const canResubmit =
+      item.type === 'submission' && item.status === 'rejected';
+
+    return (
+      <View style={styles.pinCard}>
+        <View style={styles.pinInfo}>
+          <View style={styles.pinHeader}>
+            <Text variant="body1" style={styles.placeName}>
+              {item.places?.name ?? 'Unnamed place'}
+            </Text>
+            {renderStatus(item)}
+          </View>
+          <Text variant="body3" style={styles.placeMeta}>
+            {item.places?.category ?? 'Place'} •{' '}
+            {item.places?.neighbourhood ?? 'Unknown neighbourhood'}
+          </Text>
+          {isEditing ? (
+            <View style={styles.editGroup}>
+              <InputText
+                label="Note"
+                value={noteDraft}
+                onChangeText={(text) => setNoteDraft(text.slice(0, 160))}
+                multiline
+                numberOfLines={3}
+                style={styles.noteInput}
+              />
+              <Text variant="body3" style={styles.charCount}>
+                {noteDraft.length}/160
+              </Text>
+            </View>
+          ) : (
+            <Text variant="body2" style={styles.pinNote} numberOfLines={2}>
+              {item.note || 'No note added.'}
+            </Text>
+          )}
+
+          <View style={styles.pinActions}>
+            {isEditing ? (
+              <>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onPress={cancelEditing}
+                  disabled={isSaving}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  size="small"
+                  onPress={() => handleSaveNote(item)}
+                  loading={isSaving}
+                  disabled={!noteDraft.trim()}
+                >
+                  Save Note
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onPress={() => startEditing(item)}
+                  iconLeft={
+                    <IconSymbol
+                      name="pencil"
+                      size={14}
+                      color={theme.colors.contentPrimary}
+                    />
+                  }
+                >
+                  Edit Note
+                </Button>
+                {canResubmit && (
+                  <Button
+                    variant="primary"
+                    size="small"
+                    onPress={() => handleResubmit(item)}
+                    loading={isSaving}
+                  >
+                    Resubmit
+                  </Button>
+                )}
+              </>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  };
 
   if (!user?.is_creator) {
     return (
@@ -166,9 +384,9 @@ export default function ManageScreen() {
       <View style={styles.container}>
         <Stack.Screen options={{ headerShown: false }} />
         <FlatList
-          data={pins}
+          data={items}
           renderItem={renderPin}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={getItemKey}
           ListHeaderComponent={renderHeader}
           contentContainerStyle={styles.listContent}
           refreshing={loading}
@@ -251,6 +469,7 @@ const styles = StyleSheet.create((theme, runtime) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: theme.spacing.small,
   },
   pinInfo: {
     gap: theme.spacing.xsmall,
@@ -266,6 +485,43 @@ const styles = StyleSheet.create((theme, runtime) => ({
   pinNote: {
     fontStyle: 'italic',
     marginTop: theme.spacing.xsmall,
+  },
+  statusBadge: {
+    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: theme.spacing.small,
+    paddingVertical: theme.spacing.xxsmall,
+  },
+  statusApproved: {
+    backgroundColor: theme.colors.sentimentSecondaryPositive,
+  },
+  statusPending: {
+    backgroundColor: theme.colors.interactiveSecondary,
+  },
+  statusRejected: {
+    backgroundColor: theme.colors.sentimentSecondaryNegative,
+  },
+  statusText: {
+    color: theme.colors.contentPrimary,
+    fontWeight: '700',
+  },
+  editGroup: {
+    gap: theme.spacing.xsmall,
+    marginTop: theme.spacing.small,
+  },
+  noteInput: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+    lineHeight: 20,
+  },
+  charCount: {
+    color: theme.colors.contentTertiary,
+    textAlign: 'right',
+  },
+  pinActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.small,
+    marginTop: theme.spacing.small,
   },
   emptyContainer: {
     flex: 1,

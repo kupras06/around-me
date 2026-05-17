@@ -1,5 +1,3 @@
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import type { ThemePreference } from '@/lib/theme-preference';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
