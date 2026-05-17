@@ -72,7 +72,7 @@ function ProfileHero() {
             size="hero"
           />
           <View style={styles.editBadge}>
-            <IconSymbol name="pencil" size={14} color={theme.colors.white} />
+            <IconSymbol name="pencil" size={14} color="white" />
           </View>
         </Pressable>
       </LoaderView>
@@ -116,11 +116,7 @@ function SettingItem({
       <View
         style={[styles.iconWrapper, color && { backgroundColor: `${color}15` }]}
       >
-        <IconSymbol
-          name={icon}
-          size={20}
-          color={color || theme.colors.contentSecondary}
-        />
+        <IconSymbol name={icon} size={20} color="contentSecondary" />
       </View>
       <View style={styles.settingContent}>
         <Text variant="body1" style={styles.settingTitle}>
@@ -132,11 +128,7 @@ function SettingItem({
           </Text>
         )}
       </View>
-      <IconSymbol
-        name="chevron.right"
-        size={20}
-        color={theme.colors.contentTertiary}
-      />
+      <IconSymbol name="chevron.right" size={20} color="contentTertiary" />
     </Pressable>
   );
 }
@@ -253,7 +245,7 @@ export default function ProfileScreen() {
                 <IconSymbol
                   name="arrow.right.circle"
                   size={20}
-                  color={theme.colors.sentimentNegative}
+                  color="sentimentNegative"
                 />
               }
             >

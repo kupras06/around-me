@@ -1,5 +1,6 @@
 import * as Linking from 'expo-linking';
 import { logger } from '@/lib/logger';
+import { getPasswordValidationError } from '@/lib/password-validation';
 import { supabase } from '@/lib/supabase';
 import { ensureProfile } from '@/store/features/profile/profile.service';
 import { mapAuthUser, mapIdentityProviders } from './auth.mapper';
@@ -119,6 +120,12 @@ export const signUpWithPassword = async ({
     throw new Error('Email and password are required.');
   }
 
+  const passwordError = getPasswordValidationError(password);
+
+  if (passwordError) {
+    throw new Error(passwordError);
+  }
+
   const { data, error } = await supabase.auth.signUp({
     email: normalizedEmail,
     password,
@@ -168,9 +175,11 @@ export const sendPasswordResetEmail = async (email: string) => {
     throw new Error('Enter the email for your account.');
   }
 
-  const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+  logger.info('URL', { url: Linking.createURL('/auth/reset-password') });
+  const { data,error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
     redirectTo: Linking.createURL('/auth/reset-password'),
   });
+  logger.info('Password Reset Email',{data,error})
 
   if (error) {
     throw error;
@@ -178,8 +187,10 @@ export const sendPasswordResetEmail = async (email: string) => {
 };
 
 export const updateAuthPassword = async (password: string) => {
-  if (!password) {
-    throw new Error('Enter a new password.');
+  const passwordError = getPasswordValidationError(password);
+
+  if (passwordError) {
+    throw new Error(passwordError);
   }
 
   const { error } = await supabase.auth.updateUser({ password });

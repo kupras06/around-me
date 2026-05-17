@@ -82,12 +82,8 @@ export const ThemeToggleButton = ({
           accessibilityLabel="Change theme"
           animationConfig={{ scaleIn: 1.1 }}
           variant={variant}
-          renderContent={({ iconSize, iconColor }) => (
-            <IconSymbol
-              name="swatchpalette.fill"
-              size={iconSize}
-              color={iconColor}
-            />
+          renderContent={({ iconSize,  }) => (
+            <IconSymbol name="swatchpalette.fill" size={iconSize} color="contentPrimary" />
           )}
         />
       )}

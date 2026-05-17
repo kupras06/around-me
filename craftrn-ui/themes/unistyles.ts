@@ -5,7 +5,7 @@ type AppThemes = {
   aroundmeLight: typeof aroundmeLightTheme;
   aroundmeDark: typeof aroundmeDarkTheme;
 };
-
+export type UnistyleTheme = AppThemes[keyof AppThemes];
 declare module 'react-native-unistyles' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   export interface UnistylesThemes extends AppThemes {}

@@ -300,7 +300,7 @@ export default function MapScreen() {
             <IconSymbol
               name="magnifyingglass"
               size={20}
-              color={theme.colors.contentTertiary}
+              color={'contentTertiary'}
             />
           }
           placeholder="Search cafes, shops, creators"
@@ -437,7 +437,7 @@ export default function MapScreen() {
           <IconSymbol
             name="plus"
             size={24}
-            color={theme.colors.interactiveSecondaryContent}
+            color={'interactiveSecondaryContent'}
           />
         </Pressable>
       )}

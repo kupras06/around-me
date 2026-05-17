@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { EmailInput } from '@/components/inputs/EmailInput';
@@ -8,6 +8,8 @@ import { Button } from '@/craftrn-ui/components/Button/Button';
 import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/use-auth';
+import { getConfirmedPasswordError } from '@/lib/password-validation';
+import { PasswordRequirements } from '@/views/Authentication/PasswordRequirements';
 import { SocialAuthButtons } from '@/views/Authentication/SocialAuthButtons';
 
 export default function RegisterScreen() {
@@ -15,10 +17,22 @@ export default function RegisterScreen() {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-
+  const passwordError = useMemo(
+    () => getConfirmedPasswordError({ password, confirmPassword }),
+    [confirmPassword, password]
+  );
   const handleRegister = async () => {
     setError(null);
+
+    const blockingError = passwordError;
+
+    if (blockingError) {
+      setError(blockingError);
+      return;
+    }
+
     try {
       await register({ displayName, email, password });
       // Route guards will move the user into onboarding
@@ -48,6 +62,19 @@ export default function RegisterScreen() {
           <EmailInput email={email} setEmail={setEmail} />
           <View style={styles.spacerSmall} />
           <PasswordInput password={password} setPassword={setPassword} />
+          <View style={styles.spacerSmall} />
+          <PasswordInput
+            label="Confirm password"
+            password={confirmPassword}
+            setPassword={setConfirmPassword}
+            error={
+              confirmPassword && password !== confirmPassword
+                ? 'Passwords do not match.'
+                : undefined
+            }
+          />
+          <View style={styles.spacerSmall} />
+          <PasswordRequirements password={password} />
 
           {error && (
             <Text variant="body3" style={styles.error}>
