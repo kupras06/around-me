@@ -505,7 +505,7 @@ export default function MapScreen() {
                   color="contentPrimary"
                   style={{ fontStyle: 'italic' }}
                 >
-                  "{selectedPin.blurb}"
+                {selectedPin.blurb}
                 </Text>
               </View>
 

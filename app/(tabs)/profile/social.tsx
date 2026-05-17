@@ -189,7 +189,7 @@ function ActualSocialAccounts() {
 
 export default function SocialAccountsScreen() {
   return (
-    <AuthGate>
+    <AuthGate errorDescription="Please sign in to manage your linked accounts.">
       <ActualSocialAccounts />
     </AuthGate>
   );

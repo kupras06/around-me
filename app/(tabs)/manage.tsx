@@ -356,7 +356,7 @@ export default function ManageScreen() {
 
   if (!user?.is_creator) {
     return (
-      <AuthGate>
+      <AuthGate errorDescription="Please sign in to manage your recommendations.">
         <Stack.Screen options={{ headerShown: false }} />
         <View style={styles.emptyContainer}>
           <IconSymbol
@@ -380,7 +380,7 @@ export default function ManageScreen() {
   }
 
   return (
-    <AuthGate>
+    <AuthGate errorDescription="Please sign in to manage your recommendations.">
       <View style={styles.container}>
         <Stack.Screen options={{ headerShown: false }} />
         <FlatList

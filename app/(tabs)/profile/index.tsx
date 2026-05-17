@@ -156,7 +156,7 @@ export default function ProfileScreen() {
   const { theme } = useUnistyles();
 
   return (
-    <AuthGate>
+    <AuthGate errorDescription="Please sign in to view and manage your profile.">
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView
         style={styles.container}

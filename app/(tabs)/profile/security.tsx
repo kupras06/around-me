@@ -115,7 +115,7 @@ function ActualSecurity() {
 
 export default function SecurityScreen() {
   return (
-    <AuthGate>
+    <AuthGate errorDescription="Please sign in to manage your security settings.">
       <ActualSecurity />
     </AuthGate>
   );

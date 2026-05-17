@@ -1,20 +1,35 @@
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
 import { Button } from '@/craftrn-ui/components/Button';
 import { Text } from '@/craftrn-ui/components/Text';
 
-export default function LoginRequiredScreen() {
+const DEFAULT_DESCRIPTION =
+  'Please sign in to access this feature and save your favorite places.';
+
+type LoginRequiredProps = {
+  redirectTo: string;
+  errorDescription?: string;
+};
+
+export default function LoginRequiredScreen({
+  redirectTo,
+  errorDescription = DEFAULT_DESCRIPTION,
+}: LoginRequiredProps) {
   const router = useRouter();
 
   const handleLogin = () => {
-    router.replace('/auth/login');
+    router.replace(`/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
   };
 
   const handleDismiss = () => {
-    // Go back to previous page or home
-    router.back();
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
   };
 
   return (
@@ -25,24 +40,26 @@ export default function LoginRequiredScreen() {
       enableOverlayTapToClose={false}
       showHandleBar={false}
     >
-      <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <View style={styles.lockIcon}>
-            <Text style={styles.lockText}>🔒</Text>
-          </View>
+      <View style={styles.card}>
+        <View style={styles.iconWrapper}>
+          <IconSymbol name="lock" size={24} />
         </View>
 
         <Text variant="heading3" style={styles.title}>
           Sign In Required
         </Text>
 
-        <Text variant="body1" style={styles.description}>
-          Please sign in to access this feature and save your favorite places.
+        <Text variant="body2" style={styles.description}>
+          {errorDescription}
         </Text>
 
         <View style={styles.buttonContainer}>
-          <Button variant="primary" onPress={handleLogin} title="Sign In" />
-          <Button variant="tertiary" onPress={handleDismiss} title="Maybe Later" />
+          <Button variant="primary" onPress={handleLogin} size="large">
+            Sign In
+          </Button>
+          <Button variant="tertiary" onPress={handleDismiss} size="large">
+            Maybe Later
+          </Button>
         </View>
       </View>
     </BottomSheet>
@@ -50,25 +67,23 @@ export default function LoginRequiredScreen() {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  content: {
-    flex: 1,
+  card: {
+    margin: theme.spacing.large,
     padding: theme.spacing.large,
     alignItems: 'center',
-    minHeight: 300,
+    backgroundColor: theme.colors.backgroundElevated,
+    borderRadius: theme.borderRadius.large,
+    borderWidth: 0.5,
+    borderColor: theme.colors.borderNeutralSecondary,
   },
-  iconContainer: {
-    marginBottom: theme.spacing.medium,
-  },
-  lockIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+  iconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     backgroundColor: theme.colors.backgroundScreenSecondary,
-    justifyContent: 'center',
     alignItems: 'center',
-  },
-  lockText: {
-    fontSize: 24,
+    justifyContent: 'center',
+    marginBottom: theme.spacing.medium,
   },
   title: {
     textAlign: 'center',
@@ -78,16 +93,10 @@ const styles = StyleSheet.create((theme) => ({
     textAlign: 'center',
     color: theme.colors.contentSecondary,
     marginBottom: theme.spacing.large,
-    lineHeight: 22,
+    lineHeight: 20,
   },
   buttonContainer: {
     width: '100%',
     gap: theme.spacing.small,
-  },
-  signInButton: {
-    width: '100%',
-  },
-  cancelButton: {
-    width: '100%',
   },
 }));

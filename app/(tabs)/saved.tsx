@@ -18,7 +18,7 @@ function ActualSaved() {
 
 export default function SavedScreen() {
   return (
-    <AuthGate>
+    <AuthGate errorDescription="Please sign in to save and organize your favorite places.">
       <ActualSaved />
     </AuthGate>
   );

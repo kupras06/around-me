@@ -80,7 +80,7 @@ function ActualCreators() {
 
 export default function CreatorsScreen() {
   return (
-    <AuthGate>
+    <AuthGate errorDescription="Please sign in to browse and follow creators.">
       <ActualCreators />
     </AuthGate>
   );

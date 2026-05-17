@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -12,6 +12,7 @@ import { SocialAuthButtons } from '@/views/Authentication/SocialAuthButtons';
 export default function LoginScreen() {
   const router = useRouter();
   const { login, loading } = useAuth();
+  const { redirectTo } = useLocalSearchParams<{ redirectTo?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -20,9 +21,11 @@ export default function LoginScreen() {
     setError(null);
     try {
       const signedInUser = await login(email, password);
-      router.replace(
-        signedInUser.onboarding_completed ? '/' : '/onboarding/link-phone'
-      );
+      if (signedInUser.onboarding_completed) {
+        router.replace(redirectTo || '/');
+      } else {
+        router.replace('/onboarding/link-phone');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     }

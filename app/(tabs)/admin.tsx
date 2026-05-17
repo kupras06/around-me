@@ -125,7 +125,7 @@ export default function AdminReviewScreen() {
   }
 
   return (
-    <AuthGate>
+    <AuthGate errorDescription="Please sign in to access admin tools.">
       <View style={styles.container}>
         <Stack.Screen
           options={{ title: 'Review Submissions', headerShown: true }}

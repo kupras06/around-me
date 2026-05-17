@@ -97,7 +97,7 @@ function ActualProfile() {
 
 export default function AccountScreen() {
   return (
-    <AuthGate>
+    <AuthGate errorDescription="Please sign in to manage your account settings.">
       <ActualProfile />
     </AuthGate>
   );
