@@ -1,7 +1,7 @@
 import MapboxGL from '@rnmapbox/maps';
 import { Stack, useRouter } from 'expo-router';
-import { type ElementRef, useEffect, useRef, useState } from 'react';
-import { Dimensions, Pressable, View } from 'react-native';
+import { type ElementRef, useEffect, useMemo, useRef, useState } from 'react';
+import { Dimensions, Pressable, ScrollView, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import {
@@ -10,6 +10,7 @@ import {
   MAPBOX_ACCESS_TOKEN,
 } from '@/constants/map';
 import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
+import { InputSearch } from '@/craftrn-ui/components/InputSearch';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useCurrentUser } from '@/hooks/use-auth';
 
@@ -25,7 +26,7 @@ type Pin = {
   name: string;
   latitude: number;
   longitude: number;
-  category: 'C' | 'D' | 'S' | 'E';
+  category: CategoryKey;
   address?: string;
   blurb?: string;
   creator: {
@@ -34,6 +35,24 @@ type Pin = {
     initials: string;
     verified?: boolean;
   };
+};
+
+type CategoryKey = 'C' | 'D' | 'S' | 'E';
+type CategoryFilter = 'all' | CategoryKey;
+
+const CATEGORY_OPTIONS: { key: CategoryFilter; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'C', label: 'Cafe' },
+  { key: 'D', label: 'Dining' },
+  { key: 'S', label: 'Shops' },
+  { key: 'E', label: 'Experiences' },
+];
+
+const CATEGORY_LABELS: Record<CategoryKey, string> = {
+  C: 'Cafe',
+  D: 'Dining',
+  S: 'Shop',
+  E: 'Experience',
 };
 
 const MOCK_PINS: Pin[] = [
@@ -66,6 +85,26 @@ const MOCK_PINS: Pin[] = [
     address: 'Cross St, Indiranagar',
     blurb: 'Thoughtful home goods and ceramics.',
     creator: { id: 'c1', display_name: 'Arjun', initials: 'A', verified: true },
+  },
+  {
+    id: 'p4',
+    name: 'Courtyard Jazz Night',
+    latitude: DEFAULT_NEIGHBORHOOD_CENTER.latitude + 0.0018,
+    longitude: DEFAULT_NEIGHBORHOOD_CENTER.longitude - 0.0016,
+    category: 'E',
+    address: 'CMH Road, Indiranagar',
+    blurb: 'Low-key Sunday set in a leafy courtyard.',
+    creator: { id: 'c3', display_name: 'Mira', initials: 'M', verified: true },
+  },
+  {
+    id: 'p5',
+    name: 'Paper Moon Books',
+    latitude: DEFAULT_NEIGHBORHOOD_CENTER.latitude - 0.0018,
+    longitude: DEFAULT_NEIGHBORHOOD_CENTER.longitude + 0.001,
+    category: 'S',
+    address: 'Defence Colony, Indiranagar',
+    blurb: 'Small shelves, sharp curation, excellent staff picks.',
+    creator: { id: 'c3', display_name: 'Mira', initials: 'M', verified: true },
   },
 ];
 
@@ -141,6 +180,26 @@ export default function MapScreen() {
   const [pins] = useState<Pin[]>(MOCK_PINS);
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
+
+  const filteredPins = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+
+    return pins.filter((pin) => {
+      const matchesCategory =
+        activeCategory === 'all' || pin.category === activeCategory;
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        pin.name.toLowerCase().includes(normalizedSearch) ||
+        (pin.address ?? '').toLowerCase().includes(normalizedSearch) ||
+        (pin.blurb ?? '').toLowerCase().includes(normalizedSearch) ||
+        pin.creator.display_name.toLowerCase().includes(normalizedSearch) ||
+        CATEGORY_LABELS[pin.category].toLowerCase().includes(normalizedSearch);
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [activeCategory, pins, search]);
 
   useEffect(() => {
     if (selectedPin) {
@@ -196,7 +255,7 @@ export default function MapScreen() {
             zoomLevel={15}
           />
 
-          {pins.map((pin) => (
+          {filteredPins.map((pin) => (
             <MapboxGL.PointAnnotation
               key={pin.id}
               id={pin.id}
@@ -228,12 +287,134 @@ export default function MapScreen() {
         </MapboxGL.MapView>
       ) : (
         <DemoMap
-          pins={pins}
+          pins={filteredPins}
           center={DEFAULT_NEIGHBORHOOD_CENTER}
           onPinPress={(p) => setSelectedPin(p)}
           selectedPinId={selectedPin?.id ?? null}
         />
       )}
+
+      <View style={styles.discoveryPanel}>
+        <InputSearch
+          itemLeft={
+            <IconSymbol
+              name="magnifyingglass"
+              size={20}
+              color={theme.colors.contentTertiary}
+            />
+          }
+          placeholder="Search cafes, shops, creators"
+          value={search}
+          onChangeText={setSearch}
+          autoCorrect={false}
+          returnKeyType="search"
+        />
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryList}
+        >
+          {CATEGORY_OPTIONS.map((category) => {
+            const isActive = activeCategory === category.key;
+            const color =
+              category.key === 'all'
+                ? theme.colors.contentAccentSecondary
+                : CATEGORY_COLORS[category.key];
+
+            return (
+              <Pressable
+                key={category.key}
+                onPress={() => setActiveCategory(category.key)}
+                style={styles.categoryChip({ active: isActive, color })}
+              >
+                <Text
+                  variant="body3"
+                  style={styles.categoryChipText({ active: isActive })}
+                >
+                  {category.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      <View style={styles.discoveryRail}>
+        <View style={styles.railHeader}>
+          <Text variant="body3" color="contentSecondary">
+            {filteredPins.length} places nearby
+          </Text>
+          {search.length > 0 || activeCategory !== 'all' ? (
+            <Pressable
+              onPress={() => {
+                setSearch('');
+                setActiveCategory('all');
+              }}
+            >
+              <Text variant="body3" color="contentAccent">
+                Clear
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
+
+        {filteredPins.length > 0 ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.placeList}
+          >
+            {filteredPins.map((pin) => (
+              <Pressable
+                key={pin.id}
+                onPress={() => setSelectedPin(pin)}
+                style={styles.placeCard({
+                  selected: selectedPin?.id === pin.id,
+                })}
+              >
+                <View style={styles.placeCardHeader}>
+                  <View
+                    style={[
+                      styles.placeSwatch,
+                      { backgroundColor: CATEGORY_COLORS[pin.category] },
+                    ]}
+                  />
+                  <Text variant="body3" color="contentSecondary">
+                    {CATEGORY_LABELS[pin.category]}
+                  </Text>
+                </View>
+                <Text variant="heading3" numberOfLines={1}>
+                  {pin.name}
+                </Text>
+                <Text
+                  variant="body3"
+                  color="contentSecondary"
+                  numberOfLines={1}
+                >
+                  {pin.address}
+                </Text>
+                <View style={styles.placeCreatorRow}>
+                  <View style={styles.placeCreatorAvatar}>
+                    <Text style={styles.placeCreatorAvatarText}>
+                      {pin.creator.initials}
+                    </Text>
+                  </View>
+                  <Text variant="body3" color="contentSecondary">
+                    {pin.creator.display_name}
+                  </Text>
+                </View>
+              </Pressable>
+            ))}
+          </ScrollView>
+        ) : (
+          <View style={styles.emptyDiscovery}>
+            <Text variant="body2" color="contentSecondary">
+              No places match this search.
+            </Text>
+          </View>
+        )}
+      </View>
 
       <Pressable
         style={[
@@ -408,7 +589,7 @@ export default function MapScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
   container: {
     flex: 1,
   },
@@ -452,7 +633,7 @@ const styles = StyleSheet.create((theme) => ({
   myLocationButton: {
     position: 'absolute',
     right: theme.spacing.large,
-    bottom: theme.spacing.xxlarge * 2,
+    bottom: theme.spacing.xxlarge * 4,
     width: 44,
     height: 44,
     borderRadius: 44,
@@ -462,12 +643,107 @@ const styles = StyleSheet.create((theme) => ({
   addPinButton: {
     position: 'absolute',
     right: theme.spacing.large,
-    bottom: theme.spacing.xxlarge * 3.5,
+    bottom: theme.spacing.xxlarge * 5.4,
     width: 56,
     height: 56,
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  discoveryPanel: {
+    position: 'absolute',
+    top: runtime.insets.top + theme.spacing.medium,
+    left: theme.spacing.medium,
+    right: theme.spacing.medium,
+    gap: theme.spacing.small,
+  },
+  categoryList: {
+    gap: theme.spacing.small,
+    paddingRight: theme.spacing.medium,
+  },
+  categoryChip: ({ active, color }: { active: boolean; color: string }) => ({
+    minHeight: 36,
+    paddingHorizontal: theme.spacing.medium,
+    borderRadius: theme.borderRadius.full,
+    borderWidth: 0.5,
+    borderColor: active ? color : theme.colors.borderNeutral,
+    backgroundColor: active
+      ? theme.colors.backgroundElevated
+      : theme.colors.backgroundScreen,
+    alignItems: 'center',
+    justifyContent: 'center',
+  }),
+  categoryChipText: ({ active }: { active: boolean }) => ({
+    color: active ? theme.colors.contentPrimary : theme.colors.contentSecondary,
+    fontWeight: active ? '500' : '400',
+  }),
+  discoveryRail: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: theme.spacing.large,
+    paddingBottom: theme.spacing.medium,
+  },
+  railHeader: {
+    marginHorizontal: theme.spacing.medium,
+    marginBottom: theme.spacing.small,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  placeList: {
+    gap: theme.spacing.small,
+    paddingHorizontal: theme.spacing.medium,
+  },
+  placeCard: ({ selected }: { selected: boolean }) => ({
+    width: 224,
+    minHeight: 132,
+    padding: theme.spacing.medium,
+    borderRadius: theme.borderRadius.medium,
+    borderWidth: selected ? 1 : 0.5,
+    borderColor: selected
+      ? theme.colors.contentAccentSecondary
+      : theme.colors.borderNeutral,
+    backgroundColor: theme.colors.backgroundElevated,
+    gap: theme.spacing.xsmall,
+  }),
+  placeCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xsmall,
+    marginBottom: theme.spacing.xsmall,
+  },
+  placeSwatch: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+  },
+  placeCreatorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.small,
+    marginTop: theme.spacing.small,
+  },
+  placeCreatorAvatar: {
+    width: 22,
+    height: 22,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.backgroundScreenSecondary,
+  },
+  placeCreatorAvatarText: {
+    color: theme.colors.contentPrimary,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  emptyDiscovery: {
+    marginHorizontal: theme.spacing.medium,
+    padding: theme.spacing.medium,
+    borderRadius: theme.borderRadius.medium,
+    borderWidth: 0.5,
+    borderColor: theme.colors.borderNeutral,
+    backgroundColor: theme.colors.backgroundElevated,
   },
   bottomSheetContent: {
     paddingHorizontal: theme.spacing.large,

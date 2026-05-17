@@ -108,10 +108,9 @@ export function IconSymbol({
   const { theme } = useUnistyles();
   return (
     <MaterialIcons
-      color={color || theme.colors.interactivePrimary}
       size={size}
       name={MAPPING[name] || name}
-      style={style}
+      style={[{ color: color || theme.colors.interactiveNeutral }, style]}
     />
   );
 }
