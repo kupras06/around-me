@@ -21,15 +21,14 @@ export default function LoginRequiredScreen({
   const router = useRouter();
 
   const handleLogin = () => {
-    router.replace(`/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
+    router.navigate({
+      pathname: '/auth/login',
+      params: { redirectTo },
+    });
   };
 
   const handleDismiss = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/');
-    }
+    router.replace('/');
   };
 
   return (

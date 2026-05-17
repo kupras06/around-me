@@ -4,92 +4,137 @@
 Around Me is a React Native/Expo app that helps users discover and save local places, cafes, restaurants, and experiences. The app features user authentication, map integration with Mapbox, and a tab-based navigation structure.
 
 ## Tech Stack
-- **Framework**: React Native with Expo
-- **Navigation**: Expo Router (file-based routing)
+- **Framework**: React Native 0.81 + Expo 54
+- **Package Manager**: Bun (see `bun.lock`)
+- **Navigation**: Expo Router 6 (file-based routing)
 - **State Management**: Redux Toolkit
-- **Styling**: React Native Unistyles
-- **Maps**: Mapbox GL with fallback demo mode
+- **Styling**: React Native Unistyles 3
+- **Maps**: Mapbox GL (`@rnmapbox/maps`) with fallback demo mode
 - **Authentication**: Supabase
-- **UI Components**: Custom craftrn-ui component library
+- **UI Components**: Custom `craftrn-ui` component library
+- **Linting/Formatting**: Biome 2 + ESLint 9
+- **TypeScript**: Strict mode, path alias `@/` maps to project root
+
+## Validation Commands (run in order for changes)
+```sh
+bun run typecheck          # TypeScript strict check
+bun run lint               # ESLint
+bun run check              # Biome lint + format check
+bun run lint:biome         # Biome lint only
+bun run format:check       # Biome format only
+bun run lint:fix           # ESLint auto-fix
+bun run check:fix          # Biome auto-fix
+bun run format             # Biome format write
+```
+
+## Boundaries
+- **Always**: Modify `app/`, `components/`, `store/`, `hooks/`, `lib/`, `constants/`, `views/`, `craftrn-ui/`
+- **Ask first**: New dependencies, env var changes, DB schema changes, biome/eslint config changes, iOS/Android native code
+- **Never**: Edit `bun.lock`, `.env` (use `.env.example`), generated files, `node_modules/`, `supabase/functions/`
 
 ## Project Structure
 
 ### Core App Structure
 ```
-app/
-├── _layout.tsx              # Root layout with providers (Redux, keyboard, gestures)
-├── (tabs)/                  # Tab navigation container
-│   ├── _layout.tsx          # Tab layout configuration
-│   ├── index.tsx             # Map/home screen
-│   ├── profile.tsx           # User profile screen (protected)
-│   ├── saved.tsx             # Saved places screen (protected)
-│   └── creators.tsx          # Browse creators screen (protected)
-├── login.tsx                # Login screen
-├── register.tsx              # Registration screen
-├── reset-password.tsx         # Password reset flow
-└── onboarding/              # User onboarding flow
-    ├── link-phone.tsx
-    └── link-accounts.tsx
+app/                       # Expo Router pages
+├── _layout.tsx            # Root layout (Redux, keyboard, gestures providers)
+├── (tabs)/                # Tab navigation
+│   ├── _layout.tsx
+│   ├── index.tsx          # Map/home screen
+│   ├── profile.tsx        # Protected
+│   ├── saved.tsx          # Protected
+│   └── creators.tsx       # Protected
+├── auth/                  # login.tsx, register.tsx, reset-password.tsx
+└── onboarding/            # link-phone.tsx, link-accounts.tsx
+
+components/                # App-specific components
+├── AuthGate/              # AuthGate.tsx, LoginRequired.tsx, LoadingScreen.tsx
+├── SharedHeader/          # SharedHeader.tsx
+├── ui/                    # icon-symbol.tsx, loader-view.tsx
+├── inputs/                # EmailInput, PasswordInput, PhoneNumberInput
+├── haptic-tab.tsx
+└── external-link.tsx
+
+craftrn-ui/                # Custom UI component library
+└── components/
+    ├── Button/ / Text/ / Card/ / BottomSheet/
+    ├── InputText/ / InputSearch/ / InputOTP/
+    ├── Avatar/ / Switch/ / Checkbox/ / Radio/
+    ├── Slider/ / SliderDual/ / SegmentedControl/
+    ├── ListItem/ / Divider/ / Skeleton/
+    ├── PressableScale/ / ButtonRound/
+    ├── PhotoCarousel/ / ContextMenu/
+    └── PasscodeEntry/
+
+store/                     # Redux Toolkit
+├── index.ts               # configureStore
+├── hooks.ts               # useAppDispatch, useAppSelector
+├── features/
+│   ├── auth/              # auth.slice.ts, auth.service.ts, auth.types.ts, oauth.service.ts, auth.mapper.ts
+│   └── profile/           # profile.slice.ts, profile.service.ts, profile.types.ts
+├── api/
+│   └── baseApi.ts
+└── slices/
+    └── themeSlice.ts
+
+hooks/                     # Custom hooks
+├── use-auth.ts
+├── use-theme.ts
+└── use-color-scheme.ts
+
+lib/                       # Core utilities
+├── supabase.ts / logger.ts / env.ts / database.types.ts / theme-preference.ts
+
+constants/                 # map.ts, theme.ts
+views/
+└── Authentication/        # Auth-specific views
 ```
 
-### Component Organization
+## Code Conventions
 
-#### Authentication Components (`/components/AuthGate/`)
-- **AuthGate.tsx** - Main authentication wrapper component
-  - Handles loading states and authentication checks
-  - Shows LoadingScreen when auth is loading
-  - Shows LoginRequired modal when user is not authenticated
-  - Renders children when authenticated
+### Naming
+| Category | Convention | Example |
+|---|---|---|
+| Files | kebab-case | `use-auth.ts`, `icon-symbol.tsx` |
+| React components | PascalCase (file + export) | `AuthGate.tsx` → `export default function AuthGate` |
+| Functions/variables | camelCase | `useAppDispatch`, `signInWithPassword` |
+| Constants | SCREAMING_SNAKE or PascalCase | `MAPBOX_ACCESS_TOKEN`, `CATEGORY_COLORS` |
+| Types/interfaces | PascalCase (no `I` prefix) | `type AuthState`, `type Props` |
+| Redux slices | camelCase with `.slice.ts` | `auth.slice.ts` |
 
-#### Authentication UI (`/components/LoginRequired/`)
-- **LoginRequired.tsx** - Modal component for unauthenticated users
-  - BottomSheet modal presentation
-  - Clear messaging about sign-in requirements
-  - "Sign In" and "Maybe Later" actions
-
-#### Loading States (`/components/LoadingScreen/`)
-- **LoadingScreen.tsx** - Loading spinner component
-  - Centered ActivityIndicator with brand colors
-  - Used during auth checks and data loading
-
-#### Shared Components (`/components/SharedHeader/`)
-- **SharedHeader.tsx** - Reusable header component
-  - Used across tab screens
-  - Consistent header styling and layout
-
-#### Custom UI Library (`/craftrn-ui/`)
-- Custom component library with consistent theming
-- Components: Button, Text, InputSearch, BottomSheet, etc.
-- Uses Unistyles for theme management
-
-## Component Patterns
-
-### Authentication Pattern
-Use the `AuthGate` component for any protected route:
-
+### Styling (Unistyles)
 ```tsx
-import AuthGate from '@/components/AuthGate/AuthGate';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-export default function ProtectedScreen() {
-  return (
-    <AuthGate>
-      <ActualScreenContent />
-    </AuthGate>
-  );
+function Component() {
+  const { theme } = useUnistyles();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  // ...
 }
+
+const createStyles = (theme: UnistylesTheme) =>
+  StyleSheet.create({
+    container: { backgroundColor: theme.colors.background },
+  });
 ```
+- Always use `useMemo(() => createStyles(theme), [theme])`
+- Colors come from `theme.colors` — never hardcoded
+- No StyleSheet.create at module level (use dynamic unistyles)
 
-### Screen Structure Pattern
-For tab screens, follow this pattern:
+### Imports
+- Use `@/` path alias — never deep relative paths (`../../../`)
+- Order: packages → `@/` internals
+- Type-only imports: `import type { Foo } from '...'`
 
+### Component Patterns
 ```tsx
+// Screen with AuthGate (protected route pattern)
 function ActualScreenName() {
-  // Screen content here
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <SharedHeader />
-      {/* Screen content */}
+      {/* content */}
     </View>
   );
 }
@@ -103,76 +148,78 @@ export default function ScreenName() {
 }
 ```
 
-## Key Architectural Decisions
+### Craftrn UI Components (import from full path, not barrel)
+```tsx
+import { BottomSheet } from '@/craftrn-ui/components/BottomSheet';
+import { Text } from '@/craftrn-ui/components/Text';
+import { Button } from '@/craftrn-ui/components/Button';
+import { InputSearch } from '@/craftrn-ui/components/InputSearch';
+```
 
-### 1. Centralized Authentication
-- All auth logic is centralized in `AuthGate` component
-- Eliminates duplicate auth checking code across screens
-- Consistent user experience for loading and login prompts
+### Existing Utilities (don't recreate)
+| What | Where |
+|---|---|
+| Logger | `@/lib/logger` |
+| Supabase client | `@/lib/supabase` |
+| Env/schema validation | `@/lib/env` (uses zod + `@t3-oss/env-core`) |
+| Theme constants | `@/constants/theme` |
+| Map constants | `@/constants/map` |
+| Auth hooks | `@/hooks/use-auth` (useCurrentUser, login/logout/register) |
+| Theme hook | `@/hooks/use-theme` |
+| Redux dispatch/selector | `@/store/hooks` (useAppDispatch, useAppSelector) |
+| Auth state | `@/store/features/auth/auth.slice` |
+| Profile state | `@/store/features/profile/profile.slice` |
+| Assertions | `invariant` from `es-toolkit` |
+| Icons | `@/components/ui/icon-symbol` (expo-symbols / vector icons) |
 
-### 2. Component Grouping by Domain
-- Authentication components grouped together
-- Shared components separated by function
-- Custom UI library isolated for reusability
+### TypeScript
+- Strict mode enabled — no `any` (use `unknown` + type guards)
+- Props typed as `type Props = { ... }` (not interface, no `I` prefix)
+- No unused locals/params (enforced by ESLint)
 
-### 3. Theme Management
-- Uses Unistyles for dynamic theming
-- Theme colors defined in central theme files
-- Consistent spacing and typography system
-- **Design Standard**: Strictly follow the [DESIGN_GUIDELINE.md](./DESIGN_GUIDELINE.md) for all UI/UX work.
+## Map Integration
+- Demo mode fallback when `MAPBOX_ACCESS_TOKEN` is missing
+- Uses mock data for development (no backend required)
+- Category color coding in `@/constants/map` (`CATEGORY_COLORS`)
 
 ## Documentation
 - **PRD.md**: Product Requirements Document
-- **DESIGN_GUIDELINE.md**: Visual and interaction design standards
+- **DESIGN_GUIDELINE.md**: Visual and interaction design standards (mandatory for all UI/UX work)
 - **tasks.md**: Current development tasks and progress
 
-### 4. Navigation Strategy
-- File-based routing with Expo Router
-- Tab navigation for main app sections
-- Stack navigation for modal flows
+## Git Workflow
 
-## Environment Configuration
-- Uses environment variables for Mapbox token and Supabase config
-- Font loading handled via expo-font plugin in app.json
-- Development vs production configurations
+### Starting Work on an Issue
+1. Create a branch from `main` with a descriptive name:
+   ```sh
+   git checkout main && git pull
+   git checkout -b <type>/<short-description>
+   ```
+   Branch types: `feat/`, `fix/`, `chore/`, `refactor/`, `docs/`
+   
+   Examples: `fix/login-crash`, `feat/dark-mode-toggle`, `chore/upgrade-expo`
 
-## State Management
-- Redux Toolkit for global state
-- Slices: auth, theme, and other app state
-- Async thunks for API calls and complex state updates
+2. Make focused, incremental commits with clear messages.
 
-## Important Notes for Development
+### Before Opening a PR
+1. Run validation commands (see above): `typecheck → lint → check`
+2. If validation passes:
+   ```sh
+   git add <files>
+   git commit -m "<type>: <description>"
+   git push -u origin HEAD
+   ```
+3. Open a PR on GitHub — keep it small and focused on one issue.
+4. Link the PR to the issue it resolves.
 
-### Context Management & Change Guidelines
+### Commit Message Convention
+```
+<type>: <imperative description>
+```
+Types: `feat`, `fix`, `chore`, `refactor`, `docs`, `style`, `test`
 
-#### Making Changes:
-- **Do not make changes unless explicitly asked by the user**
-- **Provide clear explanations for what changes accomplish**
-- **Use minimal, focused edits rather than over-engineering**
-
-#### Context Management:
-- **Maintain context about user preferences and project goals**
-- **Remember architectural decisions and coding patterns**
-- **Track ongoing tasks and their completion status**
-- **Update documentation when significant changes are made**
-
-### When Adding New Protected Screens:
-1. Wrap actual content in an `ActualScreenName` component
-2. Export the main screen component that uses `AuthGate`
-3. Follow the established import patterns
-
-### When Modifying Authentication:
-- Update `AuthGate` component for auth logic changes
-- Update `LoginRequired` for UI changes
-- Update `LoadingScreen` for loading state changes
-
-### When Adding New UI Components:
-- Follow existing component patterns
-- Use Unistyles for theming
-
-### Map Integration:
-- Has demo mode fallback when Mapbox token is missing
-- Uses mock data for development
-- Category-based color coding for place types
+## Environment
+- Copy `.env.example` → `.env` for local setup
+- Key vars: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `MAPBOX_ACCESS_TOKEN`
 
 This guide should help maintain consistency and proper architectural patterns when working on the Around Me project.

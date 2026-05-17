@@ -7,12 +7,14 @@ import { PasswordInput } from '@/components/inputs/PasswordInput';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth } from '@/hooks/use-auth';
+import { getSafeRedirectHref, getSafeRedirectPath } from '@/lib/auth-redirect';
 import { SocialAuthButtons } from '@/views/Authentication/SocialAuthButtons';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login, loading } = useAuth();
   const { redirectTo } = useLocalSearchParams<{ redirectTo?: string }>();
+  const safeRedirectTo = getSafeRedirectPath(redirectTo);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -22,9 +24,12 @@ export default function LoginScreen() {
     try {
       const signedInUser = await login(email, password);
       if (signedInUser.onboarding_completed) {
-        router.replace(redirectTo || '/');
+        router.replace(getSafeRedirectHref(safeRedirectTo));
       } else {
-        router.replace('/onboarding/link-phone');
+        router.replace({
+          pathname: '/onboarding/link-phone',
+          params: { returnTo: safeRedirectTo },
+        });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
