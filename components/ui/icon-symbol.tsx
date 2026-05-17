@@ -110,7 +110,8 @@ export function IconSymbol({
     <MaterialIcons
       size={size}
       name={MAPPING[name] || name}
-      style={[{ color: color || theme.colors.interactiveNeutral }, style]}
+      color={color || theme.colors.interactiveNeutral}
+      style={style}
     />
   );
 }

@@ -69,6 +69,7 @@
     "@biomejs/biome": "^2.4.15",
     "@eslint/compat": "^2.1.0",
     "@types/react": "~19.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "eslint-plugin-react-native": "^5.0.0",
