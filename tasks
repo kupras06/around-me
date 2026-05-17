@@ -1,0 +1,12 @@
+  - #9 Add password validation and confirm-password UX
+    https://github.com/kupras06/around-me/issues/9
+  - #10 Redirect users after successful registration
+    https://github.com/kupras06/around-me/issues/10
+  - #11 Add tests for auth, onboarding, reset, and OAuth transitions
+    https://github.com/kupras06/around-me/issues/11
+  - #12 Add email confirmation flow for Supabase signup
+    https://github.com/kupras06/around-me/issues/12
+  - #13 Show friendly loading and error states for social auth
+    https://github.com/kupras06/around-me/issues/13
+  - #14 Harden OAuth callback handling and remove token-bearing logs
+    https://github.com/kupras06/around-me/issues/14

@@ -1,4 +1,4 @@
-import { type Href, Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -7,6 +7,7 @@ import { Button } from '@/craftrn-ui/components/Button/Button';
 import { InputText } from '@/craftrn-ui/components/InputText/InputText';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useCurrentUser, useProfile } from '@/hooks/use-auth';
+import { getSafeRedirectHref } from '@/lib/auth-redirect';
 import { logger } from '@/lib/logger';
 
 export default function CreatorSetup() {
@@ -26,7 +27,7 @@ export default function CreatorSetup() {
       });
 
       await completeOnboarding();
-      router.replace((returnTo as Href) || '/');
+      router.replace(getSafeRedirectHref(returnTo));
     } catch (err) {
       logger.error('Creator setup error:', err);
     } finally {

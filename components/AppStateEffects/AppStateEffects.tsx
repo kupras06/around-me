@@ -1,7 +1,18 @@
-import { useRouter, useSegments } from 'expo-router';
+import {
+  type Href,
+  useLocalSearchParams,
+  usePathname,
+  useRouter,
+  useSegments,
+} from 'expo-router';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
 import { UnistylesRuntime } from 'react-native-unistyles';
+import {
+  buildCurrentRoute,
+  getSafeRedirectHref,
+  getSafeRedirectPath,
+} from '@/lib/auth-redirect';
 import { supabase } from '@/lib/supabase';
 import { setStoredThemePreference } from '@/lib/theme-preference';
 import { getCurrentAuthUser } from '@/store/features/auth/auth.service';
@@ -99,13 +110,15 @@ function getRedirectRoute({
   loading,
   isAuthRoute,
   isOnboardingRoute,
+  returnTo,
 }: {
   user: ReturnType<typeof selectProfile>;
   initialized: boolean;
   loading: boolean;
   isAuthRoute: boolean;
   isOnboardingRoute: boolean;
-}) {
+  returnTo: string;
+}): Href | null {
   if (!initialized || loading) {
     return null;
   }
@@ -115,19 +128,20 @@ function getRedirectRoute({
       return '/auth/register';
     }
 
-    if (!isAuthRoute) {
-      return '/auth/login';
-    }
-
     return null;
   }
 
   if (!user.onboarding_completed && !isOnboardingRoute) {
-    return '/onboarding';
+    return returnTo === '/'
+      ? '/onboarding'
+      : {
+          pathname: '/onboarding',
+          params: { returnTo },
+        };
   }
 
   if (user.onboarding_completed && isAuthRoute) {
-    return '/';
+    return getSafeRedirectHref(returnTo);
   }
 
   return null;
@@ -135,6 +149,8 @@ function getRedirectRoute({
 function useAuthRedirects() {
   const router = useRouter();
   const segments = useSegments();
+  const pathname = usePathname();
+  const params = useLocalSearchParams<{ redirectTo?: string }>();
 
   const { authUser, loading, initialized } = useAppSelector(selectAuthState);
   const profile = useAppSelector(selectProfile);
@@ -147,6 +163,10 @@ function useAuthRedirects() {
   const isAuthRoute = !!currentRoute && AUTH_ROUTES.has(currentRoute);
 
   const isOnboardingRoute = segments[0] === 'onboarding';
+  const rawReturnTo = isAuthRoute
+    ? params.redirectTo
+    : buildCurrentRoute(pathname, params);
+  const returnTo = getSafeRedirectPath(rawReturnTo);
 
   useEffect(() => {
     const redirect = getRedirectRoute({
@@ -155,12 +175,21 @@ function useAuthRedirects() {
       loading: isLoading,
       isAuthRoute,
       isOnboardingRoute,
+      returnTo,
     });
 
     if (redirect) {
       router.replace(redirect);
     }
-  }, [initialized, isAuthRoute, isOnboardingRoute, isLoading, router, user]);
+  }, [
+    initialized,
+    isAuthRoute,
+    isOnboardingRoute,
+    isLoading,
+    returnTo,
+    router,
+    user,
+  ]);
 }
 export function AppStateEffects() {
   const dispatch = useAppDispatch();

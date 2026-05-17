@@ -1,10 +1,11 @@
-import { type Href, Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { Button } from '@/craftrn-ui/components/Button/Button';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useAuth, useCurrentUser, useProfile } from '@/hooks/use-auth';
+import { getSafeRedirectHref } from '@/lib/auth-redirect';
 import { logger } from '@/lib/logger';
 
 export default function LinkAccounts() {
@@ -46,7 +47,7 @@ export default function LinkAccounts() {
         });
       } else {
         await completeOnboarding();
-        router.replace((returnTo as Href) || '/');
+        router.replace(getSafeRedirectHref(returnTo));
       }
     } catch (err) {
       logger.error('Onboarding error:', err);
@@ -102,8 +103,18 @@ export default function LinkAccounts() {
         </View>
 
         <View style={styles.footerActions}>
-          <Button onPress={handleFinish} size="large" loading={loading} title="Finish" />
-          <Button variant="tertiary" onPress={handleFinish} size="large" title="Skip & finish" />
+          <Button
+            onPress={handleFinish}
+            size="large"
+            loading={loading}
+            title="Finish"
+          />
+          <Button
+            variant="tertiary"
+            onPress={handleFinish}
+            size="large"
+            title="Skip & finish"
+          />
         </View>
       </View>
     </View>

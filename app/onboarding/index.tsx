@@ -1,4 +1,4 @@
-import { type Href, Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -7,6 +7,7 @@ import { Button } from '@/craftrn-ui/components/Button/Button';
 import { PressableScale } from '@/craftrn-ui/components/PressableScale/PressableScale';
 import { Text } from '@/craftrn-ui/components/Text';
 import { useProfile } from '@/hooks/use-auth';
+import { getSafeRedirectHref } from '@/lib/auth-redirect';
 
 export default function OnboardingScreen() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function OnboardingScreen() {
   const handleFinish = async () => {
     try {
       await completeOnboarding();
-      router.replace((returnTo as Href) || '/');
+      router.replace(getSafeRedirectHref(returnTo));
     } catch (error) {
       console.error('Onboarding completion error:', error);
     }
@@ -122,7 +123,12 @@ export default function OnboardingScreen() {
                 title="Continue"
               />
 
-              <Button variant="tertiary" size="large" onPress={handleFinish} title="Skip for now" />
+              <Button
+                variant="tertiary"
+                size="large"
+                onPress={handleFinish}
+                title="Skip for now"
+              />
             </View>
           </View>
         </View>
